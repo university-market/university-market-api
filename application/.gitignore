@@ -1,0 +1,16 @@
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# composer lock file
+composer.lock
+
+# dependencies
+/vendor
+
+# environment variables
+.env*
+!.env.example
+
+/.idea
+Homestead.json
+Homestead.yaml
+.phpunit.result.cache
