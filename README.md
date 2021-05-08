@@ -1,5 +1,5 @@
 # :gear: university-market-api
-Projeto da camada de back-end da aplicação University Market.
+Projeto da **camada de back-end** da aplicação University Market.
 
 ## Conteúdo
 
@@ -12,6 +12,7 @@ Projeto da camada de back-end da aplicação University Market.
 
 ## :pushpin: Sobre
 
+Este repositório refere-se à camada de **back-end** do projeto University Market.<br>
 Leia mais sobre este projeto no [repositório de apresentação](https://github.com/university-market/university-market).
 
 <div id='requirements'/> &nbsp;
