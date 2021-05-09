@@ -72,6 +72,13 @@ $app->configure('app');
 |
 */
 
+// Enable CORS config
+$app->middleware([
+    // ...
+    App\Http\Middleware\CorsMiddleware::class // Add this
+]);
+
+
 // $app->middleware([
 //     App\Http\Middleware\ExampleMiddleware::class
 // ]);
