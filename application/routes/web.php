@@ -2,6 +2,9 @@
 
 /** @var \Laravel\Lumen\Routing\Router $router */
 
+// Entry point da aplicação
+$base = '/';
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -13,6 +16,6 @@
 |
 */
 
-$router->get('/', function () use ($router) {
+$router->get($base, function () use ($router) {
     return response()->json(['response' => 'Hello world by GET']);
 });
