@@ -23,7 +23,11 @@ Leia mais sobre este projeto no [repositório de apresentação](https://github.
 
 - [x] [Composer](https://getcomposer.org/) - gerenciador de pacotes utilizado pelas plataformas PHP
 - [x] [PHP](https://www.php.net/downloads) instalado (versão >= 7.3)
-- [x] [Banco de dados MySql](https://www.devmedia.com.br/mysql-tutorial/33309) - banco de dados relacional que é utilizado pela aplicação
+- [x] Banco de dados MySql - banco de dados relacional utilizado pela aplicação
+  - [Configurando MySql no seu computador](https://www.devmedia.com.br/mysql-tutorial/33309)
+  - [Configurando conexão MySql no Linux](#) - ainda não disponível
+  - [SGBD MySql Workbench](https://dev.mysql.com/downloads/workbench/) - recomendado para Windows
+  - [DBeaver](https://dbeaver.io/) - multi-plataforma
 - [x] Driver adequado para conexão com o banco de dados (driver MySql para PHP)
 - [x] Servidor Apache para executar a API em ambiente local
 - [x] Simulador de requisições HTTP de API's REST:
