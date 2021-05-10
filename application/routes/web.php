@@ -2,9 +2,6 @@
 
 /** @var \Laravel\Lumen\Routing\Router $router */
 
-// Entry point da aplicação
-$base = '/';
-
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -16,6 +13,20 @@ $base = '/';
 |
 */
 
-$router->get($base, function () use ($router) {
-    return response()->json(['response' => 'Hello world by GET']);
+// Entry point da API
+$base = '/';
+
+$router->group(['prefix' => $base], function () use ($router) {
+
+    $router->get('', 'Controller@obterUsuario');
+
+    $router->get('{id}', 'Controller@obterUsuario');
+    
+    $router->get('{name}/not', 'Controller@notObterUsuario');
+
+    $router->post('{name}', 'Controller@criarUsuario');
 });
+
+// $router->get($base, function () use ($router) {
+//     return response()->json(['response' => 'Hello world by GET']);
+// });
