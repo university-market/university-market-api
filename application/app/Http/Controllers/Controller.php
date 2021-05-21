@@ -4,50 +4,69 @@ namespace App\Http\Controllers;
 
 use Laravel\Lumen\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 // Models utilizadas
 use App\Models\Usuario;
 
-class Controller extends BaseController
+class UserController extends BaseController
 {
     private $contentType = ['Content-type' => 'application/json'];
 
-    public function criarUsuario($name) {
+    //Criar Usuario
+    public function register(Request $request) {
 
-        $results = DB::select('select * from Users where name = :name', ['name' => $name]);
+        if ($request->email && $request->password && $request->name) {
 
-        if (count($results) > 0)
-            throw new \Exception('Este usuario já existe!');
+            $results = DB::select('select * from Users where email = :email', ['email' => $request->email]);
 
-        $user = new Usuario();
-        $user->name = $name;
+            if (count($results) > 0)
+                throw new \Exception('E-mail já cadastrado!');
 
-        $user->save();
+            $user = new User();
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->date = $request->date; 
+            $user->curso = $request->curso;
+            $user->bloqued = 0;
+            $user->senha = Hash::make($request->password);
 
-        return response()->json($user);
-    }
-
-    public function obterUsuario($id = null) {
-
-        $results = [];
-
-        if ($id) {
-            
-            $results = DB::select('select * from Users where id = :id', ['id' => $id]);
-
-        } else {
-
-            $results = DB::select('select * from Users');
-
+            $user->save();
+        
         }
 
-        return response()->json($results);
+
+        // Validaçãoreturn response()->json($user);
     }
 
-    public function notObterUsuario($name) {
+    public function auth(Request $request)
+    {
 
-        $results = Usuario::where('name', '!=', $name)->orderBy('name', 'ASC')->get();
+        $results = null;
 
-        return response()->json($results);
+        if ($request->email && $request->password) {
+
+            //Busca os usuarios de acordo com o id informado
+            $results = User::where('email', $request->email)->first();
+
+            // Validação de email
+            if (!$results) {
+                throw new \Exception("Usuário não cadastrado!");
+            }
+
+            //Verifica se a senha é a mesma cadastrada no banco
+            if (!Hash::check($request->password, $results->senha)) {
+                throw new \Exception('Senha Incorreta!');
+            }
+            //Validação de usuário bloqueado
+            if ($results->bloqued) {
+                throw new \Exception('Usuário não dadasdsa!');
+            }
+
+            return $results;
+        } else {
+            throw new \Exception('Informe todos os campos de login!');
+        }
     }
+
 }

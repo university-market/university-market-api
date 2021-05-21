@@ -18,15 +18,15 @@ $base = '/usuario';
 
 $router->group(['prefix' => $base], function () use ($router) {
 
-    $router->get('', 'UserController@obterUsuario');
+    $router->post('/list', 'UserController@list');
 
-    $router->get('{id}', 'UserController@obterUsuario');
-
+    $router->post('/bloqued', 'UserController@bloqued');
+   
     $router->post('/auth', 'UserController@auth');
     
-    //$router->get('{name}/not', 'UserController@notObterUsuario');
-
     $router->post('/register', 'UserController@register');
+
+    //$router->post('/password/email', 'ForgotPasswordController@forgot');
 });
 
 // $router->get($base, function () use ($router) {

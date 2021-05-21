@@ -48,7 +48,12 @@ class Handler extends ExceptionHandler
      * @throws \Throwable
      */
     public function render($request, Throwable $exception)
-    {
+    {   
+        if($exception instanceOf ModelNotFoundException)
+        {   
+            //erro firstoufail login
+            throw new \Exception("Usuário não cadastrado!");
+        }
         return parent::render($request, $exception);
     }
 }

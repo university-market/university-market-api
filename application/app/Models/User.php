@@ -17,5 +17,7 @@ class User extends Model{
     protected $senha;
     protected $email;
     protected $date;
+    protected $bloqued;
+    protected $curso;
     
 }
