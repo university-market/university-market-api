@@ -18,7 +18,7 @@ $base = '/';
 
 $router->group(['prefix' => $base], function () use ($router) {
 
-    $router->get('', 'Controller@obterUsuario');
+    $router->get('course/grid', 'CourseController@obterCourse');
 
     $router->get('{id}', 'Controller@obterUsuario');
     
