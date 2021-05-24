@@ -61,6 +61,7 @@ $app->singleton(
 
 $app->configure('app');
 
+
 /*
 |--------------------------------------------------------------------------
 | Register Middleware
@@ -77,6 +78,19 @@ $app->middleware([
     App\Http\Middleware\CorsMiddleware::class
 ]);
 
+/*
+|--------------------------------------------------------------------------
+| Inclusão biblioteca de email
+|--------------------------------------------------------------------------
+|
+*/
+
+$app->register(\Illuminate\Mail\MailServiceProvider::class);
+
+$app->configure('mail');
+$app->alias('mailer', Illuminate\Mail\Mailer::class);
+$app->alias('mailer', Illuminate\Contracts\Mail\Mailer::class);
+$app->alias('mailer', Illuminate\Contracts\Mail\MailQueue::class);
 
 // $app->middleware([
 //     App\Http\Middleware\ExampleMiddleware::class
@@ -118,5 +132,7 @@ $app->router->group([
     require __DIR__.'/../routes/usuario.php';
     require __DIR__.'/../routes/web.php';
 });
+
+
 
 return $app;
