@@ -106,4 +106,40 @@ class UserController extends BaseController
 
     }
 
+    public function blockade(Request $request)
+    {
+        $results = null;
+
+        if (!$request)
+        {
+            throw new \Exception('Dados Incompletos para bloqueio');
+        }
+
+        if(!$request->id)
+        {
+            throw new \Exception('ID não informado');
+        }
+        
+        DB::table('users')->where('id', $request->id)->update(['bloqued' => 1]);
+    
+    }
+
+    public function unlock(Request $request)
+    {
+        $results = null;
+
+        if (!$request)
+        {
+            throw new \Exception('Dados Incompletos para desbloqueio');
+        }
+
+        if(!$request->id)
+        {
+            throw new \Exception('ID não informado');
+        }
+        
+        DB::table('users')->where('id', $request->id)->update(['bloqued' => 0]);
+    
+    }
+
 }

@@ -26,6 +26,10 @@ $router->group(['prefix' => $base], function () use ($router) {
     
     $router->post('/register', 'UserController@register');
 
+    $router->post('/blockade', 'UserController@blockade');
+
+    $router->post('/unlock', 'UserController@unlock');
+
     //$router->post('/password/email', 'ForgotPasswordController@forgot');
 });
 
