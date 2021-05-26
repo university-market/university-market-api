@@ -15,11 +15,10 @@ class ForgotPasswordController extends BaseController
     public function forgot(Request $request) {
         
         $details = [
-            'title' => 'Mail from ItSolutionStuff.com',
-            'body' => 'This is for testing email using smtp'
+            'token' => '1234'
         ];
 
-        Mail::to($request->email)->send(new \App\Mail\SendMail($details));
+        Mail::to($request->email)->send(new \App\Mail\ForgotSenhaMail($details));
         
         /*Mail::to([
         'leonardopimentellopes@gmail.com',

@@ -7,19 +7,20 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
   
-class SendMail extends Mailable
+class ForgotSenhaMail extends Mailable
 {
     use Queueable, SerializesModels;
-  
+    
+    
     public $details;
    
     public function __construct($details)
     {
         $this->details = $details;
     }
-   
+    
     public function build()
     {
-        return $this->subject('Compra Confirmada!')->view('email');
+        return $this->subject('Compra Confirmada!')->view('emails.emailforgotsenha');
     }
 }
