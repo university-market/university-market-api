@@ -29,6 +29,7 @@ class UserController extends BaseController
             $user->date = $request->date; 
             $user->curso = $request->curso;
             $user->bloqued = 0;
+            $user->token = 0;
             $user->senha = Hash::make($request->password);
 
             $user->save();

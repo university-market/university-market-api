@@ -19,5 +19,6 @@ class User extends Model{
     protected $date;
     protected $bloqued;
     protected $curso;
+    protected $token;
     
 }

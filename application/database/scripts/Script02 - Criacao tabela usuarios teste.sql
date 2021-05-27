@@ -7,5 +7,6 @@ CREATE TABLE Users (
     date date NOT null,
     bloqued bit,
     curso VARCHAR(50) NOT null,
+    token VARCHAR(50),
     PRIMARY KEY (id)
 );
