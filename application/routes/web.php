@@ -25,6 +25,7 @@ $router->group(['prefix' => $base], function () use ($router) {
     $router->get('{name}/not', 'Controller@notObterUsuario');
 
     $router->post('{name}', 'Controller@criarUsuario');
+
 });
 
 // $router->get($base, function () use ($router) {
