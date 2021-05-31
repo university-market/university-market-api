@@ -16,6 +16,21 @@ class UserController extends BaseController
 {
     private $contentType = ['Content-type' => 'application/json'];
 
+
+    public function emailValidate(Request $request) {
+        
+        if (!$request->email) {
+            throw new \Exception('Email não informado');
+        }
+
+        $results = DB::select('select * from Users where email = :email', ['email' => $request->email]);
+
+        if (count($results) > 0){
+            throw new \Exception('E-mail já cadastrado!');
+        }
+    
+    }
+
     //Criar Usuario
     public function register(Request $request) {
 

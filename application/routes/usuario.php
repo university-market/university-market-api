@@ -32,9 +32,9 @@ $router->group(['prefix' => $base], function () use ($router) {
 
     $router->post('/unlock', 'UserController@unlock');
 
-    $router->post('/email', 'ForgotPasswordController@forgot');
+    $router->post('/email', 'ForgotPasswordController@forgot'); 
 
-    
+    $router->post('/emailValidate', 'UserController@emailValidate'); 
     
 });
 
