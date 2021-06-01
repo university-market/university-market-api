@@ -31,6 +31,21 @@ class UserController extends BaseController
     
     }
 
+    public function validaremail($email){
+        
+        // Remove os caracteres ilegais, caso tenha
+        $email = filter_var($email, FILTER_SANITIZE_EMAIL);
+
+        // Valida o e-mail
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return true;
+        } else {
+            throw new \Exception('email invalido !');
+        }
+    }
+    
+
+
     public function validaCPF($cpf) {
  
         // Extrai somente os números
@@ -76,6 +91,11 @@ class UserController extends BaseController
                 throw new \Exception('cpf invalido!');
             }
 
+            
+            if($this->validaremail($request->email) != true){
+                throw new \Exception('email invalido!');
+            }
+
             $user = new User();
             $user->name = $request->name;
             $user->ra = $request->ra;
@@ -90,7 +110,18 @@ class UserController extends BaseController
 
             $user->save();
 
-
+           /* {
+                "name":"leonardo",
+                "ra":"19904292",
+                "email":"bento@gmail.com",
+                "telefone":"41996014579",
+                "nivel_acesso":"1",
+                "ultimo_login":"20210531",
+                "cpf":"06635166920",
+                "date":"20210601",
+                "curso":"ADS",
+                "senha":"1234"
+            }*/
         // Validaçãoreturn response()->json($user);
     }
 
