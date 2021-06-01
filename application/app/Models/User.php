@@ -14,11 +14,17 @@ class User extends Model{
     
     protected $id;
     protected $name;
+    protected $ra;
+    protected $telefone;
+    protected $nivel_acesso;
+    protected $ultimo_login;
+    protected $cpf;
     protected $senha;
     protected $email;
     protected $date;
     protected $bloqued;
     protected $curso;
     protected $token;
+    protected $excluido;
     
 }

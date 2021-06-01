@@ -31,6 +31,34 @@ class UserController extends BaseController
     
     }
 
+    public function validaCPF($cpf) {
+ 
+        // Extrai somente os números
+        $cpf = preg_replace( '/[^0-9]/is', '', $cpf );
+         
+        // Verifica se foi informado todos os digitos corretamente
+        if (strlen($cpf) != 11) {
+            throw new \Exception('Cpf invalido !');
+        }
+    
+        // Verifica se foi informada uma sequência de digitos repetidos. Ex: 111.111.111-11
+        if (preg_match('/(\d)\1{10}/', $cpf)) {
+            throw new \Exception('Cpf invalido !');
+        }
+    
+        // Faz o calculo para validar o CPF
+        for ($t = 9; $t < 11; $t++) {
+            for ($d = 0, $c = 0; $c < $t; $c++) {
+                $d += $cpf[$c] * (($t + 1) - $c);
+            }
+            $d = ((10 * $d) % 11) % 10;
+            if ($cpf[$c] != $d) {
+                throw new \Exception('Cpf invalido!');
+            }
+        }
+        return true;
+    
+    }
     //Criar Usuario
     public function register(Request $request) {
 
@@ -44,12 +72,20 @@ class UserController extends BaseController
                 throw new \Exception('E-mail já cadastrado!');
             }
 
+            if($this->validaCPF($request->cpf) != true){
+                throw new \Exception('cpf invalido!');
+            }
+
             $user = new User();
             $user->name = $request->name;
+            $user->ra = $request->ra;
             $user->email = $request->email;
+            $user->telefone = $request->telefone;
+            $user->nivel_acesso = $request->nivel_acesso;
+            $user->ultimo_login = $request->ultimo_login;
+            $user->cpf = $request->cpf;
             $user->date = $request->date; 
             $user->curso = $request->curso;
-            $user->bloqued = 0;
             $user->senha = Hash::make($request->password);
 
             $user->save();
