@@ -31,6 +31,7 @@ class ForgotPasswordController extends BaseController
         $this->token = rand(1000, 9999);
 
         DB::table('users')->where('email', $request->email)->update(['token' => $this->token]);
+        $resultnome = User::where('email', $request->email)->first();
 
         /*
         $details = [
@@ -39,6 +40,7 @@ class ForgotPasswordController extends BaseController
 
         $details = new \stdClass();
         $details->token = $this->token;
+        $details->name = $resultnome->name;
 
         Mail::to($request->email)->send(new \App\Mail\ForgotSenhaMail($details));
         

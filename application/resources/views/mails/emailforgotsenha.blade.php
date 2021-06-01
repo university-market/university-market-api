@@ -62,11 +62,11 @@
         <div class="box">
             <h1 class="titulo">Recuperação De Senha</h1>
             <div class="corpo">
-                <p>Olá! recebemos um pedido de recuperação de senha, para processeguir é apenas colocar o código abaixo!
+                <h3>Olá {{$details->name}}</h3>
+                <p>Recebemos um pedido de recuperação de senha, para processeguir é apenas colocar o código abaixo!
                 </p>
                 <hr>
-                <p>Token:{{$details->token}}</p>
-                <hr>
+                <p>O seu Token para recuperação de senha é:<b>{{$details->token}}</b></p>
                 <p>May the Force be with you<br>U.M Team</p>
             </div>
         </div>
