@@ -11,7 +11,7 @@ class Publicacao extends Model{
     protected $primaryKey = 'publicacaoId';
 
     protected $publicacaoId; // PK Publicacao
-    protected $usuarioId; // FK Tabela Usuario
+    // protected $usuarioId; // FK Tabela Usuario
     protected $titulo;
     protected $descricao;
     protected $valor;
