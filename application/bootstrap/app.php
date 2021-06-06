@@ -132,6 +132,7 @@ $app->router->group([
     require __DIR__.'/../routes/usuario.php';
     require __DIR__.'/../routes/web.php';
     require __DIR__.'/../routes/sale.php';
+    require __DIR__.'/../routes/publicacao.php';
 });
 
 
