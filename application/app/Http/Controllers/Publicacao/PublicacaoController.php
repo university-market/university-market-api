@@ -6,22 +6,30 @@ use App\Http\Controllers\Base\UniversityMarketController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-// Use models de publicacao
+// Models de publicacao utilizadas
+use App\Models\Publicacao;
 use App\Http\Controllers\Publicacao\Models\PublicacaoCriacaoModel;
 
 class PublicacaoController extends UniversityMarketController {
 
     public function criar(Request $request) {
 
-        $criacaoModel = $this->makeModel($request, PublicacaoCriacaoModel::class);
+        $model = $this->makeModel($request, PublicacaoCriacaoModel::class);
 
         // Validar informacoes construidas na model
-        $criacaoModel->validar();
+        $model->validar();
 
-        $criacaoModel->dataHoraCriacao = \date('Y-m-d H:i:s');
-        $criacaoModel->isExcluido = false;
+        $publicacao = new Publicacao();
 
-        return response()->json($criacaoModel);
+        $publicacao->titulo = $model->titulo;
+        $publicacao->descricao = $model->descricao;
+        $publicacao->valor = $model->valor;
+        $publicacao->pathImagem = $model->pathImagem;
+        $publicacao->dataHoraCriacao = \date("Y-m-d H:i:s");
+
+        $publicacao->save();
+
+        return response()->json($publicacao->publicacaoId);
     }
 
 }
