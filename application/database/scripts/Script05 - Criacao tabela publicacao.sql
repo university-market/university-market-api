@@ -9,4 +9,4 @@ CREATE TABLE `Publicacao` (
     `dataHoraFinalizacao` DATE NULL,
     `dataHoraExclusao` DATE NULL,
     PRIMARY KEY (`publicacaoId`)
-)
+);
