@@ -14,25 +14,50 @@ class UniversityMarketController extends BaseController {
     protected $contentType = ['Content-type' => 'application/json'];
 
     /**
-     * Convert an object to a specific class.
-     * @param object $object
+     * Convert an or more objects to a specific class.
+     * @method cast()
+     * @param object|object[] $object Initial object
      * @param string $class_name The class to cast the object to
-     * @return object
+     * @return object|object[]
      */
-    protected function makeModel($object, $class_name) {
+    protected function cast($object, $class_name) {
 
         if ($object === false || \is_null($object)) return null;
 
-        $finalClass = \is_object($class_name) ? $class_name : 
-            class_exists($class_name) ? new $class_name() : null;
-        
-        if (\is_null($finalClass))
+        // Test class exists
+        if (\is_null($this->makeModel($class_name)))
             throw new \Exception("Não foi possível encontrar a classe $class_name para realizar o type casting");
 
-        foreach ((array)$finalClass as $property => $value)
-            if (\property_exists($finalClass, $property))
-                $finalClass->$property = $object->$property;
+        if (!is_array($object)) {
 
-        return $finalClass;
+            $finalClass = $this->makeModel($class_name);
+
+            foreach ((array)$finalClass as $property => $value)
+                if (\property_exists($finalClass, $property))
+                    $finalClass->$property = \is_array($object) ? $object[$property] : $object->$property;
+
+            return $finalClass;
+        }
+
+        $finalCollection = [];
+
+        foreach ($object as $obj) {
+
+            $finalClass = $this->makeModel($class_name);
+
+            foreach ((array)$finalClass as $property => $value)
+                if (\property_exists($finalClass, $property)) {
+
+                    $finalClass->$property = \is_array($obj) ? $obj[$property] : $obj->$property;
+                    $finalCollection[] = $finalClass;
+                }
+        }
+        return $finalCollection;
+    }
+
+    private function makeModel($class_ref) {
+
+        return \is_object($class_ref) ? $class_ref : 
+            (class_exists($class_ref) ? new $class_ref() : null);
     }
 }
