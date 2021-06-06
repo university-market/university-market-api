@@ -14,12 +14,17 @@
 */
 
 // Entry point da API
-$base = '/publicacao';
+$base = 'publicacao';
+$namespace = 'Publicacao';
 
-$router->group(['prefix' => $base], function () use ($router) {
-
-    $namespace = 'Publicacao';
+$router->group(['prefix' => $base, 'namespace' => $namespace], function () use ($router) {
 
     // Criar nova publicacao
-    $router->post('/', "$namespace\PublicacaoController@criar");
+    $router->post('create', 'PublicacaoController@criar');
+
+    // Obter publicacao
+    $router->get('/listar', 'PublicacaoController@listar');
+
+    // Obter publicacao
+    $router->get('{publicacaoId}', 'PublicacaoController@obter');
 });
