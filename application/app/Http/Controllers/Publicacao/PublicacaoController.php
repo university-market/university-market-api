@@ -15,6 +15,9 @@ class PublicacaoController extends UniversityMarketController {
 
         $criacaoModel = $this->makeModel($request, PublicacaoCriacaoModel::class);
 
+        // Validar informacoes construidas na model
+        $criacaoModel->validar();
+
         $criacaoModel->dataHoraCriacao = \date('Y-m-d H:i:s');
         $criacaoModel->isExcluido = false;
 
