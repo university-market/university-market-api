@@ -46,11 +46,10 @@ class UniversityMarketController extends BaseController {
             $finalClass = $this->makeModel($class_name);
 
             foreach ((array)$finalClass as $property => $value)
-                if (\property_exists($finalClass, $property)) {
-
+                if (\property_exists($finalClass, $property))
                     $finalClass->$property = \is_array($obj) ? $obj[$property] : $obj->$property;
-                    $finalCollection[] = $finalClass;
-                }
+
+            $finalCollection[] = $finalClass;
         }
         return $finalCollection;
     }
