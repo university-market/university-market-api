@@ -9,8 +9,26 @@ use Illuminate\Support\Facades\DB;
 // Models de publicacao utilizadas
 use App\Models\Publicacao;
 use App\Http\Controllers\Publicacao\Models\PublicacaoCriacaoModel;
+use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
 
 class PublicacaoController extends UniversityMarketController {
+
+    public function obter($publicacaoId) {
+
+        $condition = [
+            'publicacaoId' => $publicacaoId,
+            'dataHoraExclusao' => null
+        ];
+
+        $publicacao = Publicacao::where($condition)->first();
+
+        if (\is_null($publicacao))
+            throw new \Exception("Publicação não encontrada");
+
+        $model = $this->makeModel($publicacao, PublicacaoDetalheModel::class);
+
+        return response()->json($model);
+    }
 
     public function criar(Request $request) {
 
