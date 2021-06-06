@@ -25,14 +25,14 @@ class PublicacaoController extends UniversityMarketController {
         if (\is_null($publicacao))
             throw new \Exception("Publicação não encontrada");
 
-        $model = $this->makeModel($publicacao, PublicacaoDetalheModel::class);
+        $model = $this->cast($publicacao, PublicacaoDetalheModel::class);
 
         return response()->json($model);
     }
 
     public function criar(Request $request) {
 
-        $model = $this->makeModel($request, PublicacaoCriacaoModel::class);
+        $model = $this->cast($request, PublicacaoCriacaoModel::class);
 
         // Validar informacoes construidas na model
         $model->validar();
@@ -47,7 +47,18 @@ class PublicacaoController extends UniversityMarketController {
 
         $publicacao->save();
 
-        return response()->json($publicacao->publicacaoId);
+        $publicacaoId = $publicacao->publicacaoId;
+
+        return response()->json($publicacaoId);
+    }
+
+    public function listar() {
+
+        $publicacoes = Publicacao::where('dataHoraExclusao', null)->get()->toArray();
+
+        $model = $this->cast($publicacoes, PublicacaoDetalheModel::class);
+
+        return response()->json($model);
     }
 
 }
