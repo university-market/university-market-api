@@ -13,6 +13,8 @@ use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
 
 class PublicacaoController extends UniversityMarketController {
 
+    private $dataHoraFormat = "Y-m-d H:i:s";
+
     public function obter($publicacaoId) {
 
         $condition = [
@@ -43,7 +45,7 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao->descricao = $model->descricao;
         $publicacao->valor = $model->valor;
         $publicacao->pathImagem = $model->pathImagem;
-        $publicacao->dataHoraCriacao = \date("Y-m-d H:i:s");
+        $publicacao->dataHoraCriacao = \date($this->dataHoraFormat);
 
         $publicacao->save();
 
@@ -89,6 +91,25 @@ class PublicacaoController extends UniversityMarketController {
 
         $publicacao->save();
 
+        return response(null, 200);
+    }
+
+    public function excluir($publicacaoId) {
+
+        $condition = [
+            'publicacaoId' => $publicacaoId,
+            'dataHoraExclusao' => null
+        ];
+
+        $publicacao = Publicacao::where($condition)->first();
+
+        if (\is_null($publicacao))
+            throw new \Exception("Publicação não encontrada");
+
+        $publicacao->dataHoraExclusao = \date($this->dataHoraFormat);
+
+        $publicacao->save();
+        
         return response(null, 200);
     }
 

@@ -30,4 +30,7 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
 
     // Obter publicacao
     $router->get('{publicacaoId}', 'PublicacaoController@obter');
+
+    // Excluir publicacao
+    $router->delete('{publicacaoId}', 'PublicacaoController@excluir');
 });
