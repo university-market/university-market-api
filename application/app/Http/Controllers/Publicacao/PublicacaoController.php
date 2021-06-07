@@ -44,6 +44,7 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao->titulo = $model->titulo;
         $publicacao->descricao = $model->descricao;
         $publicacao->valor = $model->valor;
+        $publicacao->tags = $model->tags;
         $publicacao->pathImagem = $model->pathImagem;
         $publicacao->dataHoraCriacao = \date($this->dataHoraFormat);
 
@@ -86,6 +87,8 @@ class PublicacaoController extends UniversityMarketController {
             $publicacao->descricao : trim($model->descricao);
         $publicacao->valor = (\is_null($model->valor) || empty(trim($model->valor))) ? 
             $publicacao->valor : (double)$model->valor;
+        $publicacao->tags = (\is_null($model->tags) || empty(trim($model->tags))) ? 
+            $publicacao->tags : (double)$model->tags;
         $publicacao->pathImagem = (\is_null($model->pathImagem) || empty(trim($model->pathImagem))) ? 
             $publicacao->pathImagem : trim($model->pathImagem);
 
