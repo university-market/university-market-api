@@ -61,4 +61,35 @@ class PublicacaoController extends UniversityMarketController {
         return response()->json($model);
     }
 
+    public function alterar(Request $request, $publicacaoId) {
+
+        $model = $this->cast($request, PublicacaoCriacaoModel::class);
+
+        $condition = [
+            'publicacaoId' => $publicacaoId,
+            'dataHoraExclusao' => null
+        ];
+        $publicacao = Publicacao::where($condition)->first();
+
+        if (\is_null($publicacao))
+            throw new \Exception("Publicação não encontrada");
+
+        // Validação valor recebido na model
+        if ($model->valor !== null && !\is_numeric($model->valor))
+            throw new \Exception("O valor informado não é válido");
+
+        $publicacao->titulo = (\is_null($model->titulo) || empty(trim($model->titulo))) ? 
+            $publicacao->titulo : trim($model->titulo);
+        $publicacao->descricao = (\is_null($model->descricao) || empty(trim($model->descricao))) ? 
+            $publicacao->descricao : trim($model->descricao);
+        $publicacao->valor = (\is_null($model->valor) || empty(trim($model->valor))) ? 
+            $publicacao->valor : (double)$model->valor;
+        $publicacao->pathImagem = (\is_null($model->pathImagem) || empty(trim($model->pathImagem))) ? 
+            $publicacao->pathImagem : trim($model->pathImagem);
+
+        $publicacao->save();
+
+        return response(null, 200);
+    }
+
 }
