@@ -15,21 +15,13 @@
 
 // Entry point da API
 $base = 'usuario';
-$namespace = 'Usuario';
+$namespace = 'Forgotsenha';
 
 $router->group(['prefix' => $base, 'namespace' => $namespace], function () use ($router)  {
 
-    $router->post('/list', 'UserController@list');
+    $router->post('/restaurar', 'ForgotPasswordController@checksenha');
 
-    $router->post('/bloqued', 'UserController@bloqued');
-   
-    $router->post('/auth', 'UserController@auth');
-    
-    $router->post('/register', 'UserController@register');
-
-    $router->post('/blockade', 'UserController@blockade');
-
-    $router->post('/unlock', 'UserController@unlock');
+    $router->post('/email', 'ForgotPasswordController@forgot'); 
 
     $router->post('/emailValidate', 'UserController@emailValidate'); 
     

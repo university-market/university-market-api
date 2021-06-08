@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Laravel\Lumen\Routing\Controller as BaseController;
+use App\Http\Controllers\Base\UniversityMarketController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\hash;
 use Illuminate\Http\Request;
@@ -12,8 +12,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 // Models utilizadas
 use App\Models\User;
 
-class UserController extends BaseController
-{
+class UserController extends UniversityMarketController{
     private $contentType = ['Content-type' => 'application/json'];
 
 
@@ -77,38 +76,29 @@ class UserController extends BaseController
     //Criar Usuario
     public function register(Request $request) {
 
-        if (!$request->email && $request->password && $request->name){
-            throw new \Exception('Dados Incompletos!');
+        $model = $this->cast($request, CriacaoUserModel::class);
+
+        $model->validar();
+        
+        $results = DB::select('select * from Users where email = :email', ['email' => $request->email]);
+
+        if (count($results) > 0){
+            throw new \Exception('E-mail já cadastrado!');
         }
 
-            $results = DB::select('select * from Users where email = :email', ['email' => $request->email]);
+        $user = new User();
+        $user->name = $request->name;
+        $user->ra = $request->ra;
+        $user->email = $request->email;
+        $user->telefone = $request->telefone;
+        $user->nivel_acesso = $request->nivel_acesso;
+        $user->ultimo_login = $request->ultimo_login;
+        $user->cpf = $request->cpf;
+        $user->date = $request->date; 
+        $user->curso = $request->curso;
+        $user->senha = Hash::make($request->password);
 
-            if (count($results) > 0){
-                throw new \Exception('E-mail já cadastrado!');
-            }
-
-            if($this->validaCPF($request->cpf) != true){
-                throw new \Exception('cpf invalido!');
-            }
-
-            
-            if($this->validaremail($request->email) != true){
-                throw new \Exception('email invalido!');
-            }
-
-            $user = new User();
-            $user->name = $request->name;
-            $user->ra = $request->ra;
-            $user->email = $request->email;
-            $user->telefone = $request->telefone;
-            $user->nivel_acesso = $request->nivel_acesso;
-            $user->ultimo_login = $request->ultimo_login;
-            $user->cpf = $request->cpf;
-            $user->date = $request->date; 
-            $user->curso = $request->curso;
-            $user->senha = Hash::make($request->password);
-
-            $user->save();
+        $user->save();
 
            /* {
                 "name":"leonardo",
