@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Mail;
 
 // Models utilizadas
 use App\Models\User;
+use App\Http\Controllers\Forgotsenha\Models\ForgotModel;
 
 class ForgotPasswordController extends UniversityMarketController{   
 
@@ -56,34 +57,25 @@ class ForgotPasswordController extends UniversityMarketController{
     
     public function checksenha(Request $request){
 
-        if (!$request)
-        {
-            throw new \Exception('Dados Incompletos para Recuperação de senha');
-        }
+        $model = $this->cast($request, ForgotModel::class);
 
-        if(!$request->email){
-            throw new \Exception('email não encontrado');
-        }
+        $model->validar();
 
-        if(!$request->token){
-            throw new \Exception('token não informado');
-        }
+        $resultstoken = User::where('email', $model->email)->first();
 
-        $resultstoken = User::where('email', $request->email)->first();
-
-        if($request->token != $resultstoken->token ){
+        if($model->token != $resultstoken->token ){
             throw new \Exception('token informado não confere');
         }
 
-        if($request->senha != $request->confirmasenha){
+        if($model->senha != $model->confirmasenha){
             throw new \Exception('senhas não conferem');
         }
 
-        $hashsenha = Hash::make($request->password);
+        $hashsenha = Hash::make($model->senha);
 
-        DB::table('users')->where('email', $request->email)->update(['senha' => $hashsenha]);
+        DB::table('users')->where('email', $model->email)->update(['senha' => $hashsenha]);
 
-        DB::table('users')->where('email', $request->email)->update(['token' => 0]);
+        DB::table('users')->where('email', $model->email)->update(['token' => 0]);
 
     }
 }
