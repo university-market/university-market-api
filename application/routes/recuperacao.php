@@ -23,7 +23,7 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
 
     $router->post('/email', 'ForgotPasswordController@forgot'); 
 
-    $router->post('/emailValidate', 'UserController@emailValidate'); 
+    
     
 });
 

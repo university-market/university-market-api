@@ -21,7 +21,7 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
 
     $router->get('/list', 'UserController@list');
 
-    $router->post('/bloqued', 'UserController@bloqued');
+    $router->get('/bloqued', 'UserController@bloqued');
    
     $router->post('/auth', 'UserController@auth');
     
@@ -31,7 +31,8 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
 
     $router->post('/unlock', 'UserController@unlock');
 
-    $router->post('/emailValidate', 'UserController@emailValidate'); 
+    $router->get('/emailValidate', 'UserController@emailValidate'); 
+
     
 });
 

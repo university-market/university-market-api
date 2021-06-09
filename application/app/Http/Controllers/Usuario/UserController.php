@@ -28,6 +28,8 @@ class UserController extends UniversityMarketController{
         if (count($results) > 0){
             throw new \Exception('E-mail já cadastrado!');
         }
+        
+        return $results;
     
     }
     //Criar Usuario
