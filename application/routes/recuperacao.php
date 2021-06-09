@@ -14,7 +14,7 @@
 */
 
 // Entry point da API
-$base = 'usuario';
+$base = 'recuperacao';
 $namespace = 'Forgotsenha';
 
 $router->group(['prefix' => $base, 'namespace' => $namespace], function () use ($router)  {

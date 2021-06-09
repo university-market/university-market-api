@@ -8,11 +8,11 @@ CREATE TABLE Users (
     email VARCHAR(50) NOT NULL,
     curso VARCHAR(50) NOT null,
     telefone VARCHAR(12) NOT null,
-    nivel_acesso VARCHAR(1) NOT null,
-    date date NOT null,
-    bloqued bit,
-    ultimo_login date ,
-    token VARCHAR(50),
-    excluido bit,
+    nivel_acesso VARCHAR(1) null,
+    dataNasc date null,
+    bloqued bit null,
+    ultimo_login date null,
+    token VARCHAR(50) null,
+    excluido bit null,
     PRIMARY KEY (id)
 );

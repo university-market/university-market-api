@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Usuario;
 
 use App\Http\Controllers\Base\UniversityMarketController;
 use Illuminate\Support\Facades\DB;
@@ -11,11 +11,12 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 // Models utilizadas
 use App\Models\User;
+use App\Http\Controllers\Usuario\Models\CriacaoUserModel;
+use App\Http\Controllers\Usuario\Models\LoginUserModel;
+use App\Http\Controllers\Usuario\Models\DetalhesUserModel;
 
 class UserController extends UniversityMarketController{
-    private $contentType = ['Content-type' => 'application/json'];
-
-
+   
     public function emailValidate(Request $request) {
         
         if (!$request->email) {
@@ -29,50 +30,6 @@ class UserController extends UniversityMarketController{
         }
     
     }
-
-    public function validaremail($email){
-        
-        // Remove os caracteres ilegais, caso tenha
-        $email = filter_var($email, FILTER_SANITIZE_EMAIL);
-
-        // Valida o e-mail
-        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return true;
-        } else {
-            throw new \Exception('email invalido !');
-        }
-    }
-    
-
-
-    public function validaCPF($cpf) {
- 
-        // Extrai somente os números
-        $cpf = preg_replace( '/[^0-9]/is', '', $cpf );
-         
-        // Verifica se foi informado todos os digitos corretamente
-        if (strlen($cpf) != 11) {
-            throw new \Exception('Cpf invalido !');
-        }
-    
-        // Verifica se foi informada uma sequência de digitos repetidos. Ex: 111.111.111-11
-        if (preg_match('/(\d)\1{10}/', $cpf)) {
-            throw new \Exception('Cpf invalido !');
-        }
-    
-        // Faz o calculo para validar o CPF
-        for ($t = 9; $t < 11; $t++) {
-            for ($d = 0, $c = 0; $c < $t; $c++) {
-                $d += $cpf[$c] * (($t + 1) - $c);
-            }
-            $d = ((10 * $d) % 11) % 10;
-            if ($cpf[$c] != $d) {
-                throw new \Exception('Cpf invalido!');
-            }
-        }
-        return true;
-    
-    }
     //Criar Usuario
     public function register(Request $request) {
 
@@ -80,84 +37,72 @@ class UserController extends UniversityMarketController{
 
         $model->validar();
         
-        $results = DB::select('select * from Users where email = :email', ['email' => $request->email]);
+        $results = DB::select('select * from Users where email = :email', ['email' => $model->email]);
 
         if (count($results) > 0){
             throw new \Exception('E-mail já cadastrado!');
         }
 
         $user = new User();
-        $user->name = $request->name;
-        $user->ra = $request->ra;
-        $user->email = $request->email;
-        $user->telefone = $request->telefone;
-        $user->nivel_acesso = $request->nivel_acesso;
-        $user->ultimo_login = $request->ultimo_login;
+        $user->name = $model->name;
+        $user->ra = $model->ra;
+        $user->email = $model->email;
+        $user->telefone = $model->telefone;
         $user->cpf = $request->cpf;
-        $user->date = $request->date; 
         $user->curso = $request->curso;
-        $user->senha = Hash::make($request->password);
+        $user->dataNasc = $request->dataNasc;
+        $user->senha = Hash::make($model->senha);
 
         $user->save();
 
            /* {
-                "name":"leonardo",
-                "ra":"19904292",
-                "email":"bento@gmail.com",
-                "telefone":"41996014579",
-                "nivel_acesso":"1",
-                "ultimo_login":"20210531",
-                "cpf":"06635166920",
-                "date":"20210601",
-                "curso":"ADS",
-                "senha":"1234"
-            }*/
+            "name":"Leozaosacana",
+            "ra":"19904292",
+            "email":"leonardopimentellopes@gmail.com",
+            "telefone":"41996014579",
+            "cpf":"09745529923",
+            "dataNasc":"20011011",
+            "curso":"ADM",
+            "senha":"1234"
+        }*/
         // Validaçãoreturn response()->json($user);
     }
 
     public function auth(Request $request)
     {
 
-        $results = null;
+        $model = $this->cast($request, LoginUserModel::class);
 
-        if ($request->email && $request->password) {
+        $model->validar();
 
-            //Busca os usuarios de acordo com o id informado
-            $results = User::where('email', $request->email)->firstOrFail();
+        //Busca os usuarios de acordo com o id informado
+        $results = User::where('email', $model->email)->firstOrFail();
 
-            //Verifica se a senha é a mesma cadastrada no banco
-            if (!Hash::check($request->password, $results->senha)) {
-                throw new \Exception('Senha Incorreta!');
-            }
-            //Validação de usuário bloqueado
-            if ($results->bloqued) {
-                throw new \Exception('Usuário não bloqueado!');
-            }
-
-            return $results;
-        } else {
-            throw new \Exception('Informe todos os campos de login!');
+        //Verifica se a senha é a mesma cadastrada no banco
+        if (!Hash::check($model->senha, $results->senha)) {
+            throw new \Exception('Senha Incorreta!');
         }
-    }
-
-    public function list(Request $request)
-    {
-        $results = null;
-
-        if (!$request)
-        {
-            throw new \Exception('Dados Incompletos!');
+        //Validação de usuário bloqueado
+        if ($results->bloqued) {
+            throw new \Exception('Usuário bloqueado!');
         }
 
-        if($request->id)
-        {
-            $results = User::where('id', $request->id)->first();
-            return $results;
-        }
-
-        $results = DB::select('select * from Users');
         return $results;
+        
     }
+
+    public function list(Request $request) {
+
+        $usuario = User::where('id', $request->id)->first();
+
+        if (\is_null($usuario))
+            throw new \Exception("usuario não encontrada");
+
+        $model = $this->cast($usuario, DetalhesUserModel::class);
+
+        return response()->json($model);
+    }
+
 
     public function bloqued(Request $request)
     {

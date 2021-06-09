@@ -130,6 +130,7 @@ $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
     require __DIR__.'/../routes/usuario.php';
+    require __DIR__.'/../routes/recuperacao.php';
     require __DIR__.'/../routes/web.php';
     require __DIR__.'/../routes/sale.php';
     require __DIR__.'/../routes/publicacao.php';

@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
-use Laravel\Lumen\Routing\Controller as BaseController;
+namespace App\Http\Controllers\ForgotSenha;
+
+use App\Http\Controllers\Base\UniversityMarketController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\hash;
@@ -11,8 +12,8 @@ use Illuminate\Support\Facades\Mail;
 // Models utilizadas
 use App\Models\User;
 
-class ForgotPasswordController extends BaseController
-{   
+class ForgotPasswordController extends UniversityMarketController{   
+
     public $token;
 
     public function forgot(Request $request) {
@@ -28,7 +29,7 @@ class ForgotPasswordController extends BaseController
             throw new \Exception('E-mail não cadastrado!');
         }
 
-        $this->token = rand(1000, 9999);
+        $this->token = rand(100000, 999999);
 
         DB::table('users')->where('email', $request->email)->update(['token' => $this->token]);
         $resultnome = User::where('email', $request->email)->first();

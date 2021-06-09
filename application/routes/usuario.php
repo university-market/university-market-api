@@ -19,7 +19,7 @@ $namespace = 'Usuario';
 
 $router->group(['prefix' => $base, 'namespace' => $namespace], function () use ($router)  {
 
-    $router->post('/list', 'UserController@list');
+    $router->get('/list', 'UserController@list');
 
     $router->post('/bloqued', 'UserController@bloqued');
    
