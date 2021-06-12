@@ -9,6 +9,7 @@ class PublicacaoCriacaoModel {
     public $descricao;
     public $valor;
     public $tags;
+    public $detalhesTecnicos;
     public $pathImagem;
 
     public function validar() {

@@ -45,7 +45,10 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao->descricao = $model->descricao;
         $publicacao->valor = $model->valor;
         $publicacao->tags = $model->tags;
+        $publicacao->detalhesTecnicos = $model->detalhesTecnicos;
         $publicacao->pathImagem = $model->pathImagem;
+        $publicacao->$dataHoraFinalizacao = null;
+        $publicacao->$dataHoraExclusao = null;
         $publicacao->dataHoraCriacao = \date($this->dataHoraFormat);
 
         $publicacao->save();
@@ -81,14 +84,22 @@ class PublicacaoController extends UniversityMarketController {
         if ($model->valor !== null && !\is_numeric($model->valor))
             throw new \Exception("O valor informado não é válido");
 
+        // Titulo
         $publicacao->titulo = (\is_null($model->titulo) || empty(trim($model->titulo))) ? 
             $publicacao->titulo : trim($model->titulo);
+        // Descricao
         $publicacao->descricao = (\is_null($model->descricao) || empty(trim($model->descricao))) ? 
             $publicacao->descricao : trim($model->descricao);
+        // Valor
         $publicacao->valor = (\is_null($model->valor) || empty(trim($model->valor))) ? 
             $publicacao->valor : (double)$model->valor;
+        // Tags
         $publicacao->tags = (\is_null($model->tags) || empty(trim($model->tags))) ? 
             $publicacao->tags : (double)$model->tags;
+        // Detalhes tecnicos
+        $publicacao->detalhesTecnicos = (\is_null($model->detalhesTecnicos) || empty(trim($model->detalhesTecnicos))) ? 
+            $publicacao->detalhesTecnicos : trim($model->detalhesTecnicos);
+        // Imagem
         $publicacao->pathImagem = (\is_null($model->pathImagem) || empty(trim($model->pathImagem))) ? 
             $publicacao->pathImagem : trim($model->pathImagem);
 
