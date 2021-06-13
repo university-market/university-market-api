@@ -47,8 +47,6 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao->tags = $model->tags;
         $publicacao->detalhesTecnicos = $model->detalhesTecnicos;
         $publicacao->pathImagem = $model->pathImagem;
-        $publicacao->$dataHoraFinalizacao = null;
-        $publicacao->$dataHoraExclusao = null;
         $publicacao->dataHoraCriacao = \date($this->dataHoraFormat);
 
         $publicacao->save();
@@ -85,23 +83,46 @@ class PublicacaoController extends UniversityMarketController {
             throw new \Exception("O valor informado não é válido");
 
         // Titulo
-        $publicacao->titulo = (\is_null($model->titulo) || empty(trim($model->titulo))) ? 
-            $publicacao->titulo : trim($model->titulo);
+        if ($publicacao->titulo != $model->titulo) {
+
+            $publicacao->titulo = (\is_null($model->titulo) || empty(trim($model->titulo))) ? 
+                $publicacao->titulo : trim($model->titulo);
+        }
+        
         // Descricao
-        $publicacao->descricao = (\is_null($model->descricao) || empty(trim($model->descricao))) ? 
-            $publicacao->descricao : trim($model->descricao);
+        if ($publicacao->descricao != $model->descricao) {
+
+            $publicacao->descricao = (\is_null($model->descricao) || empty(trim($model->descricao))) ? 
+                $publicacao->descricao : trim($model->descricao);
+        }
+
         // Valor
-        $publicacao->valor = (\is_null($model->valor) || empty(trim($model->valor))) ? 
-            $publicacao->valor : (double)$model->valor;
+        if ($publicacao->valor != $model->valor) {
+
+            $publicacao->valor = (\is_null($model->valor) || empty(trim($model->valor))) ? 
+                $publicacao->valor : (double)$model->valor;
+        }
+
         // Tags
-        $publicacao->tags = (\is_null($model->tags) || empty(trim($model->tags))) ? 
-            $publicacao->tags : (double)$model->tags;
+        if ($publicacao->tags != $model->tags) {
+
+            $publicacao->tags = (\is_null($model->tags) || empty(trim($model->tags))) ? 
+                $publicacao->tags : $model->tags;
+        }
+
         // Detalhes tecnicos
-        $publicacao->detalhesTecnicos = (\is_null($model->detalhesTecnicos) || empty(trim($model->detalhesTecnicos))) ? 
-            $publicacao->detalhesTecnicos : trim($model->detalhesTecnicos);
+        if ($publicacao->detalhesTecnicos != $model->detalhesTecnicos) {
+
+            $publicacao->detalhesTecnicos = strlen(trim($model->detalhesTecnicos)) == 0 ?
+                null : trim($model->detalhesTecnicos);
+        }
+        
         // Imagem
-        $publicacao->pathImagem = (\is_null($model->pathImagem) || empty(trim($model->pathImagem))) ? 
-            $publicacao->pathImagem : trim($model->pathImagem);
+        if ($publicacao->pathImagem != $model->pathImagem) {
+        
+            $publicacao->pathImagem = (\is_null($model->pathImagem) || empty(trim($model->pathImagem))) ? 
+                $publicacao->pathImagem : trim($model->pathImagem);
+        }
 
         $publicacao->save();
 
