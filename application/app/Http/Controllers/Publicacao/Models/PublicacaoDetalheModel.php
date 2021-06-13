@@ -8,6 +8,8 @@ class PublicacaoDetalheModel {
     public $titulo;
     public $descricao;
     public $valor;
+    public $tags;
+    public $detalhesTecnicos;
     public $pathImagem;
     public $dataHoraCriacao;
 }

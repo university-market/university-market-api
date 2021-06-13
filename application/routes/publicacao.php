@@ -19,12 +19,18 @@ $namespace = 'Publicacao';
 
 $router->group(['prefix' => $base, 'namespace' => $namespace], function () use ($router) {
 
+    // Alterar publicacao
+    $router->put('{publicacaoId}', 'PublicacaoController@alterar');
+
     // Criar nova publicacao
     $router->post('create', 'PublicacaoController@criar');
 
-    // Obter publicacao
-    $router->get('/listar', 'PublicacaoController@listar');
+    // Listar publicacoes
+    $router->get('listar', 'PublicacaoController@listar');
 
     // Obter publicacao
     $router->get('{publicacaoId}', 'PublicacaoController@obter');
+
+    // Excluir publicacao
+    $router->delete('{publicacaoId}', 'PublicacaoController@excluir');
 });

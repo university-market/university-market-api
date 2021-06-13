@@ -29,6 +29,8 @@ class Publicacao extends Model{
     protected $titulo;
     protected $descricao;
     protected $valor;
+    protected $tags;
+    protected $detalhesTecnicos;
     protected $pathImagem;
     protected $dataHoraCriacao;
     protected $dataHoraFinalizacao;

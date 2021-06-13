@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Publicacao\Models;
 
 class PublicacaoCriacaoModel {
 
+    public $publicacaoId;
     public $titulo;
     public $descricao;
     public $valor;
+    public $tags;
+    public $detalhesTecnicos;
     public $pathImagem;
 
     public function validar() {
