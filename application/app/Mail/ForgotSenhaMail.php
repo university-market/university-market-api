@@ -21,7 +21,7 @@ class ForgotSenhaMail extends Mailable
     
     public function build()
     {
-        return $this->subject('Compra Confirmada!')->view('mails.emailforgotsenha')->with([
+        return $this->subject('Recuperação de Senha!')->view('mails.emailforgotsenha')->with([
             'details' => $this->details
         ]);
     }
