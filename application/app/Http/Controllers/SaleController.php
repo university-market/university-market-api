@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Base\UniversityMarketController;
 use Laravel\Lumen\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\DB;
 
@@ -19,10 +20,10 @@ class SaleController extends BaseController
         $results = null;
 
         if (!$id) {
-            $results = DB::select('select * from sales');
+            $results = DB::select('select * from publicacao');
             return $results;
         } else {
-            $results = DB::select('select * from sales where course_id = :id',['id'=> $id]);
+            $results = DB::select('select publicacaoId,titulo,descricao,valor,pathimagem from publicacao where cursoId = :id',['id'=> $id]);
             return $results;
         }
         

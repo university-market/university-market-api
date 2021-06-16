@@ -35,4 +35,5 @@ class Publicacao extends Model{
     protected $dataHoraCriacao;
     protected $dataHoraFinalizacao;
     protected $dataHoraExclusao;
+    protected $cursoId;
 }

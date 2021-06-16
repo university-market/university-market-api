@@ -48,6 +48,7 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao->detalhesTecnicos = $model->detalhesTecnicos;
         $publicacao->pathImagem = $model->pathImagem;
         $publicacao->dataHoraCriacao = \date($this->dataHoraFormat);
+        $publicacao->cursoId = 3;
 
         $publicacao->save();
 
