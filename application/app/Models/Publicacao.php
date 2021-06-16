@@ -35,5 +35,6 @@ class Publicacao extends Model{
     protected $dataHoraCriacao;
     protected $dataHoraFinalizacao;
     protected $dataHoraExclusao;
-    protected $cursoId;
+    protected $cursoId; // FK Tabela Courses
+    protected $userId; // FK Tabela Users
 }

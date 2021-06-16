@@ -28,6 +28,9 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
     // Listar publicacoes
     $router->get('listar', 'PublicacaoController@listar');
 
+    // Listar publicacoes por id de curso
+    $router->get('listar/{id}', 'PublicacaoController@listarByCursoId');
+
     // Obter publicacao
     $router->get('{publicacaoId}', 'PublicacaoController@obter');
 

@@ -23,7 +23,17 @@ class SaleController extends BaseController
             $results = DB::select('select * from publicacao');
             return $results;
         } else {
-            $results = DB::select('select publicacaoId,titulo,descricao,valor,pathimagem from publicacao where cursoId = :id',['id'=> $id]);
+            $results = DB::select('select publicacaoId,
+                                          titulo,
+                                          descricao,
+                                          valor,
+                                          pathimagem,
+                                          name
+                                    from  publicacao 
+                                     join users 
+                                       on userId = id 
+                                    where id = 4 
+                                      and cursoId = :id',['id'=> $id]);
             return $results;
         }
         
