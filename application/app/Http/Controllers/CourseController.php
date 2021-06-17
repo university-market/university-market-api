@@ -16,12 +16,21 @@ class CourseController extends BaseController
 {
     private $contentType = ['Content-type' => 'application/json'];
 
-    //Criar Usuario
-    public function obterCourse() {
+    
+    public function obterCursos() {
 
         $results = null;
 
         $results = DB::select('select * from courses');
+
+        return $results;
+    }
+
+    public function obterCursoById($id = null) {
+
+        $results = null;
+
+        $results = DB::select('select course_name from courses where id = :id',['id'=> $id]);
 
         return $results;
     }

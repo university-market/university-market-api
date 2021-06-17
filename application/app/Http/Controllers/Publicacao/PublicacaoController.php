@@ -48,6 +48,9 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao->detalhesTecnicos = $model->detalhesTecnicos;
         $publicacao->dataHoraCriacao = \date($this->dataHoraFormat);
         $publicacao->pathImagem = $this->uploadImage($request);
+        $publicacao->cursoId = 3;
+        $publicacao->userId = 3;
+
 
         $publicacao->save();
 
@@ -63,6 +66,27 @@ class PublicacaoController extends UniversityMarketController {
         $model = $this->cast($publicacoes, PublicacaoDetalheModel::class);
 
         return response()->json($model);
+    }
+
+    public function listarByCursoId($id = null) {
+        $results = null;
+
+        if (!$id) {
+            $results = DB::select('select * from publicacao');
+            return $results;
+        } else {
+            $results = DB::select('select publicacaoId,
+                                          titulo,
+                                          descricao,
+                                          valor,
+                                          pathimagem,
+                                          name
+                                    from  publicacao 
+                                     join users 
+                                       on userId = id 
+                                    where cursoId = :id',['id'=> $id]);
+            return $results;
+        }
     }
 
     public function alterar(Request $request, $publicacaoId) {
