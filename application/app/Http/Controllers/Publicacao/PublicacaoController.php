@@ -46,8 +46,8 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao->valor = $model->valor;
         $publicacao->tags = $model->tags;
         $publicacao->detalhesTecnicos = $model->detalhesTecnicos;
-        $publicacao->pathImagem = $model->pathImagem;
         $publicacao->dataHoraCriacao = \date($this->dataHoraFormat);
+        $publicacao->pathImagem = $this->uploadImage($request);
 
         $publicacao->save();
 
@@ -146,6 +146,30 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao->save();
         
         return response(null, 200);
+    }
+
+    public function uploadImage(Request $request)
+    {
+        if ($request->hasFile('image')) {
+
+            $original_filename = $request->file('image')->getClientOriginalName();
+            $original_filename_arr = explode('.', $original_filename);
+            $file_ext = $original_filename_arr[count($original_filename_arr)-1];
+            
+            $filename_parts = [];
+            foreach ($original_filename_arr as $key => $value)
+                if ($key < count($original_filename_arr)-1)
+                    $filename_parts[] = $value;
+
+            $filename = implode('.', $filename_parts);
+            
+            $destination_path = './storage/upload/publicacao/';
+            $final_filename = $filename . '-um-pub-' . time() . '.' . $file_ext;
+
+            if ($request->file('image')->move($destination_path, $final_filename))
+                return '/storage/upload/publicacao/' . $final_filename;
+        }
+        throw new \Exception("Não foi possível realizar o upload da imagem");
     }
 
 }

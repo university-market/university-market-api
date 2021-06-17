@@ -22,6 +22,9 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
     // Alterar publicacao
     $router->put('{publicacaoId}', 'PublicacaoController@alterar');
 
+    // Upload de imagem da publicacao
+    // $router->post('image', 'PublicacaoController@uploadImage');
+
     // Criar nova publicacao
     $router->post('create', 'PublicacaoController@criar');
 

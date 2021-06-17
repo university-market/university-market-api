@@ -22,5 +22,15 @@ class PublicacaoCriacaoModel {
 
         if (is_null($this->valor))
             throw new \Exception("O valor é obrigatório");
+
+        if ($this->detalhesTecnicos == 'null' || \is_null($this->detalhesTecnicos) || empty(trim($this->detalhesTecnicos)))
+            $this->detalhesTecnicos = null;
+        else
+            $this->detalhesTecnicos = trim($this->detalhesTecnicos);
+
+        if (\is_null($this->tags) || empty(trim($this->tags)))
+            $this->tags = null;
+        else
+            $this->tags = trim($this->tags);
     }
 }
