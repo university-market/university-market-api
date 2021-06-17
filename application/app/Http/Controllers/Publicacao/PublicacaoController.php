@@ -75,11 +75,11 @@ class PublicacaoController extends UniversityMarketController {
             $results = DB::select('select * from publicacao');
             return $results;
         } else {
-            $results = DB::select('select publicacaoId,
+            $results = Publicacao::select('select publicacaoId,
                                           titulo,
                                           descricao,
                                           valor,
-                                          pathimagem,
+                                          pathImagem,
                                           name
                                     from  publicacao 
                                      join users 
