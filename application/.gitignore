@@ -10,6 +10,9 @@ composer.lock
 .env*
 !.env.example
 
+# conteudo de teste em servidor local
+/public/storage
+
 /.idea
 Homestead.json
 Homestead.yaml
