@@ -79,7 +79,7 @@ class PublicacaoController extends UniversityMarketController {
                                           titulo,
                                           descricao,
                                           valor,
-                                          pathimagem,
+                                          pathImagem,
                                           name
                                     from  publicacao 
                                      join users 
