@@ -177,7 +177,7 @@ class PublicacaoController extends UniversityMarketController {
         if ($request->hasFile('image')) {
 
             $original_filename = $request->file('image')->getClientOriginalName();
-            $original_filename_arr = explode('.', $original_filename);
+            $original_filename_arr = explode('.', str_replace(" ", "_", $original_filename));
             $file_ext = $original_filename_arr[count($original_filename_arr)-1];
             
             $filename_parts = [];
