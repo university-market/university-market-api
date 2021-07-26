@@ -1,7 +1,6 @@
 ## Hello
 
-Inicie aqui um servidor PHP com 
-``php -S localhost:1234``
+Inicie aqui um servidor PHP com ``php -S localhost:1234`` dentro deste diretório.
 
 - [x] Certifique-se de estar com sua branch local atualizada.
 - [x] Crie os arquivos com as variáveis de ambiente (conforme os `.example` deste diretório).
