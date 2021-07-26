@@ -1,0 +1,11 @@
+; Este é o arquivo de configuração referente ao banco de dados
+; Os parâmetros devem ser definidos com base no seu servidor
+; Comentários iniciam com ';', como no php.ini
+
+[database]
+
+    host = localhost        ; Host onde a conexão será estabelecida
+    username = root         ; Nome de usuário da base de dados
+    password = ''           ; Senha do usuário referente
+    database = meu_db       ; Nome da base de dados
+    collation = utf8        ; Colattion default da base de dados
