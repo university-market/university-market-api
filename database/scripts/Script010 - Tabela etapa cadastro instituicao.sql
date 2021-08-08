@@ -4,7 +4,7 @@ CREATE TABLE `EtapaCadastro` (
     `descricao` VARCHAR(500) NOT NULL,
     PRIMARY KEY (`etapaCadastroId`)
 );
-INSERT INTO `EtapaCadastro`(`etapaCadastroId`) 
+INSERT INTO `EtapaCadastro`(`etapaCadastroId`, `descricao`) 
 VALUES 
   (1, 'Socilitação de cadastro enviada'),
   (2, 'Validação de dados legais da empresa'),
