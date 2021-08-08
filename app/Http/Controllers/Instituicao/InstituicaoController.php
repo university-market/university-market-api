@@ -50,4 +50,35 @@ class InstituicaoController extends UniversityMarketController {
     return response()->json($instituicao->instituicaoId);
   }
 
+  public function ativar($instituicaoId) {
+
+    return $this->alterarStatusAtiva($instituicaoId, true);
+  }
+
+  public function desativar($instituicaoId) {
+
+    return $this->alterarStatusAtiva($instituicaoId, false);
+  }
+
+  // Private methods
+
+  private function alterarStatusAtiva($instituicaoId, $novoStatus) {
+
+    $instituicao = Instituicao::where('instituicaoId', $instituicaoId)->first();
+
+    if (\is_null($instituicao))
+      throw new \Exception("Instituição não encontrada");
+
+    if ($instituicao->ativa == $novoStatus) {
+      
+      $currentStatus = $instituicao->ativa ? "ativa" : "desativada";
+      throw new \Exception("A instituição já está registrada como $currentStatus");
+    }
+
+    $instituicao->ativa = $novoStatus;
+    $instituicao->save();
+
+    return response(null, 200);
+  }
+
 }

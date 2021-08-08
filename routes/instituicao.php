@@ -21,4 +21,10 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
 
   // Cadastrar instituicao
   $router->post('', 'InstituicaoController@cadastrar');
+
+  // Ativar cadastro da instituicao
+  $router->put('{instituicaoId}/ativar', 'InstituicaoController@ativar');
+
+  // Desativar cadastro da instituicao
+  $router->put('{instituicaoId}/desativar', 'InstituicaoController@desativar');
 });
