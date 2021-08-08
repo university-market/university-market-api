@@ -19,4 +19,6 @@ $namespace = 'Instituicao';
 
 $router->group(['prefix' => $base, 'namespace' => $namespace], function () use ($router) {
 
+  // Cadastrar instituicao
+  $router->post('', 'InstituicaoController@cadastrar');
 });
