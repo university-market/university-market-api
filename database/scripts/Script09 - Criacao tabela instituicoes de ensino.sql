@@ -9,7 +9,7 @@ CREATE TABLE `Instituicao` (
     `emailContato` VARCHAR(150) NOT NULL,
     `etapaCadastroId` INT NOT NULL,
     `dataHoraCadastro` DATE NOT NULL,
-    `dataHoraAprovacao` DATE NOT NULL,
+    `dataHoraAprovacao` DATE NULL,
     `ativa` BIT NOT NULL,
     PRIMARY KEY (`instituicaoId`)
 );
