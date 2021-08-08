@@ -7,7 +7,9 @@ CREATE TABLE `Instituicao` (
     `cnpj` VARCHAR(50) NOT NULL,
     `cpfRepresentante` VARCHAR(50) NOT NULL,
     `emailContato` VARCHAR(150) NOT NULL,
-    `dataHoraCriacao` DATE NOT NULL,
+    `cadastroEtapa` INT NOT NULL,
+    `dataHoraCadastro` DATE NOT NULL,
+    `dataHoraAprovacao` DATE NOT NULL,
     `ativa` BIT NOT NULL,
     PRIMARY KEY (`instituicaoId`)
 );
