@@ -14,6 +14,11 @@ class UniversityMarketController extends BaseController {
     protected $contentType = ['Content-type' => 'application/json'];
 
     /**
+     * @property string $dateTimeFormat Default used datetime format
+     */
+    protected $dateTimeFormat = "Y-m-d H:i:s";
+
+    /**
      * Convert an or more objects to a specific class.
      * @method cast()
      * @param object|object[] $object Initial object
