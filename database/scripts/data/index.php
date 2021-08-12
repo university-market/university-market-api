@@ -34,12 +34,17 @@
         .alert {
             display: block;
             text-align: center;
-            border: 1px solid #0040c9;
             border-radius: 10px;
+            border: 1px solid #0040c9;
             background: #93b5ff;
             color: #0040c9;
             padding: 10px 25px;
             margin: 15px 0px;
+        }
+        .completed {
+            border: 1px solid #00441f !important;
+            background: #aeffd2 !important;
+            color: #00441f !important;
         }
         .output {
             background: #000;
@@ -65,16 +70,24 @@
             </ul>
         </div>
 
-        <div>
-            <button id="onExecute">
-                Executar Controle de Scripts
-            </button>
-        </div>
+        <?php if (!$executed) :?>
+            <div>
+                <button id="onExecute">
+                    Executar Controle de Scripts
+                </button>
+            </div>
+        <?php else: ?>
+            <div>
+                <button id="onBackToHome" onclick="window.location.href='./?run=false'">
+                    Clique para voltar a home
+                </button>
+            </div>
+        <?php endif; ?>
 
 
     </section>
     
-    <div class="alert">
+    <div class="alert <?=!$executed?'await':'completed'?>">
         <?=$operation_state; ?>
     </div>
 
@@ -99,13 +112,14 @@
     <script>
 
         const btnExec = document.getElementById('onExecute');
-        btnExec.onclick = function() {
+        if (btnExec)
+            btnExec.onclick = function() {
             
-            if (confirm('Deseja realmente executar os scripts pendentes?')) {
+                if (confirm('Deseja realmente executar os scripts pendentes?')) {
 
-                window.location.href = './?run=true';
+                    window.location.href = './?run=true';
+                }
             }
-        }
     </script>
 </body>
 </html>

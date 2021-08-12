@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "start": "echo 'Open your browser at http://localhost:1234' && php -S localhost:1234"
+  }
+}
