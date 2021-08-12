@@ -17,3 +17,7 @@ CREATE TABLE `Estudante` (
   `instituicaoId` INT NOT NULL,
   PRIMARY KEY (`estudanteId`)
 );
+
+ALTER TABLE `Estudante`
+ADD CONSTRAINT `FK_EstudanteIntituicao`
+FOREIGN KEY (`instituicaoId`) REFERENCES `Instituicao`(`instituicaoId`);
