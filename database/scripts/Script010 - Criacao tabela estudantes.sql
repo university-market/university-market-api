@@ -10,9 +10,9 @@ CREATE TABLE `Estudante` (
   `pathFotoPerfil` VARCHAR(500) NULL,
   `ativo` BIT NOT NULL,
   `blocked` BIT NULL,
-  `dataHoraFimBlock` DATE NULL,
-  `dataHoraCadastro` DATE NOT NULL,
-  `dataHoraExclusao` DATE NULL,
+  `dataHoraFimBlock` DATETIME NULL,
+  `dataHoraCadastro` DATETIME NOT NULL,
+  `dataHoraExclusao` DATETIME NULL,
   `cursoId` INT NOT NULL,
   `instituicaoId` INT NOT NULL,
   PRIMARY KEY (`estudanteId`)
