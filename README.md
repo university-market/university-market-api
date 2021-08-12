@@ -54,15 +54,11 @@ Leia mais sobre este projeto no [repositório de apresentação](https://github.
   - Exemplo em `application.env.example`
 * Dentro do repositório clonado do projeto, abra um terminal/cmd e siga as seguintes instruções:
 
-:one: Entre na raíz da aplicação
-```bash
-cd application
-```
-:two: Instale as dependências do projeto
+:one: Instale as dependências do projeto
 ```bash
 composer update
 ```
-:three: Execute o projeto em uma porta disponível no seu computador (default: `80`/recomendado: `8080`)
+:two: Execute o projeto em uma porta disponível no seu computador (default: `80`/recomendado: `8080`)
 ```bash
 php -S localhost:8080 -t public
 ```
