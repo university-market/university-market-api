@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Estudante;
 use App\Http\Controllers\Estudante\Models\EstudanteDetalheModel;
 use App\Http\Controllers\Estudante\Models\EstudanteCriacaoModel;
-use DateTime;
 
 class EstudanteController extends UniversityMarketController {
 
@@ -37,9 +36,6 @@ class EstudanteController extends UniversityMarketController {
     $model = $this->cast($request, EstudanteCriacaoModel::class);
 
     $model->validar();
-
-    if ($this->isMenorIdade($model->dataNascimento))
-      throw new \Exception("É necessário ser maior de idade para realizar seu cadastro");
 
     if ($this->estudanteExistente($model->email, $model->ra, $model->instituicaoId))
       throw new \Exception("Estudante já cadastrado nesta instituição de ensino");
@@ -79,13 +75,5 @@ class EstudanteController extends UniversityMarketController {
       )->first();
 
     return !is_null($any);
-  }
-
-  private function isMenorIdade($dataNascimento) {
-
-    $today = new DateTime(date('Y-m-d'));
-    $initial_date = new DateTime(date($dataNascimento));
-
-    return $initial_date->diff($today)->y < 18;
   }
 }

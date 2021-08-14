@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Estudante\Models;
 
+use DateTime;
+
 class EstudanteCriacaoModel {
 
   public $nome;
@@ -28,6 +30,8 @@ class EstudanteCriacaoModel {
 
     if (is_null($this->dataNascimento) || empty(trim($this->dataNascimento)))
       throw new \Exception("A data de nascimento é obrigatória");
+    elseif ($this->isMenorIdade($this->dataNascimento))
+      throw new \Exception("É necessário ser maior de idade para realizar seu cadastro");
 
     if (is_null($this->senha) || empty(trim($this->senha)))
       throw new \Exception("A senha é obrigatória");
@@ -39,5 +43,13 @@ class EstudanteCriacaoModel {
 
     if (is_null($this->instituicaoId) || empty($this->instituicaoId))
       throw new \Exception("É obrigatório informar a instituição de ensino");
+  }
+
+  private function isMenorIdade($dataNascimento) {
+
+    $today = new DateTime(date('Y-m-d'));
+    $initial_date = new DateTime(date($dataNascimento));
+
+    return $initial_date->diff($today)->y < 18;
   }
 }
