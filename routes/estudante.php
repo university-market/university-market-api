@@ -22,4 +22,7 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
   // Obter estudante
   $router->get('{estudanteId}', 'EstudanteController@obter');
 
+  // Criar estudante
+  $router->post('', 'EstudanteController@criar');
+
 });
