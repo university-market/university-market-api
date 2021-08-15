@@ -20,6 +20,6 @@ $namespace = 'Auth';
 $router->group(['prefix' => $base, 'namespace' => $namespace], function () use ($router) {
 
     // Efetuar login
-    $router->post('login', 'AuthController@login');
+    $router->post('estudante/login', 'AuthController@loginEstudante');
 
 });
