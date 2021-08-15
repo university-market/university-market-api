@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Base;
 
+use App\Models\AppSession;
+use DateTime;
 use Laravel\Lumen\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -22,6 +24,11 @@ class UniversityMarketController extends BaseController {
      * @property string $authTokenKey Default auth token received in request header
      */
     private $authTokenKey = "um-auth-token";
+
+    /**
+     * @property string $sessionType Default session type key received in request header
+     */
+    private $sessionType = "session-type";
 
     /**
      * Convert an or more objects to a specific class.
@@ -75,11 +82,42 @@ class UniversityMarketController extends BaseController {
      * @param object $request The received request
      * @return BaseSession Returns a BaseSession object
      */
-    protected function getSession(Request $request) {
+    protected function getSession() {
 
-        $authToken = $request->headers->get($this->authTokenKey);
+        $request = request();
+
+        $authToken = $request->header($this->authTokenKey);
+        $sessionType = $request->header($this->sessionType);
 
         if (is_null($authToken))
             throw new \Exception("Token de sessão não encontrado");
+
+        if (is_null($sessionType))
+            throw new \Exception("Tipo de sessão inválido");
+
+        $session = null;
+
+        switch ((int)$sessionType) {
+
+            case 1: // Administrador
+                $session = null;
+                break;
+
+            case 2: // Estudante
+                $session = AppSession::where('sessionToken', '=', $authToken)->first();
+                break;
+        }
+        
+        if (is_null($session))
+            throw new \Exception("Sessão inexistente");
+
+        $today = new DateTime();
+        $expiration = new DateTime($session->dataHoraExpiracao);
+
+        if ($expiration > $today)
+            return response(["error" => "Sua sessão expirou"], 401); // Unauthorized
+
+        return $session;
+        
     }
 }
