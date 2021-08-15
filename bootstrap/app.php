@@ -135,6 +135,7 @@ $app->router->group([
     require __DIR__.'/../routes/sale.php';
     require __DIR__.'/../routes/publicacao.php';
     require __DIR__.'/../routes/instituicao.php';
+    require __DIR__.'/../routes/auth.php';
 });
 
 
