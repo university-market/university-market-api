@@ -19,6 +19,11 @@ class UniversityMarketController extends BaseController {
     protected $dateTimeFormat = "Y-m-d H:i:s";
 
     /**
+     * @property string $authTokenKey Default auth token received in request header
+     */
+    private $authTokenKey = "um-auth-token";
+
+    /**
      * Convert an or more objects to a specific class.
      * @method cast()
      * @param object|object[] $object Initial object
@@ -63,5 +68,18 @@ class UniversityMarketController extends BaseController {
 
         return \is_object($class_ref) ? $class_ref : 
             (class_exists($class_ref) ? new $class_ref() : null);
+    }
+
+    /**
+     * @method getSession()
+     * @param object $request The received request
+     * @return BaseSession Returns a BaseSession object
+     */
+    protected function getSession(Request $request) {
+
+        $authToken = $request->headers->get($this->authTokenKey);
+
+        if (is_null($authToken))
+            throw new \Exception("Token de sessão não encontrado");
     }
 }
