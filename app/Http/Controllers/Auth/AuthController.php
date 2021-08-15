@@ -7,8 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 // Models de publicacao utilizadas
-// use App\Models\Session;
-use App\Http\Controllers\Auth\Models\LoginModel;
+use App\Models\AppSession;
+use App\Http\Controllers\Auth\Models\AppLoginModel;
 
 class AuthController extends UniversityMarketController {
 
@@ -16,12 +16,5 @@ class AuthController extends UniversityMarketController {
 
   public function login(Request $request) {
 
-    $headers = $request->headers->all();
-
-    $token = $headers[$this->authTokenKey];
-
-    $model = $this->cast($request, LoginModel::class);
-
-    // return;
   }
 }
