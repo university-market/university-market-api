@@ -25,7 +25,7 @@ class AuthController extends UniversityMarketController {
 
     $estudante = Estudante::where('email', $model->email)->first();
 
-    if (is_null($estudante) || !Hash::check($model->senha, $estudante->senha))
+    if (is_null($estudante) || !Hash::check($model->senha, $estudante->hashSenha))
       throw new \Exception("E-mail ou senha incorretos");
 
     $activatedSession = AppSession::where('usuarioId', $estudante->estudanteId)->first();
