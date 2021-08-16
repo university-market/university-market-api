@@ -119,4 +119,13 @@ class UniversityMarketController extends BaseController {
 
         return $session;
     }
+
+    /**
+     * @method unauthorized()
+     * @return Response Returns a unauthorized response (code 401)
+     */
+    protected function unauthorized() {
+
+        return response("Operação não autorizada", 401);
+    }
 }
