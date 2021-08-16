@@ -86,14 +86,14 @@ class UniversityMarketController extends BaseController {
 
         $request = request();
 
-        $authToken = $request->header($this->authTokenKey);
-        $sessionType = $request->header($this->sessionType);
+        $authToken = $request->header($this->authTokenKey) ?? null;
+        $sessionType = $request->header($this->sessionType) ?? null;
 
         if (is_null($authToken))
-            throw new \Exception("Token de sessão não encontrado");
+            return false;
 
         if (is_null($sessionType))
-            throw new \Exception("Tipo de sessão inválido");
+            return false;
 
         $session = null;
 
@@ -109,15 +109,14 @@ class UniversityMarketController extends BaseController {
         }
         
         if (is_null($session))
-            throw new \Exception("Sessão inexistente");
+            return false;
 
         $today = new DateTime();
         $expiration = new DateTime($session->dataHoraExpiracao);
 
         if ($expiration > $today)
-            return response(["error" => "Sua sessão expirou"], 401); // Unauthorized
+            return false;
 
         return $session;
-        
     }
 }
