@@ -8,6 +8,9 @@ use Laravel\Lumen\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
+define('SESSION_TYPE_ADMIN', 1);
+define('SESSION_TYPE_ESTUDANTE', 2);
+
 class UniversityMarketController extends BaseController {
 
     /**
@@ -99,11 +102,11 @@ class UniversityMarketController extends BaseController {
 
         switch ((int)$sessionType) {
 
-            case 1: // Administrador
+            case SESSION_TYPE_ADMIN: // Administrador
                 $session = null;
                 break;
 
-            case 2: // Estudante
+            case SESSION_TYPE_ESTUDANTE: // Estudante
                 $session = AppSession::where('sessionToken', '=', $authToken)->first();
                 break;
         }
