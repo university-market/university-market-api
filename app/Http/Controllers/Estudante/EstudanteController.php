@@ -16,6 +16,14 @@ class EstudanteController extends UniversityMarketController {
 
   public function obter($estudanteId) {
 
+    if (!$estudanteId)
+      throw new \Exception("Estudante não encontrado");
+
+    $session = $this->getSession();
+
+    if (!$session)
+      throw new \Exception("Sem permissão para realizar esta ação");
+
     $condition = [
       'estudanteId' => $estudanteId,
       'dataHoraExclusao' => null
