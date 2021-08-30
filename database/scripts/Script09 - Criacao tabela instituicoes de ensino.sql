@@ -8,8 +8,8 @@ CREATE TABLE `Instituicao` (
     `cpfRepresentante` VARCHAR(50) NOT NULL,
     `emailContato` VARCHAR(150) NOT NULL,
     `etapaCadastroId` INT NOT NULL,
-    `dataHoraCadastro` DATE NOT NULL,
-    `dataHoraAprovacao` DATE NULL,
+    `dataHoraCadastro` DATETIME NOT NULL,
+    `dataHoraAprovacao` DATETIME NULL,
     `ativa` BIT NOT NULL,
     PRIMARY KEY (`instituicaoId`)
 );

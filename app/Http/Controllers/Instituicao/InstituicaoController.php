@@ -60,6 +60,34 @@ class InstituicaoController extends UniversityMarketController {
     return $this->alterarStatusAtiva($instituicaoId, false);
   }
 
+  public function aprovar($instituicaoId) {
+
+    $session = $this->getSession();
+
+    // if (!$session)
+    //   throw new \Exception("Sem permissão para realizar esta operação");
+
+    $instituicao = Instituicao::where('instituicaoId', $instituicaoId)->first();
+
+    if (\is_null($instituicao))
+      throw new \Exception("Instituição não encontrada");
+
+    if ($instituicao->dataHoraAprovacao != null) {
+
+      $time = strtotime($instituicao->dataHoraAprovacao);
+      $date = date('d/m/Y', $time);
+      $hours = date('H:i', $time);
+
+      throw new \Exception("Essa instituição já teve o cadastro aprovado em $date, às $hours");
+    }
+
+    $instituicao->dataHoraAprovacao = date($this->dateTimeFormat);
+
+    $instituicao->save();
+
+    return response(null, 200);
+  }
+
   // Private methods
 
   private function alterarStatusAtiva($instituicaoId, $novoStatus) {
@@ -68,6 +96,9 @@ class InstituicaoController extends UniversityMarketController {
 
     if (\is_null($instituicao))
       throw new \Exception("Instituição não encontrada");
+
+    if ($instituicao->dataHoraAprovacao == null)
+      throw new \Exception("Cadastro da instituição ainda não foi aprovado");
 
     if ($instituicao->ativa == $novoStatus) {
       
