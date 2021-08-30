@@ -11,6 +11,9 @@ use Illuminate\Http\Request;
 define('SESSION_TYPE_ADMIN', 1);
 define('SESSION_TYPE_ESTUDANTE', 2);
 
+// Update Application DateTime Format
+date_default_timezone_set("America/Sao_Paulo");
+
 class UniversityMarketController extends BaseController {
 
     /**
