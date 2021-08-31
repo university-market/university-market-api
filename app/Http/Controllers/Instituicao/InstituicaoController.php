@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 // Models de conta utilizadas
 use App\Models\Instituicao;
 use App\Http\Controllers\Instituicao\Models\InstituicaoCriacaoModel;
+use stdClass;
 
 class InstituicaoController extends UniversityMarketController {
 
@@ -86,6 +87,23 @@ class InstituicaoController extends UniversityMarketController {
     $instituicao->save();
 
     return response(null, 200);
+  }
+
+  public function listarDisponiveis() {
+
+    $instituicoes = Instituicao::where('ativa', true)->whereNotNull('dataHoraAprovacao')->get();
+    $arr = [];
+
+    foreach ($instituicoes as $e) {
+
+      $element = new stdClass;
+      $element->key = $e->instituicaoId;
+      $element->value = $e->razaoSocial;
+
+      $arr[] = $element;
+    }
+    
+    return $arr;
   }
 
   // Private methods
