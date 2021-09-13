@@ -7,8 +7,8 @@ class InstituicaoCriacaoModel {
   public $nomeFantasia;
   public $razaoSocial;
   public $cnpj;
-  public $cpfRepresentante;
-  public $emailContato;
+  public $email;
+  public $telefone;
 
   public function validar() {
       
@@ -18,10 +18,10 @@ class InstituicaoCriacaoModel {
     if (is_null($this->cnpj) || empty(trim($this->cnpj)))
       throw new \Exception("O CNPJ da instituição é obrigatório");
 
-    if (is_null($this->cpfRepresentante) || empty(trim($this->cpfRepresentante)))
-      throw new \Exception("O CPF do representante é obrigatório");
-
-    if (\is_null($this->emailContato) || empty(trim($this->emailContato)))
-      throw new \Exception("Um e-mail para contato deve ser fornecido");
+    if (
+      is_null($this->email) || empty(trim($this->email)) &&
+      is_null($this->telefone) || empty(trim($this->telefone))
+    )
+      throw new \Exception("Ao menos um e-mail ou telefone deve ser informado");
   }
 }

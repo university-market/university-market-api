@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Instituicao;
 
+use App\Exceptions\Base\UMException;
 use App\Http\Controllers\Base\UniversityMarketController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,13 +26,12 @@ class InstituicaoController extends UniversityMarketController {
         function($query) use ($model) {
 
           $query->where('cnpj', $model->cnpj)
-            ->orWhere('razaoSocial', $model->razaoSocial)
-            ->orWhere('cpfRepresentante', $model->cpfRepresentante);
+            ->orWhere('razaoSocial', $model->razaoSocial);
         }
       )->first();
 
     if (!\is_null($hasCadastro))
-      throw new \Exception("Já existe um cadastro que corresponde aos dados informados");
+      throw new UMException("A instituição de ensino já possui um cadastro");
 
     $instituicao = new Instituicao();
 
@@ -39,12 +39,12 @@ class InstituicaoController extends UniversityMarketController {
     $instituicao->razaoSocial = $model->razaoSocial;
     $instituicao->nomeReduzido = null; // Cadastro posterior
     $instituicao->cnpj = $model->cnpj;
-    $instituicao->cpfRepresentante = $model->cpfRepresentante;
-    $instituicao->emailContato = $model->emailContato;
-    $instituicao->etapaCadastroId = 1; // Solicitacao enviada
+    $instituicao->email = $model->email;
+    $instituicao->telefone = $model->telefone;
     $instituicao->dataHoraCadastro = date($this->dateTimeFormat);
-    $instituicao->dataHoraAprovacao = null; // Somente quando aprovada
+    $instituicao->aprovada = false; // True somente quando aprovada
     $instituicao->ativa = true; // Cadastro ativo
+    $instituicao->planoId = null; // Quando sistema de planos estiver implementado
 
     $instituicao->save();
 

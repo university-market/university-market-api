@@ -15,10 +15,10 @@ class Instituicao extends Model{
      */
     protected $casts = [
         'instituicaoId' => 'integer',
-        'cadastroEtapa' => 'integer',
         'dataHoraCadastro' => 'datetime',
-        'dataHoraAprovacao' => 'datetime',
-        'ativa' => 'boolean'
+        'aprovada' => 'boolean',
+        'ativa' => 'boolean',
+        'planoId' => 'integer'
     ];
 
     protected $table = 'Instituicao';
@@ -29,10 +29,10 @@ class Instituicao extends Model{
     protected $razaoSocial;
     protected $nomeReduzido;
     protected $cnpj;
-    protected $cpfRepresentante;
-    protected $emailContato;
-    protected $etapaCadastroId;
+    protected $email;
+    protected $telefone;
     protected $dataHoraCadastro;
-    protected $dataHoraAprovacao;
+    protected $aprovada;
     protected $ativa;
+    protected $planoId;
 }
