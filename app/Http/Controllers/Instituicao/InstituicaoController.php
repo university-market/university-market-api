@@ -73,16 +73,10 @@ class InstituicaoController extends UniversityMarketController {
     if (\is_null($instituicao))
       throw new \Exception("Instituição não encontrada");
 
-    if ($instituicao->dataHoraAprovacao != null) {
+    if ($instituicao->aprovada)
+      throw new \Exception("Essa instituição já teve o cadastro aprovado");
 
-      $time = strtotime($instituicao->dataHoraAprovacao);
-      $date = date('d/m/Y', $time);
-      $hours = date('H:i', $time);
-
-      throw new \Exception("Essa instituição já teve o cadastro aprovado em $date, às $hours");
-    }
-
-    $instituicao->dataHoraAprovacao = date($this->dateTimeFormat);
+    $instituicao->aprovada = true;
 
     $instituicao->save();
 
@@ -91,7 +85,7 @@ class InstituicaoController extends UniversityMarketController {
 
   public function listarDisponiveis() {
 
-    $instituicoes = Instituicao::where('ativa', true)->whereNotNull('dataHoraAprovacao')->get();
+    $instituicoes = Instituicao::where('ativa', true)->where('aprovada', true)->get();
     $arr = [];
 
     foreach ($instituicoes as $e) {
@@ -115,7 +109,7 @@ class InstituicaoController extends UniversityMarketController {
     if (\is_null($instituicao))
       throw new \Exception("Instituição não encontrada");
 
-    if ($instituicao->dataHoraAprovacao == null)
+    if (!$instituicao->aprovada)
       throw new \Exception("Cadastro da instituição ainda não foi aprovado");
 
     if ($instituicao->ativa == $novoStatus) {
