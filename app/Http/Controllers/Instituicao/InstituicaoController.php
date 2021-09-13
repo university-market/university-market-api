@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 // Models de conta utilizadas
 use App\Models\Instituicao;
 use App\Http\Controllers\Instituicao\Models\InstituicaoCriacaoModel;
+use App\Http\Controllers\Instituicao\Models\InstituicaoListaModel;
 use stdClass;
 
 class InstituicaoController extends UniversityMarketController {
@@ -98,6 +99,13 @@ class InstituicaoController extends UniversityMarketController {
     }
     
     return $arr;
+  }
+
+  public function listarTodas() {
+
+    $instituicoes = Instituicao::all()->getDictionary();
+    
+    return $this->cast($instituicoes, InstituicaoListaModel::class);
   }
 
   // Private methods
