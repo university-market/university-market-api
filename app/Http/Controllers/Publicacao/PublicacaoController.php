@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 // Models de publicacao utilizadas
-use App\Models\Publicacao;
+use App\Models\Publicacao\Publicacao;
 use App\Http\Controllers\Publicacao\Models\PublicacaoCriacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
 
