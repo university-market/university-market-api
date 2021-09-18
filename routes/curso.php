@@ -19,5 +19,7 @@ $namespace = 'Curso';
 
 $router->group(['prefix' => $base, 'namespace' => $namespace], function () use ($router) {
 
+  $router->get('all', 'CursoController@listarTodos');
+
   $router->get('{instituicaoId}/listar', 'CursoController@listarPorInstituicao');
 });

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 // Models de publicacao utilizadas
 use App\Models\Instituicao\Instituicao_Curso;
+use App\Models\Curso\Curso;
 use App\Http\Controllers\Curso\Models\CursoListaModel;
 use App\Models\Instituicao\Instituicao;
 
@@ -41,5 +42,14 @@ class CursoController extends UniversityMarketController {
     }
 
     return response()->json($list);
+  }
+
+  public function listarTodos() {
+
+    $list = Curso::all()->getDictionary();
+
+    $listModel = $this->cast($list, CursoListaModel::class);
+
+    return response()->json($listModel);
   }
 }
