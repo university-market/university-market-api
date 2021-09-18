@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 // Models de conta utilizadas
-use App\Models\Instituicao;
+use App\Models\Instituicao\Instituicao;
 use App\Http\Controllers\Instituicao\Models\InstituicaoCriacaoModel;
 use App\Http\Controllers\Instituicao\Models\InstituicaoListaModel;
 use stdClass;

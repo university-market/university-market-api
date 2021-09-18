@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Instituicao;
 
 use \Illuminate\Database\Eloquent\Model;
+use App\Models\Plano\Plano;
 
 class Instituicao extends Model{
     
