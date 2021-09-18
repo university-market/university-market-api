@@ -4,7 +4,7 @@ namespace App\Models;
 
 use \Illuminate\Database\Eloquent\Model;
 
-class Curso extends Model{
+class Curso extends Model {
     
   public $timestamps = false; // Nao registrar data/hora criacao/alteracao
 
@@ -16,8 +16,7 @@ class Curso extends Model{
   protected $casts = [
       'cursoId' => 'integer',
       'nome' => 'string',
-      'duracao' => 'real',
-      'instituicaoId' => 'integer'
+      'pathImagem' => 'string'
   ];
 
   protected $table = 'Curso';
@@ -25,6 +24,5 @@ class Curso extends Model{
 
   protected $cursoId; // PK Curso
   protected $nome;
-  protected $duracao;
-  protected $instituicaoId; // FK Instituicao
+  protected $pathImagem;
 }
