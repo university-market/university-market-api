@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Session;
 
-use App\Models\Base\BaseSession;
+use App\Models\Session\BaseSession;
 
 class AppSession extends BaseSession {
 
