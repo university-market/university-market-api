@@ -21,7 +21,7 @@ class Estudante extends Model {
     'nome' => 'string',
     'email' => 'string',
     'telefone' => 'string',
-    'dataNascimento' => 'datetime',
+    'dataNascimento' => 'date',
     'hashSenha' => 'string',
     'pathFotoPerfil' => 'string',
     'ativo' => 'boolean',

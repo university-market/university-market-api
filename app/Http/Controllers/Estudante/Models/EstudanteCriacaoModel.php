@@ -7,7 +7,6 @@ use DateTime;
 class EstudanteCriacaoModel {
 
   public $nome;
-  public $ra;
   public $email;
   public $telefone;
   public $dataNascimento;
@@ -21,9 +20,6 @@ class EstudanteCriacaoModel {
 
     if (is_null($this->nome) || empty(trim($this->nome)))
       throw new \Exception("O nome é obrigatório");
-
-    if (is_null($this->ra) || empty(trim($this->ra)))
-      throw new \Exception("O R.A. é obrigatório");
 
     if (is_null($this->email) || empty(trim($this->email)))
       throw new \Exception("O e-mail é obrigatório");
