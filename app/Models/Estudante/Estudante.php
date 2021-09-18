@@ -6,6 +6,7 @@ use \Illuminate\Database\Eloquent\Model;
 
 use App\Models\Curso\Curso;
 use App\Models\Instituicao\Instituicao;
+use App\Models\Publicacao\Publicacao;
 
 class Estudante extends Model {
     
@@ -61,5 +62,13 @@ class Estudante extends Model {
   public function instituicao()
   {
     return $this->hasOne(Instituicao::class, 'instituicaoId', 'instituicaoId');
+  }
+
+  /**
+   * Obtem a Instituicao associada ao Estudante
+   */
+  public function publicacao()
+  {
+    return $this->hasMany(Publicacao::class, 'estudanteId');
   }
 }

@@ -39,18 +39,22 @@ class PublicacaoController extends UniversityMarketController {
         // Validar informacoes construidas na model
         $model->validar();
 
+        $session = $this->getSession();
+
+        if (!$session)
+            return $this->unauthorized();
+
         $publicacao = new Publicacao();
 
         $publicacao->titulo = $model->titulo;
         $publicacao->descricao = $model->descricao;
+        $publicacao->especificacoesTecnicas = $model->especificacoesTecnicas;
         $publicacao->valor = $model->valor;
-        $publicacao->tags = $model->tags;
-        $publicacao->detalhesTecnicos = $model->detalhesTecnicos;
-        $publicacao->dataHoraCriacao = \date($this->dataHoraFormat);
         $publicacao->pathImagem = $this->uploadImage($request);
-        $publicacao->cursoId = 3;
-        $publicacao->userId = 3;
-
+        $publicacao->dataHoraCriacao = \date($this->dataHoraFormat);
+        $publicacao->dataHoraFinalizacao = null; // Somente quando finalizada
+        $publicacao->cursoId = 1;
+        $publicacao->estudanteId = $session->estudanteId;
 
         $publicacao->save();
 

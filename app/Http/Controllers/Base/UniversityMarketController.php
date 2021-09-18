@@ -85,8 +85,7 @@ class UniversityMarketController extends BaseController {
 
     /**
      * @method getSession()
-     * @param object $request The received request
-     * @return BaseSession Returns a BaseSession object
+     * @return BaseSession|false Returns a BaseSession object or false if unauthorized
      */
     protected function getSession() {
 

@@ -9,7 +9,7 @@ class PublicacaoCriacaoModel {
     public $descricao;
     public $valor;
     public $tags;
-    public $detalhesTecnicos;
+    public $especificacoesTecnicas;
     public $pathImagem;
 
     public function validar() {
@@ -23,10 +23,12 @@ class PublicacaoCriacaoModel {
         if (is_null($this->valor))
             throw new \Exception("O valor é obrigatório");
 
-        if ($this->detalhesTecnicos == 'null' || \is_null($this->detalhesTecnicos) || empty(trim($this->detalhesTecnicos)))
-            $this->detalhesTecnicos = null;
+        if ($this->especificacoesTecnicas == 'null' || 
+            \is_null($this->especificacoesTecnicas) || 
+            empty(trim($this->especificacoesTecnicas)))
+            $this->especificacoesTecnicas = null;
         else
-            $this->detalhesTecnicos = trim($this->detalhesTecnicos);
+            $this->especificacoesTecnicas = trim($this->especificacoesTecnicas);
 
         if (\is_null($this->tags) || empty(trim($this->tags)))
             $this->tags = null;
