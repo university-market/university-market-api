@@ -35,4 +35,14 @@ class Instituicao extends Model{
     protected $aprovada;
     protected $ativa;
     protected $planoId;
+
+    // Entity Relationships
+
+    /**
+     * Obtem o Plano associado à Instituicao
+     */
+    public function plano()
+    {
+        return $this->hasOne(Plano::class, 'planoId', 'planoId');
+    }
 }
