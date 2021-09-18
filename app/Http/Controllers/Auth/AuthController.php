@@ -16,8 +16,6 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends UniversityMarketController {
 
-  private $authTokenKey = "um-auth-token";
-
   public function loginEstudante(Request $request) {
 
     $model = $this->cast($request, AppLoginModel::class);
