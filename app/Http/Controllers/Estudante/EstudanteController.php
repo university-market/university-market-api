@@ -20,15 +20,16 @@ class EstudanteController extends UniversityMarketController {
       throw new \Exception("Estudante não encontrado");
 
     $session = $this->getSession();
-
-    // if (!$session)
-    //   throw new \Exception("Sem permissão para realizar esta ação");
+    
+    if (!$session)
+      return $this->unauthorized();
 
     $estudante = Estudante::find($estudanteId);
 
     if (\is_null($estudante))
-        throw new \Exception("Estudante não encontrado");
+      throw new \Exception("Estudante não encontrado");
 
+    // Construir model de detalhes do estudante
     $model = new EstudanteDetalheModel();
 
     $model->estudanteId = $estudante->estudanteId;

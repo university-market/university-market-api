@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Base;
 
-use App\Models\AppSession;
+use App\Models\Session\AppSession;
 use DateTime;
 use Laravel\Lumen\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\DB;
@@ -94,7 +94,7 @@ class UniversityMarketController extends BaseController {
 
         $authToken = $request->header($this->authTokenKey) ?? null;
         $sessionType = $request->header($this->sessionType) ?? null;
-
+        
         if (is_null($authToken))
             return false;
 
@@ -110,18 +110,19 @@ class UniversityMarketController extends BaseController {
                 break;
 
             case SESSION_TYPE_ESTUDANTE: // Estudante
-                $session = AppSession::where('sessionToken', '=', $authToken)->first();
+                $session = AppSession::where('sessionToken', $authToken)->first();
                 break;
         }
         
         if (is_null($session))
             return false;
 
-        $today = new DateTime();
-        $expiration = new DateTime($session->dataHoraExpiracao);
+        // Excluir sessão existente
+        if (time() > $session->expirationTime) {
 
-        if ($expiration > $today)
+            $this->clearExistingSession($session->sessionId);
             return false;
+        }
 
         return $session;
     }
@@ -130,8 +131,21 @@ class UniversityMarketController extends BaseController {
      * @method unauthorized()
      * @return Response Returns a unauthorized response (code 401)
      */
-    protected function unauthorized() {
+    protected function unauthorized($mensagem = null) {
 
-        return response("Operação não autorizada", 401);
+        return response($mensagem ?? "Operação não autorizada", 401);
+    }
+
+    /**
+     * @method clearExistingSession()
+     * @param integer $sessionId Id da session que deseja apagar
+     * @return void Apaga a session existente
+     */
+    private function clearExistingSession($sessionId) {
+
+        $session = AppSession::find($sessionId);
+
+        if (!is_null($session))
+            AppSession::destroy($session->sessionId);
     }
 }

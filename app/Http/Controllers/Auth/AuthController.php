@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Auth\Data\AuthCommonData;
 use App\Http\Controllers\Base\UniversityMarketController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 // Models de publicacao utilizadas
-use App\Models\AppSession;
+use App\Models\Session\AppSession;
 use App\Http\Controllers\Auth\Models\AppLoginModel;
 use App\Http\Controllers\Auth\Models\AppSummarySession;
-use App\Models\Estudante;
+use App\Models\Estudante\Estudante;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends UniversityMarketController {
@@ -28,17 +29,20 @@ class AuthController extends UniversityMarketController {
     if (is_null($estudante) || !Hash::check($model->senha, $estudante->hashSenha))
       throw new \Exception("E-mail ou senha incorretos");
 
-    $activatedSession = AppSession::where('usuarioId', $estudante->estudanteId)->first();
+    $activatedSession = AppSession::where('estudanteId', $estudante->estudanteId)->first();
 
     // Retornar token da sessao ativa
     if (!is_null($activatedSession))
       return response()->json(new AppSummarySession($activatedSession->sessionToken));
 
+    // Gerar tempo de expiracao da sessao em minutos
+    $expiration = $this->generateExpirationDate();
+
     $session = new AppSession();
 
-    $session->usuarioId = $estudante->estudanteId;
+    $session->estudanteId = $estudante->estudanteId;
     $session->sessionToken = $this->generateSessionToken($estudante->email);
-    $session->dataHoraExpiracao = $this->generateExpirationDate(15);
+    $session->expirationTime = $expiration;
 
     $session->save();
 
@@ -53,10 +57,12 @@ class AuthController extends UniversityMarketController {
     return Hash::make($base);
   }
 
-  private function generateExpirationDate($minutes = 60) {
+  private function generateExpirationDate() {
 
+    $minutes = AuthCommonData::getSessionDefaultExpirationTime();
+    
     $timestamp = time() + $minutes * 60; // now + ($minutes * 60 seconds)
 
-    return date($this->dateTimeFormat, $timestamp);
+    return $timestamp;
   }
 }

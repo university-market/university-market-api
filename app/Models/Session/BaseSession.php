@@ -15,16 +15,14 @@ class BaseSession extends Model {
    */
   protected $casts = [
     'sessionId' => 'integer',
-    'usuarioId' => 'integer',
     'sessionToken' => 'string',
-    'dataHoraExpiracao' => 'datetime',
+    'expirationTime' => 'integer',
   ];
 
   protected $primaryKey = 'sessionId';
 
   protected $sessionId; // PK Session
-  protected $usuarioId; // FK Tabela Usuario
   protected $sessionToken;
-  protected $dataHoraExpiracao;
+  protected $expirationTime;
 
 }
