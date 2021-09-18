@@ -71,7 +71,6 @@ class EstudanteController extends UniversityMarketController {
 
   /**
    * @param string $email E-mail do estudante (deve ser único na instituicao)
-   * @param string $ra Registro Academico do estudante (deve ser único na instituicao)
    * @param string $instituicaoId Id da intituicao de ensino
    */
   private function estudanteExistente($email, $instituicaoId) {
@@ -83,15 +82,6 @@ class EstudanteController extends UniversityMarketController {
           $query->orWhere('email', $email);
         }
       )->first();
-
-    // $any = Estudante::where('instituicaoId', $instituicaoId)
-    //   ->where(
-    //     function($query) use ($email, $ra) {
-
-    //       $query->where('email', $email)
-    //         ->orWhere('ra', $ra);
-    //     }
-    //   )->first();
 
     return !is_null($any);
   }

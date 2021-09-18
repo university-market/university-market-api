@@ -7,7 +7,7 @@ abstract class AuthCommonData {
     /**
      * @property integer $sessionDefaultExpirationTime Session expiration time (in minutes)
      */
-    private static $sessionDefaultExpirationTime = 60;
+    private static $sessionDefaultExpirationTime = 720; // 12 horas
 
     public static function getSessionDefaultExpirationTime() {
 
