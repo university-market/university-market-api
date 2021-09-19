@@ -12,6 +12,7 @@ use App\Models\Publicacao\Publicacao;
 use App\Models\Curso\Curso;
 use App\Http\Controllers\Publicacao\Models\PublicacaoCriacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
+use App\Models\Publicacao\Tag_Publicacao;
 
 class PublicacaoController extends UniversityMarketController {
 
@@ -157,6 +158,28 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao->save();
 
         return response(null, 200);
+    }
+
+    public function obterTags($publicacaoId) {
+
+        if (is_null($publicacaoId))
+            throw new UMException("Publicação não encontrada");
+
+        $publicacao = Publicacao::find($publicacaoId);
+
+        if (is_null($publicacao) || $publicacao->excluida)
+            throw new UMException("Publicação não encontrada");
+
+        $tagFields = ['tagId', 'conteudo'];
+
+        $tags = Tag_Publicacao::where('publicacaoId', $publicacaoId)
+            ->with(['tag' => function($tagQuery) use($tagFields) {
+                $tagQuery->select($tagFields)->get();
+            }])
+            ->select('tagId')
+            ->get();
+
+        return response()->json($tags);
     }
 
     public function excluir($publicacaoId) {

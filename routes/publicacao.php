@@ -37,6 +37,9 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
     // Obter publicacao
     $router->get('{publicacaoId}', 'PublicacaoController@obter');
 
+    // Obter tags da publicacao
+    $router->get('{publicacaoId}/tags', 'PublicacaoController@obterTags');
+
     // Excluir publicacao
     $router->delete('{publicacaoId}', 'PublicacaoController@excluir');
 });

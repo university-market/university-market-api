@@ -7,7 +7,7 @@ use \Illuminate\Database\Eloquent\Model;
 use App\Models\Publicacao\Publicacao;
 use App\Models\Publicacao\Tag;
 
-class Instituicao_Curso extends Model {
+class Tag_Publicacao extends Model {
     
     public $timestamps = false; // Nao registrar data/hora criacao/alteracao
 
