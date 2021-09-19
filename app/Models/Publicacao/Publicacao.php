@@ -4,6 +4,9 @@ namespace App\Models\Publicacao;
 
 use \Illuminate\Database\Eloquent\Model;
 
+use App\Models\Curso\Curso;
+use App\Models\Estudante\Estudante;
+
 class Publicacao extends Model {
     
     public $timestamps = false; // Nao registrar data/hora criacao/alteracao

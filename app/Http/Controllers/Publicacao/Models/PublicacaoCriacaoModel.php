@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Publicacao\Models;
 
 class PublicacaoCriacaoModel {
 
-    public $publicacaoId;
     public $titulo;
     public $descricao;
     public $valor;

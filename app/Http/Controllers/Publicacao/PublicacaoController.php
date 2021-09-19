@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Publicacao;
 
+use App\Exceptions\Base\UMException;
 use App\Http\Controllers\Base\UniversityMarketController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 // Models de publicacao utilizadas
 use App\Models\Publicacao\Publicacao;
+use App\Models\Curso\Curso;
 use App\Http\Controllers\Publicacao\Models\PublicacaoCriacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
 
@@ -17,14 +19,9 @@ class PublicacaoController extends UniversityMarketController {
 
     public function obter($publicacaoId) {
 
-        $condition = [
-            'publicacaoId' => $publicacaoId,
-            'dataHoraExclusao' => null
-        ];
+        $publicacao = Publicacao::find($publicacaoId);
 
-        $publicacao = Publicacao::where($condition)->first();
-
-        if (\is_null($publicacao))
+        if (\is_null($publicacao) || $publicacao->excluida)
             throw new \Exception("Publicação não encontrada");
 
         $model = $this->cast($publicacao, PublicacaoDetalheModel::class);
@@ -58,52 +55,57 @@ class PublicacaoController extends UniversityMarketController {
 
         $publicacao->save();
 
-        $publicacaoId = $publicacao->publicacaoId;
-
-        return response()->json($publicacaoId);
+        return response(null, 200);
     }
 
     public function listar() {
 
-        $publicacoes = Publicacao::where('dataHoraExclusao', null)->get()->toArray();
+        $publicacoes = Publicacao::where('excluida', false)->get()->toArray();
 
         $model = $this->cast($publicacoes, PublicacaoDetalheModel::class);
 
         return response()->json($model);
     }
 
-    public function listarByCursoId($id = null) {
-        $results = null;
+    public function listarByCurso($cursoId) {
+        
+        if (is_null($cursoId))
+            throw new UMException("Curso não encontrado");
 
-        if (!$id) {
-            $results = DB::select('select * from publicacao');
-            return $results;
-        } else {
-            $results = DB::select('select publicacaoId,
-                                          titulo,
-                                          descricao,
-                                          valor,
-                                          pathImagem,
-                                          name
-                                    from  publicacao 
-                                     join users 
-                                       on userId = id 
-                                    where cursoId = :id',['id'=> $id]);
-            return $results;
-        }
+        $curso = Curso::find($cursoId);
+
+        if (is_null($curso))
+            throw new UMException("Curso não encontrado");
+
+        $cursoFields = ['cursoId', 'nome'];
+        $publicacaoFields = ['publicacaoId', 'titulo', 'pathImagem', 'estudanteId'];
+        $estudanteFields = ['estudanteId', 'nome', 'email'];
+
+        $list = Curso::where('cursoId', $cursoId)
+            ->with(['publicacao' => function($publicacaoQuery) use ($publicacaoFields, $estudanteFields) {
+                $publicacaoQuery->with(['estudante' => function($estudanteQuery) use ($estudanteFields) {
+                    $estudanteQuery->select($estudanteFields);
+                }])
+                ->select($publicacaoFields);
+            }])
+            ->select($cursoFields)
+            ->get();
+
+        return response()->json($list);
     }
 
     public function alterar(Request $request, $publicacaoId) {
 
         $model = $this->cast($request, PublicacaoCriacaoModel::class);
 
-        $condition = [
-            'publicacaoId' => $publicacaoId,
-            'dataHoraExclusao' => null
-        ];
-        $publicacao = Publicacao::where($condition)->first();
+        $session = $this->getSession();
 
-        if (\is_null($publicacao))
+        if (!$session)
+            return $this->unauthorized();
+
+        $publicacao = Publicacao::find($publicacaoId);
+
+        if (\is_null($publicacao) || $publicacao->excluida)
             throw new \Exception("Publicação não encontrada");
 
         // Validação valor recebido na model
@@ -132,25 +134,25 @@ class PublicacaoController extends UniversityMarketController {
         }
 
         // Tags
-        if ($publicacao->tags != $model->tags) {
+        // if ($publicacao->tags != $model->tags) {
 
-            $publicacao->tags = (\is_null($model->tags) || empty(trim($model->tags))) ? 
-                $publicacao->tags : $model->tags;
-        }
+        //     $publicacao->tags = (\is_null($model->tags) || empty(trim($model->tags))) ? 
+        //         $publicacao->tags : $model->tags;
+        // }
 
         // Detalhes tecnicos
-        if ($publicacao->detalhesTecnicos != $model->detalhesTecnicos) {
+        if ($publicacao->especificacoesTecnicas != $model->especificacoesTecnicas) {
 
-            $publicacao->detalhesTecnicos = strlen(trim($model->detalhesTecnicos)) == 0 ?
-                null : trim($model->detalhesTecnicos);
+            $publicacao->especificacoesTecnicas = strlen(trim($model->especificacoesTecnicas)) == 0 ?
+                null : trim($model->especificacoesTecnicas);
         }
         
         // Imagem
-        if ($publicacao->pathImagem != $model->pathImagem) {
+        // if ($publicacao->pathImagem != $model->pathImagem) {
         
-            $publicacao->pathImagem = (\is_null($model->pathImagem) || empty(trim($model->pathImagem))) ? 
-                $publicacao->pathImagem : trim($model->pathImagem);
-        }
+        //     $publicacao->pathImagem = (\is_null($model->pathImagem) || empty(trim($model->pathImagem))) ? 
+        //         $publicacao->pathImagem : trim($model->pathImagem);
+        // }
 
         $publicacao->save();
 
@@ -159,17 +161,12 @@ class PublicacaoController extends UniversityMarketController {
 
     public function excluir($publicacaoId) {
 
-        $condition = [
-            'publicacaoId' => $publicacaoId,
-            'dataHoraExclusao' => null
-        ];
+        $publicacao = Publicacao::find($publicacaoId);
 
-        $publicacao = Publicacao::where($condition)->first();
-
-        if (\is_null($publicacao))
+        if (\is_null($publicacao) || $publicacao->excluida)
             throw new \Exception("Publicação não encontrada");
 
-        $publicacao->dataHoraExclusao = \date($this->dataHoraFormat);
+        $publicacao->excluida = true;
 
         $publicacao->save();
         
