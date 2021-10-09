@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Curso;
 
+use App\Common\Datatype\KeyValuePair;
 use App\Exceptions\Base\UMException;
 use App\Http\Controllers\Base\UniversityMarketController;
 use Illuminate\Http\Request;
@@ -33,10 +34,10 @@ class CursoController extends UniversityMarketController {
     // Construir listagem de models apenas com informações necessárias
     foreach ($cursos as $curso) {
 
-        $model = new CursoListaModel();
+        $model = new KeyValuePair();
 
-        $model->cursoId = $curso->cursoId;
-        $model->nome = $curso->curso->nome;
+        $model->key = $curso->cursoId;
+        $model->value = $curso->curso->nome;
 
         $list[] = $model;
     }
