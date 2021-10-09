@@ -31,7 +31,7 @@ class AuthController extends UniversityMarketController {
 
     // Retornar token da sessao ativa
     if (!is_null($activatedSession))
-      return response()->json(new AppSummarySession($activatedSession->sessionToken));
+      return response()->json(new AppSummarySession($activatedSession->sessionToken, $activatedSession->estudanteId));
 
     // Gerar tempo de expiracao da sessao em minutos
     $expiration = $this->generateExpirationDate();
@@ -44,7 +44,7 @@ class AuthController extends UniversityMarketController {
 
     $session->save();
 
-    return response()->json(new AppSummarySession($session->sessionToken));
+    return response()->json(new AppSummarySession($session->sessionToken, $session->estudanteId));
   }
 
   private function generateSessionToken($email) {
