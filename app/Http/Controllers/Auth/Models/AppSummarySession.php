@@ -6,11 +6,13 @@ class AppSummarySession {
 
   public $token;
   public $userId;
+  public $nome;
 
-  public function __construct($token, $userId)
+  public function __construct($token, $userId, $nome)
   {
     $this->token = $token;
     $this->userId = $userId;
+    $this->nome = $nome;
   }
 
 }

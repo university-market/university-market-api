@@ -30,8 +30,14 @@ class AuthController extends UniversityMarketController {
     $activatedSession = AppSession::where('estudanteId', $estudante->estudanteId)->first();
 
     // Retornar token da sessao ativa
-    if (!is_null($activatedSession))
-      return response()->json(new AppSummarySession($activatedSession->sessionToken, $activatedSession->estudanteId));
+    if (!is_null($activatedSession)) {
+
+      return response()->json(new AppSummarySession(
+        $activatedSession->sessionToken, 
+        $activatedSession->estudanteId,
+        $estudante->nome
+      ));
+    }
 
     // Gerar tempo de expiracao da sessao em minutos
     $expiration = $this->generateExpirationDate();
@@ -44,7 +50,11 @@ class AuthController extends UniversityMarketController {
 
     $session->save();
 
-    return response()->json(new AppSummarySession($session->sessionToken, $session->estudanteId));
+    return response()->json(new AppSummarySession(
+      $session->sessionToken, 
+      $session->estudanteId,
+      $estudante->nome
+    ));
   }
 
   private function generateSessionToken($email) {
