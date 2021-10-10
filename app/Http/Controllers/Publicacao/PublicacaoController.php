@@ -13,12 +13,18 @@ use App\Models\Curso\Curso;
 use App\Http\Controllers\Publicacao\Models\PublicacaoCriacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
 use App\Models\Publicacao\Tag_Publicacao;
+use Exception;
 
 class PublicacaoController extends UniversityMarketController {
 
     private $dataHoraFormat = "Y-m-d H:i:s";
 
     public function obter($publicacaoId) {
+
+        $session = $this->getSession();
+
+        if (!$session)
+            return $this->unauthorized();
 
         $publicacao = Publicacao::find($publicacaoId);
 
