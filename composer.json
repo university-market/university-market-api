@@ -38,6 +38,6 @@
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
-        "start": "echo \"Your application is listening on http://localhost:8080\" && php -S localhost:8080 -t public"
+        "start": "php -S localhost:8080 -t public"
     }
 }
