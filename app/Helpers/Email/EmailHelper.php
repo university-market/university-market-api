@@ -5,6 +5,7 @@ namespace App\Helpers\Email;
 use Illuminate\Support\Facades\Http;
 use App\Models\Session\BaseSession;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 abstract class EmailHelper {
 
@@ -48,18 +49,27 @@ abstract class EmailHelper {
         if (is_null($api_route))
             throw new Exception("Variável de ambiente EMAIL_SERVICE_API_URL não foi definida");
 
-        $response = null;
+        try {
 
-        switch($requestType) {
+            $response = null;
 
-            case 'POST':
-                $response = $req->post($api_route, $data)->body();
-                break;
+            switch($requestType) {
 
-            default:
+                case 'POST':
+                    $response = $req->post($api_route, $data)->body();
+                    break;
+
+                default:
+            }
+
+            return $response;
+        } catch (Exception $e) {
+
+            // Registrar erro de envio do e-mail
+            Log::error("Não foi possível enviar e-mail para $api_route");
         }
 
-        return $response;
+        return null;
     }
 
 }
