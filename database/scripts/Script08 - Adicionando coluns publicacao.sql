@@ -1,2 +1,0 @@
-ALTER TABLE `Publicacao` ADD COLUMN `cursoId` INT NULL;
-ALTER TABLE `Publicacao` ADD COLUMN `userId` INT NULL;

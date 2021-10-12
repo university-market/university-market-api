@@ -1,1 +1,0 @@
-ALTER TABLE `Publicacao` MODIFY `valor` NUMERIC(10,2);

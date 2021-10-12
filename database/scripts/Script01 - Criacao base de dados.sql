@@ -1,1 +1,0 @@
-CREATE DATABASE university_market_db;
