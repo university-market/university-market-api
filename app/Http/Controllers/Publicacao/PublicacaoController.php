@@ -36,6 +36,23 @@ class PublicacaoController extends UniversityMarketController {
         return response()->json($model);
     }
 
+    public function obterByUser($estudanteId) {
+
+        //$session = $this->getSession();
+
+        //if (!$session)
+            //return $this->unauthorized();
+
+        $publicacao = Publicacao::where('estudanteId', $estudanteId)
+                                ->where('excluida',false)
+                                ->get()->toArray();
+
+        $model = $this->cast($publicacao, PublicacaoDetalheModel::class);
+
+        return response()->json($model);
+        
+    }
+
     public function criar(Request $request) {
 
         $model = $this->cast($request, PublicacaoCriacaoModel::class);

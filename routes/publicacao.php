@@ -42,4 +42,9 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
 
     // Excluir publicacao
     $router->delete('{publicacaoId}', 'PublicacaoController@excluir');
+
+    // Oberter Publicação por id de estudante
+    $router->get('/estudante/{estudanteId}', 'PublicacaoController@obterByUser');
+    
+    
 });
