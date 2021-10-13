@@ -29,7 +29,7 @@ abstract class EmailHelper {
      * @param BaseSession $session Application base session
      * @return Http A HttpClient instance
      */
-    private static function prepare(BaseSession $session) {
+    private static function prepare($session) {
 
         return $http = Http::acceptJson();
     }
