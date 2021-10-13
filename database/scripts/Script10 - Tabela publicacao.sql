@@ -15,11 +15,5 @@ CREATE TABLE IF NOT EXISTS `Publicacao` (
     `cursoId` INT NULL,
     `estudanteId` INT NOT NULL,
 
-    PRIMARY KEY (`publicacaoId`),
-
-    CONSTRAINT `FK_Curso_Publicacao`
-    FOREIGN KEY (`cursoId`) REFERENCES `Curso`(`cursoId`),
-
-    CONSTRAINT `FK_Estudante_Publicacao`
-    FOREIGN KEY (`estudanteId`) REFERENCES `Estudante`(`estudanteId`)
+    PRIMARY KEY (`publicacaoId`)
 );

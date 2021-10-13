@@ -1,6 +1,6 @@
 <?php
 
-define('DEFAULT_START_SCRIPT_NAME', 'Script0');
+define('DEFAULT_START_SCRIPT_NAME', 'Script');
 define('DATA_SOURCE_PATH', '../data/db-control.json');
 define('ENDLINE', '<br>');
 
@@ -45,20 +45,54 @@ class ScriptControl {
 
         $this->last_update = date('d/m/Y');
 
-        $db = new DatabaseClass();
+        // Start database PDO instance
+        $db_instance = new DatabaseClass();
 
-        echo 'Operação iniciada!'.ENDLINE;
+        $db = $db_instance->db;
 
-        foreach ($this->not_executed as $script) {
+        echo 'Operação iniciada!' . ENDLINE . ENDLINE;
 
-            $sql = $this->readSQL($script);
+        try {
 
-            $db->executeScript($sql);
+            $db->beginTransaction();
 
-            echo $script . ' executado!' . ENDLINE;
-            echo $script . ' salvo como executado! ' . ENDLINE;
+            foreach ($this->not_executed as $script) {
 
-            $this->registerAsExecuted($script);
+                $sql = $this->readSQL($script);
+    
+                $afetado = $db->exec($sql);
+                
+                if ($afetado === false) {
+
+                    if ($db->inTransaction())
+                        $db->rollBack();
+                    break;
+                }
+
+                echo 'Executando ' . $script . ' ...' . ENDLINE;
+                echo '---------------------------------------------------------------------';
+                echo '---------------------------------------------------------------------' . ENDLINE;
+                echo 'SQL Executado: ' . $sql . ENDLINE;
+                echo '---------------------------------------------------------------------';
+                echo '---------------------------------------------------------------------' . ENDLINE;
+                echo $afetado . ' linha(s) afetada(s)' . ENDLINE;
+                echo $script . ' finalizado! Salvo como executado.' . ENDLINE . ENDLINE;
+        
+                $this->registerAsExecuted($script);
+            }
+
+            if ($db->inTransaction())
+                $db->commit();
+
+        } catch (Exception $e) {
+
+            echo 'A execução dos scripts foi abortada pois um erro ocorreu.' . ENDLINE;
+            // echo 'Nenhuma alteração foi salva.' . ENDLINE;
+
+            echo 'Detalhes do erro: ' . $e->getMessage() . ENDLINE;
+
+            if ($db->inTransaction())
+                $db->rollBack();
         }
 
         echo 'Operação finalizada!'.ENDLINE;
@@ -97,6 +131,8 @@ class ScriptControl {
                 $temp[] = $value;
             }
         }
+
+        sort($temp, SORT_NATURAL | SORT_FLAG_CASE);
 
         return $temp;
     }

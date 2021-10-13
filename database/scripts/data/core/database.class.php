@@ -2,7 +2,7 @@
 
 class DatabaseClass {
 
-    private $db;
+    public $db;
 
     /**
      * @method getDb() Realiza a conexão com o serviço de banco de dados
@@ -33,18 +33,7 @@ class DatabaseClass {
 
             throw new Exception("Um erro ocorreu na execução do programa de inicialização do BD.");
         }
-    }
 
-    public function executeScript($sql) {
-
-        try {
-
-            $this->db->exec($sql);
-
-        } catch (Exception $e) {
-
-            echo $e->getMessage();
-            return null;
-        }
+        return $this->db;
     }
 }
