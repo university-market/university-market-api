@@ -56,29 +56,36 @@ class ScriptControl {
 
             $db->beginTransaction();
 
-            foreach ($this->not_executed as $script) {
+            if (count($this->not_executed) == 0) {
 
-                $sql = $this->readSQL($script);
+                echo '** Não há novos scripts a serem executados **' . ENDLINE . ENDLINE;
+
+            } else {
+
+                foreach ($this->not_executed as $script) {
     
-                $afetado = $db->exec($sql);
-                
-                if ($afetado === false) {
-
-                    if ($db->inTransaction())
-                        $db->rollBack();
-                    break;
-                }
-
-                echo 'Executando ' . $script . ' ...' . ENDLINE;
-                echo '---------------------------------------------------------------------';
-                echo '---------------------------------------------------------------------' . ENDLINE;
-                echo 'SQL Executado: ' . $sql . ENDLINE;
-                echo '---------------------------------------------------------------------';
-                echo '---------------------------------------------------------------------' . ENDLINE;
-                echo $afetado . ' linha(s) afetada(s)' . ENDLINE;
-                echo $script . ' finalizado! Salvo como executado.' . ENDLINE . ENDLINE;
+                    $sql = $this->readSQL($script);
         
-                $this->registerAsExecuted($script);
+                    $afetado = $db->exec($sql);
+                    
+                    if ($afetado === false) {
+    
+                        if ($db->inTransaction())
+                            $db->rollBack();
+                        break;
+                    }
+    
+                    echo 'Executando ' . $script . ' ...' . ENDLINE;
+                    echo '---------------------------------------------------------------------';
+                    echo '---------------------------------------------------------------------' . ENDLINE;
+                    echo 'SQL Executado: ' . $sql . ENDLINE;
+                    echo '---------------------------------------------------------------------';
+                    echo '---------------------------------------------------------------------' . ENDLINE;
+                    echo $afetado . ' linha(s) afetada(s)' . ENDLINE;
+                    echo $script . ' finalizado! Salvo como executado.' . ENDLINE . ENDLINE;
+            
+                    $this->registerAsExecuted($script);
+                }
             }
 
             if ($db->inTransaction())
