@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Helpers\Token\TokenHelper;
 use App\Http\Controllers\Auth\Data\AuthCommonData;
 use App\Http\Controllers\Base\UniversityMarketController;
 use Illuminate\Http\Request;
@@ -11,8 +12,10 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Session\AppSession;
 use App\Http\Controllers\Auth\Models\AppLoginModel;
 use App\Http\Controllers\Auth\Models\AppSummarySession;
+use App\Models\Estudante\RecuperacaoSenhaEstudante;
 use App\Models\Estudante\Estudante;
 use Illuminate\Support\Facades\Hash;
+use Exception;
 
 class AuthController extends UniversityMarketController {
 
@@ -45,7 +48,7 @@ class AuthController extends UniversityMarketController {
     $session = new AppSession();
 
     $session->estudanteId = $estudante->estudanteId;
-    $session->sessionToken = $this->generateSessionToken($estudante->email);
+    $session->sessionToken = TokenHelper::generateSessionToken();
     $session->expirationTime = $expiration;
 
     $session->save();
@@ -57,13 +60,43 @@ class AuthController extends UniversityMarketController {
     ));
   }
 
-  private function generateSessionToken($email) {
+  public function solicitarRecuperacaoSenhaEstudante($email) {
 
-    $mail = explode('@', $email)[0];
-    $base = time().'_'.$mail;
+    if (is_null($email))
+      throw new Exception("E-mail informado inválido");
 
-    return Hash::make($base);
+    $estudante = Estudante::where('ativo', true)->where('email', $email)->first();
+
+    if (is_null($estudante))
+      throw new Exception("Não há cadastro relacionado a este endereço de e-mail");
+
+    $token = TokenHelper::generatePasswordResetToken();
+
+    $expirationTime = 15; // In minutes
+
+    $email_data = [
+      'email' => $email,
+      'estudanteNome' => $estudante->nome,
+      'token' => $token,
+      'expirationTime' => $expirationTime
+    ];
+
+    // Enviar e-mail
+
+    // Persistir solicitação de recuperação de senha
+    $recuperacao = new RecuperacaoSenhaEstudante();
+
+    $recuperacao->tokenRecuperacao = $token;
+    $recuperacao->tempoExpiracao = $expirationTime * 60; // In seconds
+    $recuperacao->email = $email;
+    $recuperacao->dataHoraSolicitacao = date($this->dateTimeFormat);
+    $recuperacao->completo = false;
+    $recuperacao->estudanteId = $estudante->estudanteId;
+
+    $recuperacao->save();
   }
+
+  // Private methods
 
   private function generateExpirationDate() {
 
