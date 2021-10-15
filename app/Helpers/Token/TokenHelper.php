@@ -19,4 +19,18 @@ abstract class TokenHelper {
         // return Hash::make($base);
         return $token;
     }
+
+    /**
+     * Método estático para gerar token de validação de redefinição de senha
+     * @return string Token gerado
+     */
+    public static function generatePasswordResetToken() {
+
+        $n = 16;
+
+        $token = bin2hex(random_bytes($n));
+
+        // return Hash::make($base);
+        return $token;
+    }
 }
