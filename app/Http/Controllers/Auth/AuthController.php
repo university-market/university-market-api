@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Session\AppSession;
 use App\Http\Controllers\Auth\Models\AppLoginModel;
 use App\Http\Controllers\Auth\Models\AppSummarySession;
+use App\Http\Controllers\Auth\Models\RecuperacaoSenhaEstudanteModel;
 use App\Models\Estudante\RecuperacaoSenhaEstudante;
 use App\Models\Estudante\Estudante;
 use Illuminate\Support\Facades\Hash;
@@ -30,7 +31,31 @@ class AuthController extends UniversityMarketController {
     if (is_null($estudante) || !Hash::check($model->senha, $estudante->hashSenha))
       throw new \Exception("E-mail ou senha incorretos");
 
-    $activatedSession = AppSession::where('estudanteId', $estudante->estudanteId)->first();
+    $activatedSession = AppSession::where('estudanteId', $estudante->estudanteId)->get();
+
+    // Limpar session existente
+    if (count($activatedSession) > 1) {
+
+      $sessionIds = array_map(function($session) {
+        return $session['sessionId'];
+      }, $activatedSession->toArray());
+
+      AppSession::destroy($sessionIds);
+
+      $activatedSession = null;
+
+    } elseif (count($activatedSession) == 1) {
+
+      $activatedSession = $activatedSession[0];
+
+      // Validar expiration time da sessao ativa
+      if ($activatedSession->expirationTime < time()) {
+
+        AppSession::destroy($activatedSession->sessionId);
+
+        $activatedSession = null;
+      }
+    }
 
     // Retornar token da sessao ativa
     if (!is_null($activatedSession)) {
@@ -60,15 +85,51 @@ class AuthController extends UniversityMarketController {
     ));
   }
 
-  public function solicitarRecuperacaoSenhaEstudante($email) {
+  public function solicitarRecuperacaoSenhaEstudante(Request $request) {
 
-    if (is_null($email))
+    $email = $request->only('email')['email'];
+
+    if (is_null($email) || empty(trim($email)))
       throw new Exception("E-mail informado inválido");
+
+    $email = trim($email);
 
     $estudante = Estudante::where('ativo', true)->where('email', $email)->first();
 
+    // Validar existencia do estudante solicitante
     if (is_null($estudante))
       throw new Exception("Não há cadastro relacionado a este endereço de e-mail");
+
+    $activatedSession = AppSession::where('estudanteId', $estudante->estudanteId)->first();
+
+    // Validar existencia do estudante solicitante
+    if (!is_null($activatedSession))
+      throw new Exception("Existe uma sessão ativa neste endereço de e-mail");
+
+    $solicitacaoExistente = RecuperacaoSenhaEstudante::where('estudanteId', $estudante->estudanteId)
+      ->where('completo', false)
+      ->where('expirada', false)
+      ->first();
+
+    if (!is_null($solicitacaoExistente)) {
+
+      if ($solicitacaoExistente->tempoExpiracao < time()) {
+
+        $solicitacaoExistente->expirada = true;
+        $solicitacaoExistente->save();
+
+      } else {
+
+        $model = new RecuperacaoSenhaEstudanteModel();
+  
+        $expirationTimeInMinutes = ($solicitacaoExistente->tempoExpiracao - time()) / 60;
+  
+        $model->expirationTime = intval($expirationTimeInMinutes); // In minutes
+        $model->existente = true;
+  
+        return response()->json($model);
+      }
+    }
 
     $token = TokenHelper::generatePasswordResetToken();
 
@@ -87,13 +148,20 @@ class AuthController extends UniversityMarketController {
     $recuperacao = new RecuperacaoSenhaEstudante();
 
     $recuperacao->tokenRecuperacao = $token;
-    $recuperacao->tempoExpiracao = $expirationTime * 60; // In seconds
+    $recuperacao->tempoExpiracao = time() + $expirationTime * 60; // In seconds
     $recuperacao->email = $email;
     $recuperacao->dataHoraSolicitacao = date($this->dateTimeFormat);
     $recuperacao->completo = false;
     $recuperacao->estudanteId = $estudante->estudanteId;
 
     $recuperacao->save();
+
+    // Model de resposta
+    $model = new RecuperacaoSenhaEstudanteModel();
+
+    $model->expirationTime = $recuperacao->tempoExpiracao;
+
+    return response()->json($model);
   }
 
   // Private methods
