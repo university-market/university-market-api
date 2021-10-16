@@ -119,7 +119,7 @@ class UniversityMarketController extends BaseController {
         // Excluir sessão existente
         if (time() > $session->expirationTime) {
 
-            $this->clearExistingSession($session->sessionId);
+            $this->clearExistingSession($session->sessionId, $session->usuarioId ?? $session->estudanteId, (int)$sessionType);
             return false;
         }
 
@@ -138,13 +138,29 @@ class UniversityMarketController extends BaseController {
     /**
      * @method clearExistingSession()
      * @param integer $sessionId Id da session que deseja apagar
+     * @param integer $ownerId Proprietário da sessão ativa (estudante ou usuário)
+     * @param integer $sessionType Tipo da sessão a ser considerada (estudante ou usuário)
      * @return void Apaga a session existente
      */
-    private function clearExistingSession($sessionId) {
+    private function clearExistingSession($sessionId, $ownerId, $sessionType) {
 
-        $session = AppSession::find($sessionId);
+        switch ($sessionType) {
 
-        if (!is_null($session))
-            AppSession::destroy($session->sessionId);
+            case SESSION_TYPE_ADMIN: // Administrador
+
+                $session = null;
+
+                break;
+
+            case SESSION_TYPE_ESTUDANTE: // Estudante
+
+                $sessionIds = AppSession::select('sessionId')
+                    ->where('estudanteId', $ownerId)
+                    ->get();
+
+                AppSession::destroy($sessionIds);
+
+                break;
+        }
     }
 }
