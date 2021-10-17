@@ -134,12 +134,14 @@ class AuthController extends UniversityMarketController {
     $token = TokenHelper::generatePasswordResetToken();
 
     $expirationTime = 15; // In minutes
+    $solicitacaoDate = date($this->dateTimeFormat);
 
     $email_data = [
       'email' => $email,
       'estudanteNome' => $estudante->nome,
       'token' => $token,
-      'expirationTime' => $expirationTime
+      'expirationTime' => $expirationTime,
+      'requestDate' => $solicitacaoDate
     ];
 
     // Enviar e-mail
@@ -150,7 +152,7 @@ class AuthController extends UniversityMarketController {
     $recuperacao->tokenRecuperacao = $token;
     $recuperacao->tempoExpiracao = time() + $expirationTime * 60; // In seconds
     $recuperacao->email = $email;
-    $recuperacao->dataHoraSolicitacao = date($this->dateTimeFormat);
+    $recuperacao->dataHoraSolicitacao = $solicitacaoDate;
     $recuperacao->completo = false;
     $recuperacao->estudanteId = $estudante->estudanteId;
 
