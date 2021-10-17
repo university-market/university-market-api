@@ -50,8 +50,11 @@ class EstudanteController extends UniversityMarketController {
 
     $model->validar();
 
-    if ($this->estudanteExistente($model->email, $model->instituicaoId))
-      throw new \Exception("Estudante já cadastrado nesta instituição de ensino");
+    $existente = $this->estudanteExistente($model->email);
+    if ($existente !== false) {
+
+      throw new \Exception("Estudante já possui cadastro em $existente");
+    }
 
     $estudante = new Estudante();
 
@@ -73,16 +76,13 @@ class EstudanteController extends UniversityMarketController {
    * @param string $email E-mail do estudante (deve ser único na instituicao)
    * @param string $instituicaoId Id da intituicao de ensino
    */
-  private function estudanteExistente($email, $instituicaoId) {
+  private function estudanteExistente($email) {
 
-    $any = Estudante::where('instituicaoId', $instituicaoId)
-      ->where(
-        function($query) use ($email) {
+    $estudante = Estudante::where('email', $email)->first();
 
-          $query->orWhere('email', $email);
-        }
-      )->first();
+    if (is_null($estudante))
+      return false;
 
-    return !is_null($any);
+    return $estudante->instituicao->razaoSocial;
   }
 }
