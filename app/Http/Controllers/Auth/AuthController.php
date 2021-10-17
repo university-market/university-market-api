@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Helpers\Email\EmailHelper;
+use App\Helpers\Email\EmailTemplateIdentifier;
 use App\Helpers\Token\TokenHelper;
 use App\Http\Controllers\Auth\Data\AuthCommonData;
 use App\Http\Controllers\Base\UniversityMarketController;
@@ -47,7 +49,7 @@ class AuthController extends UniversityMarketController {
     } elseif (count($activatedSession) == 1) {
 
       $activatedSession = $activatedSession[0];
-
+      
       // Validar expiration time da sessao ativa
       if ($activatedSession->expirationTime < time()) {
 
@@ -55,6 +57,9 @@ class AuthController extends UniversityMarketController {
 
         $activatedSession = null;
       }
+    } else {
+
+      $activatedSession = null;
     }
 
     // Retornar token da sessao ativa
@@ -145,6 +150,7 @@ class AuthController extends UniversityMarketController {
     ];
 
     // Enviar e-mail
+    EmailHelper::send(null, $email_data, EmailTemplateIdentifier::$recuperarSenha);
 
     // Persistir solicitação de recuperação de senha
     $recuperacao = new RecuperacaoSenhaEstudante();
