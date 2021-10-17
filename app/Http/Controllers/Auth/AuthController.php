@@ -141,9 +141,11 @@ class AuthController extends UniversityMarketController {
     $expirationTime = 15; // In minutes
     $solicitacaoDate = date($this->dateTimeFormat);
 
+    $primeiroNome = explode(' ', $estudante->nome)[0];
+
     $email_data = [
       'email' => $email,
-      'estudanteNome' => $estudante->nome,
+      'estudanteNome' => $primeiroNome,
       'token' => $token,
       'expirationTime' => $expirationTime,
       'requestDate' => $solicitacaoDate
