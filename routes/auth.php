@@ -25,4 +25,7 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
     // Solicitar recuperação de senha
     $router->patch('estudante/recuperarsenha/solicitar', 'AuthController@solicitarRecuperacaoSenhaEstudante');
 
+    // Validar token de recuperacao de senha
+    $router->get('estudante/recuperarsenha/{token}', 'AuthController@validarTokenRecuperacaoSenhaEstudante');
+
 });

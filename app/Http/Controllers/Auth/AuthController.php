@@ -169,6 +169,29 @@ class AuthController extends UniversityMarketController {
     return response()->json(new RecuperacaoSenhaEstudanteModel($expirationTime));
   }
 
+  public function validarTokenRecuperacaoSenhaEstudante($token) {
+
+    $solicitacao = RecuperacaoSenhaEstudante::where('tokenRecuperacao', $token)
+      ->where('completo', false)
+      ->where('expirada', false)
+      ->first();
+
+    if (!is_null($solicitacao)) {
+
+      if ($solicitacao->tempoExpiracao < time()) {
+
+        $solicitacao->expirada = true;
+        $solicitacao->save();
+
+        throw new Exception("Link expirado. Uma nova solicitação deve ser realizada");
+      }
+
+      return true;
+    }
+
+    throw new Exception("Não foi possível encontrar esta página");
+  }
+
   // Private methods
 
   private function generateExpirationDate() {

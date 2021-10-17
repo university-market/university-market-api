@@ -22,6 +22,7 @@ class RecuperacaoSenhaEstudante extends Model {
     'email' => 'string',
     'dataHoraSolicitacao' => 'datetime',
     'completo' => 'boolean',
+    'expirada' => 'boolean',
     'estudanteId' => 'integer'
   ];
 
@@ -34,6 +35,7 @@ class RecuperacaoSenhaEstudante extends Model {
   protected $email;
   protected $dataHoraSolicitacao;
   protected $completo;
+  protected $expirada;
   protected $estudanteId; // FK Estudante
 
   // Entity Relationships
