@@ -169,7 +169,7 @@ class AuthController extends UniversityMarketController {
     return response()->json(new RecuperacaoSenhaEstudanteModel($expirationTime));
   }
 
-  public function validarTokenRecuperacaoSenhaEstudante($token) {
+  public function validarTokenRecuperacaoSenhaEstudante($token, $obter = false) {
 
     $solicitacao = RecuperacaoSenhaEstudante::where('tokenRecuperacao', $token)
       ->where('completo', false)
@@ -183,13 +183,46 @@ class AuthController extends UniversityMarketController {
         $solicitacao->expirada = true;
         $solicitacao->save();
 
+        if ($obter)
+          return null;
+
         throw new Exception("Link expirado. Uma nova solicitação deve ser realizada");
       }
+
+      if ($obter)
+        return $solicitacao;
 
       return response()->json(true);
     }
 
+    if ($obter)
+      return null;
+
     throw new Exception("Não foi possível encontrar esta página");
+  }
+
+  public function validarEmailRecuperacaoSenhaEstudante(Request $request) {
+
+    $data = $request->only(['email', 'token']);
+
+    $estudante = Estudante::where('email', $data['email'])->where('ativo', true)->first();
+
+    if (is_null($estudante))
+      throw new Exception('Este e-mail não pertence à um estudante ativo');
+
+    $solicitacao = $this->validarTokenRecuperacaoSenhaEstudante($data['token'], true);
+
+    if (is_null($solicitacao))
+      throw new Exception("Não há solicitação de redefinição de senha ativa");
+
+    $is_valid = false;
+
+    if ($solicitacao->estudante->estudanteId == $estudante->estudanteId) {
+
+      $is_valid = true;
+    }
+
+    return response()->json($is_valid);
   }
 
   // Private methods
