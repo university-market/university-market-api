@@ -186,7 +186,7 @@ class AuthController extends UniversityMarketController {
         throw new Exception("Link expirado. Uma nova solicitação deve ser realizada");
       }
 
-      return true;
+      return response()->json(true);
     }
 
     throw new Exception("Não foi possível encontrar esta página");
