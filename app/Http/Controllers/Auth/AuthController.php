@@ -124,7 +124,7 @@ class AuthController extends UniversityMarketController {
   
         $expirationTimeInMinutes = ($solicitacaoExistente->tempoExpiracao - time()) / 60;
   
-        $model->expirationTime = intval($expirationTimeInMinutes); // In minutes
+        $model->expirationTime = intval(ceil($expirationTimeInMinutes)); // In minutes
         $model->existente = true;
   
         return response()->json($model);
@@ -156,12 +156,7 @@ class AuthController extends UniversityMarketController {
 
     $recuperacao->save();
 
-    // Model de resposta
-    $model = new RecuperacaoSenhaEstudanteModel();
-
-    $model->expirationTime = $recuperacao->tempoExpiracao;
-
-    return response()->json($model);
+    return response()->json(new RecuperacaoSenhaEstudanteModel($expirationTime));
   }
 
   // Private methods
