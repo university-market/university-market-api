@@ -21,5 +21,10 @@ CREATE TABLE IF NOT EXISTS `Instituicao` (
     FOREIGN KEY (`planoId`) REFERENCES `Plano`(`planoId`)
 );
 
-INSERT INTO instituicao (`instituicaoId`,`nomeFantasia`,`razaoSocial`,`nomeReduzido`,`cnpj`,`email`,`telefone`,`dataHoraCadastro`,`aprovada`,`ativa`,`planoId`) 
-VALUES (2,"UNICESUMAR","CENTRO DE ENSINO SUPERIOR DE MARINGA LTDA",null,79265617000199,"leonardo@senhadigital.com.br","30276360","2021-10-13 21:18:51",0,1,1);
+/*
+ * Nova instituicao de ensino padrao
+ */
+INSERT INTO `Instituicao` 
+(`nomeFantasia`, `razaoSocial`, `nomeReduzido`, `cnpj`, `email`, `telefone`, `dataHoraCadastro`, `aprovada`, `ativa`, `planoId`) 
+VALUES 
+("UNICESUMAR", "CENTRO DE ENSINO SUPERIOR DE MARINGA LTDA", NULL, "79265617000199", "leonardo@senhadigital.com.br", "30276360", "2021-10-13 21:18:51", 0, 1, 1);
