@@ -20,3 +20,6 @@ CREATE TABLE IF NOT EXISTS `Instituicao` (
     CONSTRAINT `FK_Plano_Instituicao`
     FOREIGN KEY (`planoId`) REFERENCES `Plano`(`planoId`)
 );
+
+INSERT INTO instituicao (`instituicaoId`,`nomeFantasia`,`razaoSocial`,`nomeReduzido`,`cnpj`,`email`,`telefone`,`dataHoraCadastro`,`aprovada`,`ativa`,`planoId`) 
+VALUES (2,"UNICESUMAR","CENTRO DE ENSINO SUPERIOR DE MARINGA LTDA",null,79265617000199,"leonardo@senhadigital.com.br","30276360","2021-10-13 21:18:51",0,1,1);
