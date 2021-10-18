@@ -15,6 +15,7 @@ use App\Models\Session\AppSession;
 use App\Http\Controllers\Auth\Models\AppLoginModel;
 use App\Http\Controllers\Auth\Models\AppSummarySession;
 use App\Http\Controllers\Auth\Models\RecuperacaoSenhaEstudanteModel;
+use App\Http\Controllers\Auth\Models\AlteracaoSenhaModel;
 use App\Models\Estudante\RecuperacaoSenhaEstudante;
 use App\Models\Estudante\Estudante;
 use Illuminate\Support\Facades\Hash;
@@ -201,7 +202,7 @@ class AuthController extends UniversityMarketController {
     throw new Exception("Não foi possível encontrar esta página");
   }
 
-  public function validarEmailRecuperacaoSenhaEstudante(Request $request) {
+  public function validarEmailRecuperacaoSenhaEstudante(Request $request, $privateGet = false) {
 
     $data = $request->only(['email', 'token']);
 
@@ -212,8 +213,13 @@ class AuthController extends UniversityMarketController {
 
     $solicitacao = $this->validarTokenRecuperacaoSenhaEstudante($data['token'], true);
 
-    if (is_null($solicitacao))
+    if (is_null($solicitacao)) {
+
+      if ($privateGet)
+        return null;
+
       throw new Exception("Não há solicitação de redefinição de senha ativa");
+    }
 
     $is_valid = false;
 
@@ -222,7 +228,38 @@ class AuthController extends UniversityMarketController {
       $is_valid = true;
     }
 
-    return response()->json($is_valid);
+    return $privateGet ? $solicitacao : response()->json($is_valid);
+  }
+
+  public function alterarSenhaEstudante(Request $request) {
+
+    $model = $this->cast($request, AlteracaoSenhaModel::class);
+
+    $solicitacao = $this->validarEmailRecuperacaoSenhaEstudante($request, true);
+
+    if (is_null($solicitacao))
+      throw new Exception("Não há mais uma solicitação ativa para este e-mail");
+
+    $maxTime = $solicitacao->tempoExpiracao + 5 * 60; // Tolerância de 5 minutos além do tempo de expiração
+
+    if ($maxTime < time())
+      throw new Exception("Esta solicitação expirou. Uma nova solicitação é necessária");
+
+    $estudante = Estudante::where('email', $model->email)->where('ativo', true)->first();
+
+    if (is_null($estudante))
+      throw new Exception("Estudante não localizado");
+
+    if (Hash::check($model->senha, $estudante->hashSenha))
+      throw new Exception("A nova senha não pode ser igual à anterior");
+
+    // Salvar nova senha para o estudante
+    $estudante->hashSenha = Hash::make($model->senha);
+    $estudante->save();
+
+    // Finalizar a solicitação de redefinição
+    $solicitacao->completo = true;
+    $solicitacao->save();
   }
 
   // Private methods
