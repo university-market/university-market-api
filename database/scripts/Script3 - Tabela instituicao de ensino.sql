@@ -26,5 +26,6 @@ CREATE TABLE IF NOT EXISTS `Instituicao` (
  */
 INSERT INTO `Instituicao` 
 (`nomeFantasia`, `razaoSocial`, `nomeReduzido`, `cnpj`, `email`, `telefone`, `dataHoraCadastro`, `aprovada`, `ativa`, `planoId`) 
-VALUES 
-("UNICESUMAR", "CENTRO DE ENSINO SUPERIOR DE MARINGA LTDA", NULL, "79265617000199", "leonardo@senhadigital.com.br", "30276360", "2021-10-13 21:18:51", 0, 1, 1);
+VALUES
+("UNICESUMAR", "CENTRO DE ENSINO SUPERIOR DE MARINGA LTDA", NULL, "79265617000199", "leonardo@senhadigital.com.br", "30276360", 
+"2021-10-13 21:18:51", 0, 1, 1);

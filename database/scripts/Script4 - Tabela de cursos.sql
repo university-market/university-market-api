@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS `Curso` (
 /*
  * Cursos padrao
  */
-INSERT INTO `Curso` (`nome`, `pathImagem`) 
+INSERT INTO `Curso` (`cursoId`, `nome`, `pathImagem`) 
 VALUES 
 (1, "Administração", NULL),
 (2, "Analise e desenvolvimento de Sistemas", NULL),
