@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Estudante\Estudante;
 use App\Http\Controllers\Estudante\Models\EstudanteDetalheModel;
 use App\Http\Controllers\Estudante\Models\EstudanteCriacaoModel;
+use App\Http\Controllers\Estudante\Models\EstudanteDadosModel;
 
 class EstudanteController extends UniversityMarketController {
 
@@ -40,6 +41,31 @@ class EstudanteController extends UniversityMarketController {
     $model->pathFotoPerfil = $estudante->pathFotoPerfil;
     $model->cursoNome = $estudante->curso->nome;
     $model->instituicaoRazaoSocial = $estudante->instituicao->razaoSocial;
+
+    return response()->json($model);
+  }
+
+  public function obterDados($estudanteId) {
+
+    if (!$estudanteId)
+      throw new \Exception("Estudante não encontrado");
+
+    $session = $this->getSession();
+    
+    if (!$session)
+      return $this->unauthorized();
+
+    $estudante = Estudante::find($estudanteId);
+
+    if (\is_null($estudante))
+      throw new \Exception("Estudante não encontrado");
+
+    // Construir model de detalhes do estudante
+    $model = new EstudanteDadosModel();
+
+    $model->nome = $estudante->nome;
+    $model->email = $estudante->email;
+    $model->cursoNome = $estudante->curso->nome;
 
     return response()->json($model);
   }
