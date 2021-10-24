@@ -7,9 +7,10 @@ use App\Models\Estudante\Estudante;
 
 class AppSession extends BaseSession {
 
-    protected $table = 'AppSession';
+    // protected $table = 'App_Sessions';
 
-    protected $estudanteId;
+    protected $estudante_id;
+    // protected $usuario_id;
 
     // Entity Relationships
 
@@ -18,6 +19,14 @@ class AppSession extends BaseSession {
      */
     public function estudante()
     {
-        return $this->hasOne(Estudante::class, 'estudanteId', 'estudanteId');
+        return $this->hasOne(Estudante::class);
     }
+
+    /**
+     * Obtem o Usuario associado à Sessao
+     */
+    // public function usuario()
+    // {
+    //     return $this->hasOne(Usuario::class);
+    // }
 }

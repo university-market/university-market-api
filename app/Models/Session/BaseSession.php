@@ -6,7 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class BaseSession extends Model {
 
-  public $timestamps = false; // Nao registrar data/hora criacao/alteracao
+  // Registrar data/hora criacao/alteracao
+  public $timestamps = true;
+
+  // protected $primaryKey = 'id';
 
   /**
    * The attributes that should be cast.
@@ -14,15 +17,13 @@ class BaseSession extends Model {
    * @var array
    */
   protected $casts = [
-    'sessionId' => 'integer',
-    'sessionToken' => 'string',
-    'expirationTime' => 'integer',
+    // 'id' => 'integer',
+    'token' => 'string',
+    'expiration_time' => 'integer'
   ];
 
-  protected $primaryKey = 'sessionId';
-
-  protected $sessionId; // PK Session
-  protected $sessionToken;
-  protected $expirationTime;
+  protected $id; // PK
+  protected $token;
+  protected $expiration_time;
 
 }

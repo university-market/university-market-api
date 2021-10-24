@@ -226,6 +226,8 @@ CREATE TABLE `App_Sessions` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `token` VARCHAR(256) NOT NULL,
     `expiration_time` INT NOT NULL,
+    `created_at` DATETIME NOT NULL,
+    `updated_at` DATETIME NULL,
     `estudante_id` INT NULL,
     `usuario_id` INT NULL,
 
