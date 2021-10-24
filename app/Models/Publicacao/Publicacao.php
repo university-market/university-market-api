@@ -9,7 +9,11 @@ use App\Models\Estudante\Estudante;
 
 class Publicacao extends Model {
     
-    public $timestamps = false; // Nao registrar data/hora criacao/alteracao
+    // Registrar data/hora criacao/alteracao
+    public $timestamps = true;
+
+    protected $table = 'Publicacoes';
+    // protected $primaryKey = 'id';
 
     /**
      * The attributes that should be cast.
@@ -17,29 +21,31 @@ class Publicacao extends Model {
      * @var array
      */
     protected $casts = [
-        'publicacaoId' => 'integer',
+        // 'id' => 'integer',
+        'titulo' => 'string',
+        'descricao' => 'string',
+        'especificacao_tecnica' => 'string',
         'valor' => 'double',
-        'dataHoraCriacao' => 'datetime',
-        'dataHoraFinalizacao' => 'datetime',
-        'excluida' => 'boolean',
-        'cursoId' => 'integer',
-        'estudanteId' => 'integer'
+        'caminho_imagem' => 'string',
+        'data_hora_finalizacao' => 'datetime',
+        'deleted' => 'boolean',
+        // 'curso_id' => 'integer',
+        // 'estudante_id' => 'integer'
     ];
 
-    protected $table = 'Publicacao';
-    protected $primaryKey = 'publicacaoId';
-
-    protected $publicacaoId; // PK Publicacao
+    protected $id; // PK
     protected $titulo;
     protected $descricao;
-    protected $especificacoesTecnicas;
+    protected $especificacao_tecnica;
     protected $valor;
-    protected $pathImagem;
-    protected $dataHoraCriacao;
-    protected $dataHoraFinalizacao;
-    protected $excluida;
-    protected $cursoId; // FK Tabela Curso
-    protected $estudanteId; // FK Tabela Estudante
+    protected $caminho_imagem;
+    protected $data_hora_finalizacao;
+    protected $deleted;
+    protected $created_at;
+    protected $updated_at;
+
+    protected $curso_id; // FK Curso
+    protected $estudante_id; // FK Estudante
 
     // Entity Relationships
 
@@ -48,7 +54,7 @@ class Publicacao extends Model {
      */
     public function curso()
     {
-        return $this->hasOne(Curso::class, 'cursoId', 'cursoId');
+        return $this->hasOne(Curso::class);
     }
 
     /**
@@ -56,6 +62,6 @@ class Publicacao extends Model {
      */
     public function estudante()
     {
-        return $this->hasOne(Estudante::class, 'estudanteId', 'estudanteId');
+        return $this->hasOne(Estudante::class);
     }
 }
