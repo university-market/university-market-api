@@ -8,8 +8,12 @@ use App\Models\Estudante\Estudante;
 use App\Models\Publicacao\Publicacao;
 
 class Curso extends Model {
-    
-  public $timestamps = false; // Nao registrar data/hora criacao/alteracao
+  
+  // Nao registrar data/hora criacao/alteracao
+  public $timestamps = false;
+
+  // protected $table = 'Cursos';
+  // protected $primaryKey = 'id';
 
   /**
    * The attributes that should be cast.
@@ -17,33 +21,30 @@ class Curso extends Model {
    * @var array
    */
   protected $casts = [
-      'cursoId' => 'integer',
+      'id' => 'integer',
       'nome' => 'string',
-      'pathImagem' => 'string'
+      'caminho_imagem' => 'string'
   ];
 
-  protected $table = 'Curso';
-  protected $primaryKey = 'cursoId';
-
-  protected $cursoId; // PK Curso
+  protected $id; // PK
   protected $nome;
-  protected $pathImagem;
+  protected $caminho_imagem;
 
   // Entity Relationships
 
   /**
    * Obtem Estudantes associados ao Curso
    */
-  public function estudante()
+  public function estudantes()
   {
-    return $this->hasMany(Estudante::class, 'estudanteId');
+    return $this->hasMany(Estudante::class);
   }
 
   /**
-   * Obtem Publicacao associadas ao Curso
+   * Obtem Publicacoes associadas ao Curso
    */
-  public function publicacao()
+  public function publicacoes()
   {
-    return $this->hasMany(Publicacao::class, 'publicacaoId');
+    return $this->hasMany(Publicacao::class);
   }
 }

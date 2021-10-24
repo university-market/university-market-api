@@ -22,7 +22,7 @@ class Instituicao extends Model{
         'id' => 'integer',
         'ativa' => 'boolean',
         'approved_at' => 'datetime',
-        'plano_id' => 'integer'
+        // 'plano_id' => 'integer'
     ];
 
     protected $id; // PK
