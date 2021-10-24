@@ -176,6 +176,7 @@ CREATE TABLE `Recuperacoes_Senhas` (
     `token` VARCHAR(256) NOT NULL,
     `email` VARCHAR(100) NOT NULL,
     `completa` BOOLEAN NOT NULL DEFAULT 0,
+    `expirada` BOOLEAN NOT NULL DEFAULT 0,
     `expiration_at` INT NOT NULL,
     `created_at` DATETIME NOT NULL,
     `updated_at` DATETIME NULL,
