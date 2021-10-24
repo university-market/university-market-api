@@ -56,7 +56,8 @@ VALUES
 1, 
 NOW(), 
 NOW(), 
-NULL);
+NULL, 
+1);
 
 /*
  * Criacao tabela Cursos
@@ -227,7 +228,7 @@ CREATE TABLE `App_Sessions` (
     `estudante_id` INT NULL,
     `usuario_id` INT NULL,
 
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
 
     CONSTRAINT `FK_App_Sessions_Estudantes`
     FOREIGN KEY (`estudante_id`) REFERENCES `Estudantes`(`id`),
@@ -411,6 +412,8 @@ CREATE TABLE `Denuncias` (
     `estudante_id_autor` INT NOT NULL,
     `estudante_id_denunciado` INT NOT NULL,
     `movimentacao_id` INT NULL,
+
+    PRIMARY KEY (`id`),
 
     CONSTRAINT `FK_Denuncias_Estudantes_Autor`
     FOREIGN KEY (`estudante_id_autor`) REFERENCES `Estudantes`(`id`),
