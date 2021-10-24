@@ -7,9 +7,12 @@ use \Illuminate\Database\Eloquent\Model;
 use App\Models\Instituicao\Instituicao;
 use App\Models\Curso\Curso;
 
-class Instituicao_Curso extends Model{
+class Instituicao_Curso extends Model {
     
-    public $timestamps = false; // Nao registrar data/hora criacao/alteracao
+    // Nao registrar data/hora criacao/alteracao
+    public $timestamps = false;
+
+    protected $table = 'Instituicoes_Cursos';
 
     /**
      * The attributes that should be cast.
@@ -17,14 +20,12 @@ class Instituicao_Curso extends Model{
      * @var array
      */
     protected $casts = [
-        'instituicaoId' => 'integer',
-        'cursoId' => 'integer'
+        // 'instituicao_id' => 'integer',
+        // 'curso_id' => 'integer'
     ];
 
-    protected $table = 'Instituicao_Curso';
-
-    protected $instituicaoId;
-    protected $cursoId;
+    protected $instituicao_id;
+    protected $curso_id;
 
     // Entity Relationships
 
@@ -33,7 +34,7 @@ class Instituicao_Curso extends Model{
      */
     public function instituicao()
     {
-        return $this->hasOne(Instituicao::class, 'instituicaoId', 'instituicaoId');
+        return $this->hasOne(Instituicao::class);
     }
 
     /**
@@ -41,6 +42,6 @@ class Instituicao_Curso extends Model{
      */
     public function curso()
     {
-        return $this->hasOne(Curso::class, 'cursoId', 'cursoId');
+        return $this->hasOne(Curso::class);
     }
 }
