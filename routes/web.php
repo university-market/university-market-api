@@ -18,18 +18,4 @@ $base = '/';
 
 $router->group(['prefix' => $base], function () use ($router) {
 
-    $router->get('course/grid', 'CourseController@obterCursos');
-
-    $router->get('course/{id}', 'CourseController@obterCursoById');
-
-    $router->get('{id}', 'Controller@obterUsuario');
-    
-    $router->get('{name}/not', 'Controller@notObterUsuario');
-
-    // $router->post('{name}', 'Controller@criarUsuario');
-
 });
-
-// $router->get($base, function () use ($router) {
-//     return response()->json(['response' => 'Hello world by GET']);
-// });
