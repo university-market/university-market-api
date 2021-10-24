@@ -9,8 +9,12 @@ use App\Models\Instituicao\Instituicao;
 use App\Models\Publicacao\Publicacao;
 
 class Estudante extends Model {
-    
-  public $timestamps = false; // Nao registrar data/hora criacao/alteracao
+  
+  // Registrar data/hora criacao/alteracao
+  public $timestamps = true;
+
+  // protected $table = 'Estudantes';
+  // protected $primaryKey = 'id';
 
   /**
    * The attributes that should be cast.
@@ -18,33 +22,31 @@ class Estudante extends Model {
    * @var array
    */
   protected $casts = [
-    'estudanteId' => 'integer',
+    // 'id' => 'integer',
     'nome' => 'string',
     'email' => 'string',
-    'telefone' => 'string',
-    'dataNascimento' => 'date',
-    'hashSenha' => 'string',
-    'pathFotoPerfil' => 'string',
+    'senha' => 'string',
     'ativo' => 'boolean',
-    'dataHoraCadastro' => 'datetime',
-    'cursoId' => 'integer',
-    'instituicaoId' => 'integer'
+    'caminho_foto_perfil' => 'string',
+    'data_nascimento' => 'date',
+    'deleted_at' => 'datetime',
+    // 'curso_id' => 'integer',
+    // 'instituicao_id' => 'integer'
   ];
 
-  protected $table = 'Estudante';
-  protected $primaryKey = 'estudanteId';
-
-  protected $estudanteId; // PK Estudante
+  protected $id; // PK
   protected $nome;
   protected $email;
-  protected $telefone;
-  protected $dataNascimento;
-  protected $hashSenha;
-  protected $pathFotoPerfil;
+  protected $senha;
   protected $ativo;
-  protected $dataHoraCadastro;
-  protected $cursoId; // FK Curso
-  protected $instituicaoId; // FK Instituicao
+  protected $caminho_foto_perfil;
+  protected $data_nascimento;
+  protected $deleted_at;
+  protected $created_at;
+  protected $updated_at;
+
+  protected $curso_id; // FK Curso
+  protected $instituicao_id; // FK Instituicao
 
   // Entity Relationships
 
@@ -53,7 +55,7 @@ class Estudante extends Model {
    */
   public function curso()
   {
-    return $this->hasOne(Curso::class, 'cursoId', 'cursoId');
+    return $this->hasOne(Curso::class);
   }
 
   /**
@@ -61,14 +63,14 @@ class Estudante extends Model {
    */
   public function instituicao()
   {
-    return $this->hasOne(Instituicao::class, 'instituicaoId', 'instituicaoId');
+    return $this->hasOne(Instituicao::class);
   }
 
   /**
-   * Obtem a Instituicao associada ao Estudante
+   * Obtem as Publicacoes associadas ao Estudante
    */
-  public function publicacao()
+  public function publicacoes()
   {
-    return $this->hasMany(Publicacao::class, 'estudanteId');
+    return $this->hasMany(Publicacao::class);
   }
 }
