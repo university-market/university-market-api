@@ -28,4 +28,10 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
   //obter dados do perfil estudante
   $router->get('dados/{estudanteId}','EstudanteController@obterDados');
 
+  //cadastrar contatos do estudante
+  $router->post('contatos','EstudanteController@cadastrarContato');
+
+  //obter contatos do estudante
+  $router->get('contatos/{estudanteId}','EstudanteController@obterContatos');
+
 });

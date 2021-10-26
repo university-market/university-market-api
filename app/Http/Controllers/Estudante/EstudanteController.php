@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Estudante;
 
 use App\Http\Controllers\Base\UniversityMarketController;
+use App\Http\Controllers\Estudante\Models\EstudanteContatosModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +13,7 @@ use App\Models\Estudante\Estudante;
 use App\Http\Controllers\Estudante\Models\EstudanteDetalheModel;
 use App\Http\Controllers\Estudante\Models\EstudanteCriacaoModel;
 use App\Http\Controllers\Estudante\Models\EstudanteDadosModel;
+use App\Models\Estudante\Contato;
 
 class EstudanteController extends UniversityMarketController {
 
@@ -98,6 +100,53 @@ class EstudanteController extends UniversityMarketController {
     $estudante->save();
   }
 
+  public function cadastrarContato(Request $request){
+    
+    $model = $this->cast($request, EstudanteContatosModel::class);
+
+    // Validar informacoes construidas na model
+    $model->validar();
+
+    $session = $this->getSession();
+
+    if (!$session)
+        return $this->unauthorized();
+  
+    //Valida se o tipo de contato já está cadastrado
+    $validacao = Contato::where('estudante_id',$model->estudante_id)
+                            ->where('tipo_contato_id',$model->tipo_contato_id)
+                            ->get()->toArray();
+
+    if($validacao)
+      throw new \Exception("Tipo de contato já cadastrado, favor edita-lo!");
+    
+    $contato = new Contato;
+
+    $contato->conteudo = $model->conteudo;
+    $contato->tipo_contato_id = $model->tipo_contato_id;
+    $contato->estudante_id = $model->estudante_id;
+
+    $contato->save();
+    
+    return response(null, 200);
+  }
+
+  public function obterContatos($estudanteId){
+
+    $session = $this->getSession();
+
+      if (!$session)
+          return $this->unauthorized();
+
+      $contatos = Contato::where('estudante_id', $estudanteId)
+                              ->where('deleted',false)
+                              ->get()->toArray();
+                              
+      $model = $this->cast($contatos, EstudanteContatosModel::class);
+
+      return response()->json($model);
+  }
+
   /**
    * @param string $email E-mail do estudante (deve ser único na instituicao)
    * @param string $instituicaoId Id da intituicao de ensino
@@ -111,4 +160,5 @@ class EstudanteController extends UniversityMarketController {
 
     return $estudante->instituicao->razaoSocial;
   }
+
 }
