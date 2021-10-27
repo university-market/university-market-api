@@ -13,6 +13,7 @@ use App\Models\Estudante\Estudante;
 use App\Http\Controllers\Estudante\Models\EstudanteDetalheModel;
 use App\Http\Controllers\Estudante\Models\EstudanteCriacaoModel;
 use App\Http\Controllers\Estudante\Models\EstudanteDadosModel;
+use App\Models\Estudante\Bloqueios;
 use App\Models\Estudante\Contato;
 
 class EstudanteController extends UniversityMarketController {
@@ -161,7 +162,6 @@ class EstudanteController extends UniversityMarketController {
     return $estudante->instituicao->razaoSocial;
   }
 
-<<<<<<< HEAD
   private function estudantebloqueado($estudante_id) {
 
     $estudante = Bloqueios::where('estudante_id', $estudante_id)->first();
@@ -183,7 +183,7 @@ class EstudanteController extends UniversityMarketController {
       throw new \Exception("Estudante já está bloqueio em $existente");
     }
 
-    $bloqueio = new bloqueio();
+    $bloqueio = new Bloqueios();
 
     $bloqueio->estudanteId = $model->estudanteId;
     $bloqueio->motivo = $model->motivo;
@@ -194,6 +194,4 @@ class EstudanteController extends UniversityMarketController {
 
   }
 
-=======
->>>>>>> feature-meus-dados
 }

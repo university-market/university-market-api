@@ -25,10 +25,8 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
   // Criar estudante
   $router->post('', 'EstudanteController@criar');
 
-<<<<<<< HEAD
   // bloquear estudante
   $router->post('', 'EstudanteController@bloquear');
-=======
   //obter dados do perfil estudante
   $router->get('dados/{estudanteId}','EstudanteController@obterDados');
 
@@ -37,6 +35,5 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
 
   //obter contatos do estudante
   $router->get('contatos/{estudanteId}','EstudanteController@obterContatos');
->>>>>>> feature-meus-dados
 
 });
