@@ -85,4 +85,37 @@ class EstudanteController extends UniversityMarketController {
 
     return $estudante->instituicao->razaoSocial;
   }
+
+  private function estudantebloqueado($estudante_id) {
+
+    $estudante = Bloqueios::where('estudante_id', $estudante_id)->first();
+
+    if (is_null($estudante))
+      return false;
+
+    return $estudante;
+  }
+
+
+  public function bloquear(Request $request) {
+
+    $model = $this->cast($request, EstudantebloqueiModel::class);
+
+    $existente = $this->estudanteExistente($model->email);
+
+    if ($existente !== false) {
+      throw new \Exception("Estudante já está bloqueio em $existente");
+    }
+
+    $bloqueio = new bloqueio();
+
+    $bloqueio->estudanteId = $model->estudanteId;
+    $bloqueio->motivo = $model->motivo;
+    $bloqueio->created_at = $model->created_at;
+    $bloqueio->finished_at = $model->finished_at;
+
+    $bloqueio->save();
+
+  }
+
 }
