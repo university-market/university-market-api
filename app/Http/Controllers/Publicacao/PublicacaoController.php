@@ -38,10 +38,10 @@ class PublicacaoController extends UniversityMarketController {
 
     public function obterByUser($estudanteId) {
 
-        //$session = $this->getSession();
+        $session = $this->getSession();
 
-        //if (!$session)
-            //return $this->unauthorized();
+        if (!$session)
+            return $this->unauthorized();
 
         $publicacao = Publicacao::where('estudanteId', $estudanteId)
                                 ->where('excluida',false)
