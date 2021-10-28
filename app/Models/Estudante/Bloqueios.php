@@ -9,19 +9,27 @@ class Bloqueios extends Model {
   // Registrar data/hora criacao/alteracao
   public $timestamps = true;
 
+  /**
+   * The attributes that should be cast.
+   *
+   * @var array
+   */
 
   protected $casts = [
     'id' => 'integer',
     'motivo' => 'string',
-    'created_at' => 'datetime',
     'finished_at' => 'datetime',
     'estudante_id' => 'integer',
   ];
+
+  protected $table = 'bloqueios';
+  protected $primaryKey = 'id';
 
   protected $id; // PK
   protected $motivo;
   protected $created_at;
   protected $finished_at;
-  protected $estudante_at; // FK Estudante
-
+  protected $estudante_id; // FK Estudante
+  protected $updated_at;
+  
 }

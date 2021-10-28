@@ -6,15 +6,15 @@ use App\Http\Controllers\Base\UniversityMarketController;
 use App\Http\Controllers\Estudante\Models\EstudanteContatosModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
 
 // Models de publicacao utilizadas
 use App\Models\Estudante\Estudante;
+use App\Models\Estudante\Bloqueios;
+use App\Models\Estudante\Contato;
+use App\Http\Controllers\Estudante\Models\EstudanteBloqueioModel;
 use App\Http\Controllers\Estudante\Models\EstudanteDetalheModel;
 use App\Http\Controllers\Estudante\Models\EstudanteCriacaoModel;
 use App\Http\Controllers\Estudante\Models\EstudanteDadosModel;
-use App\Models\Estudante\Bloqueios;
-use App\Models\Estudante\Contato;
 
 class EstudanteController extends UniversityMarketController {
 
@@ -162,7 +162,7 @@ class EstudanteController extends UniversityMarketController {
     return $estudante->instituicao->razaoSocial;
   }
 
-  private function estudantebloqueado($estudante_id) {
+  private function estudanteBloqueado($estudante_id) {
 
     $estudante = Bloqueios::where('estudante_id', $estudante_id)->first();
 
@@ -175,21 +175,21 @@ class EstudanteController extends UniversityMarketController {
 
   public function bloquear(Request $request) {
 
-    $model = $this->cast($request, EstudantebloqueiModel::class);
+    $model = $this->cast($request, EstudanteBloqueioModel::class);    
 
-    $existente = $this->estudanteExistente($model->email);
+    $existente = $this->estudanteBloqueado($model->estudante_id);
 
-    if ($existente !== false) {
+    if ($existente) {
       throw new \Exception("Estudante já está bloqueio em $existente");
     }
 
     $bloqueio = new Bloqueios();
 
-    $bloqueio->estudanteId = $model->estudanteId;
+    $bloqueio->estudante_id = $model->estudante_id;
     $bloqueio->motivo = $model->motivo;
-    $bloqueio->created_at = $model->created_at;
     $bloqueio->finished_at = $model->finished_at;
 
+    
     $bloqueio->save();
 
   }
