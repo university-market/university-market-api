@@ -26,7 +26,8 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
   $router->post('', 'EstudanteController@criar');
 
   // bloquear estudante
-  $router->post('', 'EstudanteController@bloquear');
+  $router->post('bloquear', 'EstudanteController@bloquear');
+
   //obter dados do perfil estudante
   $router->get('dados/{estudanteId}','EstudanteController@obterDados');
 

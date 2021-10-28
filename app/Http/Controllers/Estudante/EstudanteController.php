@@ -180,7 +180,7 @@ class EstudanteController extends UniversityMarketController {
     $existente = $this->estudanteBloqueado($model->estudante_id);
 
     if ($existente) {
-      throw new \Exception("Estudante já está bloqueio em $existente");
+      throw new \Exception("Estudante já está bloqueado");
     }
 
     $bloqueio = new Bloqueios();
