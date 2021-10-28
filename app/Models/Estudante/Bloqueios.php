@@ -27,9 +27,9 @@ class Bloqueios extends Model {
 
   protected $id; // PK
   protected $motivo;
-  protected $created_at;
+  protected $dataHoraCriacao;
+  protected $dataHoraAtualizacao;
   protected $finished_at;
   protected $estudante_id; // FK Estudante
-  protected $updated_at;
   
 }
