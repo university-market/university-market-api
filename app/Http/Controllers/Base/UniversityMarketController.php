@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Base;
 
-use App\Models\Session\AppSession;
-use DateTime;
 use Laravel\Lumen\Routing\Controller as BaseController;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
+
+use App\Models\Session\AppSession;
+use App\Exceptions\Base\UMException;
 
 define('SESSION_TYPE_ADMIN', 1);
 define('SESSION_TYPE_ESTUDANTE', 2);
@@ -17,110 +16,122 @@ date_default_timezone_set("America/Sao_Paulo");
 class UniversityMarketController extends BaseController {
 
     /**
-     * @property array $contentType Content type to non-null methods
+     * @property array $content_type Content type to non-null methods
      */
-    protected $contentType = ['Content-type' => 'application/json'];
+    private $content_type = ['Content-type' => 'application/json'];
 
     /**
-     * @property string $dateTimeFormat Default used datetime format
+     * @property string $datetime_format Default used datetime format
      */
-    protected $dateTimeFormat = "Y-m-d H:i:s";
+    protected $datetime_format = "Y-m-d H:i:s";
 
     /**
-     * @property string $authTokenKey Default auth token received in request header
+     * @property string $auth_token_key Default auth token received in request header
      */
-    private $authTokenKey = "um-auth-token";
+    private $auth_token_key = "um-auth-token";
 
     /**
-     * @property string $sessionType Default session type key received in request header
+     * @property string $session_type Default session type key received in request header
      */
-    private $sessionType = "session-type";
+    private $session_type = "session-type";
 
     /**
      * Convert an or more objects to a specific class.
      * @method cast()
-     * @param object|object[] $object Initial object
-     * @param string $class_name The class to cast the object to
+     * @param object|object[] $initial_object Initial object
+     * @param string $target_class The class to cast the object to
      * @return object|object[]
      */
-    protected function cast($object, $class_name) {
+    protected function cast($initial_object, $target_class) {
 
-        if ($object === false || \is_null($object)) return null;
+        if ($initial_object === false || is_null($initial_object))
+            return null;
 
-        // Test class exists
-        if (\is_null($this->makeModel($class_name)))
-            throw new \Exception("Não foi possível encontrar a classe $class_name para realizar o type casting");
+        // Class exists test
+        if (!$this->try_parse_model($target_class))
+            throw new UMException("Classe $target_class não encontrada ao realizar type casting");
 
-        if (!is_array($object)) {
+        if (!is_array($initial_object)) {
 
-            $finalClass = $this->makeModel($class_name);
+            $final_class = new $target_class();
 
-            foreach ((array)$finalClass as $property => $value)
-                if (\property_exists($finalClass, $property))
-                    $finalClass->$property = \is_array($object) ? $object[$property] : $object->$property;
+            foreach ((array)$final_class as $property => $_) {
 
-            return $finalClass;
+                if (property_exists($final_class, $property)) {
+
+                    $final_class->$property = is_array($initial_object) ? 
+                        $initial_object[$property] : 
+                        $initial_object->$property;
+                }
+            }
+
+            return $final_class;
         }
 
-        $finalCollection = [];
+        $final_collection = [];
 
-        foreach ($object as $obj) {
+        foreach ($initial_object as $obj) {
 
-            $finalClass = $this->makeModel($class_name);
+            $final_class = new $target_class();
 
-            foreach ((array)$finalClass as $property => $value)
-                if (\property_exists($finalClass, $property))
-                    $finalClass->$property = \is_array($obj) ? $obj[$property] : $obj->$property;
+            foreach ((array)$final_class as $property => $_) {
 
-            $finalCollection[] = $finalClass;
+                if (property_exists($final_class, $property)) {
+
+                    $final_class->$property = is_array($obj) ? 
+                        $obj[$property] : 
+                        $obj->$property;
+                }
+            }
+
+            $final_collection[] = $final_class;
         }
-        return $finalCollection;
+
+        return $final_collection;
     }
 
-    private function makeModel($class_ref) {
+    /**
+     * @method response()
+     * @param mixed $data Data to send in response instance
+     * @return mixed Returns a response in JSON format or only 200 status (OK), if no body
+     */
+    public function response($data = null) {
 
-        return \is_object($class_ref) ? $class_ref : 
-            (class_exists($class_ref) ? new $class_ref() : null);
+        if (is_null($data))
+            return response(null, 200);
+
+        return response()->json($data, 200);
     }
 
     /**
      * @method getSession()
-     * @return BaseSession|false Returns a BaseSession object or false if unauthorized
+     * @return BaseSession|false Returns a BaseSession instance, or false if unauthorized
      */
     protected function getSession() {
 
+        // Get the current request instance
         $request = request();
 
-        $authToken = $request->header($this->authTokenKey) ?? null;
-        $sessionType = $request->header($this->sessionType) ?? null;
+        $auth_token = $request->header($this->auth_token_key) ?? null;
+        $session_type = $request->header($this->session_type) ?? null;
         
-        if (is_null($authToken))
-            return false;
+        if (is_null($auth_token))
+            return null;
 
-        if (is_null($sessionType))
-            return false;
+        if (is_null($session_type))
+            return null;
 
-        $session = null;
-
-        switch ((int)$sessionType) {
-
-            case SESSION_TYPE_ADMIN: // Administrador
-                $session = null;
-                break;
-
-            case SESSION_TYPE_ESTUDANTE: // Estudante
-                $session = AppSession::where('sessionToken', $authToken)->first();
-                break;
-        }
+        // Get session from database
+        $session = AppSession::where('token', $auth_token)->first();
         
         if (is_null($session))
-            return false;
+            return null;
 
         // Excluir sessão existente
-        if (time() > $session->expirationTime) {
+        if (time() > $session->expiration_time) {
 
-            $this->clearExistingSession($session->sessionId, $session->usuarioId ?? $session->estudanteId, (int)$sessionType);
-            return false;
+            $this->clear_existing_session($session->usuario_id ?? $session->estudante_id, (int)$session_type);
+            return null;
         }
 
         return $session;
@@ -136,31 +147,42 @@ class UniversityMarketController extends BaseController {
     }
 
     /**
-     * @method clearExistingSession()
-     * @param integer $sessionId Id da session que deseja apagar
-     * @param integer $ownerId Proprietário da sessão ativa (estudante ou usuário)
-     * @param integer $sessionType Tipo da sessão a ser considerada (estudante ou usuário)
-     * @return void Apaga a session existente
+     * @method try_parse_model()
+     * @param object $class_ref Class reference
+     * @return boolean Model is a object or can be find his reference
      */
-    private function clearExistingSession($sessionId, $ownerId, $sessionType) {
+    private function try_parse_model($class_ref) {
 
-        switch ($sessionType) {
+        return is_object($class_ref) || class_exists($class_ref);
+    }
+
+    /**
+     * @method clear_existing_session()
+     * @param integer $owner_id Proprietário da sessão ativa (estudante ou usuário)
+     * @param integer $session_type Tipo da sessão a ser considerada (estudante ou usuário)
+     * @return void Deleta toda session existente
+     */
+    private function clear_existing_session($owner_id, $session_type) {
+
+        $field_id = null;
+
+        switch ($session_type) {
 
             case SESSION_TYPE_ADMIN: // Administrador
 
-                $session = null;
-
+                $field_id = null;
                 break;
 
             case SESSION_TYPE_ESTUDANTE: // Estudante
 
-                $sessionIds = AppSession::select('sessionId')
-                    ->where('estudanteId', $ownerId)
-                    ->get();
-
-                AppSession::destroy($sessionIds);
-
+                $field_id = 'estudante_id';
                 break;
         }
+
+        $collection_ids = AppSession::select('id')
+            ->where($field_id, $owner_id)
+            ->get();
+
+        AppSession::destroy($collection_ids);
     }
 }
