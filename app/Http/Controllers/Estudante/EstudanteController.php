@@ -113,8 +113,9 @@ class EstudanteController extends UniversityMarketController {
         return $this->unauthorized();
   
     //Valida se o tipo de contato já está cadastrado
-    $validacao = Contato::where('estudante_id',$model->estudante_id)
+    $validacao = Contato::where('estudante_id',$session->estudanteId)
                             ->where('tipo_contato_id',$model->tipo_contato_id)
+                            ->where('deleted',false)
                             ->get()->toArray();
 
     if($validacao)
@@ -124,7 +125,65 @@ class EstudanteController extends UniversityMarketController {
 
     $contato->conteudo = $model->conteudo;
     $contato->tipo_contato_id = $model->tipo_contato_id;
-    $contato->estudante_id = $model->estudante_id;
+    $contato->estudante_id = $session->estudanteId;
+
+    $contato->save();
+
+    $model = new EstudanteContatosModel();
+
+    $model->id = $contato->id;
+    $model->conteudo = $contato->conteudo;
+    $model->tipo_contato_id = $contato->tipo_contato_id;
+        
+    return response()->json($model);
+  }
+
+  public function deletarContato($contatoId){
+
+    $session = $this->getSession();
+
+    if (!$session)
+        return $this->unauthorized();
+    
+    $contato =  Contato::find($contatoId);
+    
+    if (\is_null($contato))
+            throw new \Exception("Contato não encontrado");
+    if ($contato->deleted)
+            throw new \Exception("Contato já deletado");
+    
+    if($contato->estudante_id != $session->estudanteId)
+      throw new \Exception("Você não pode deletar este contato");
+
+    $contato->deleted = true;
+
+    $contato->save();
+    
+    return response(null, 200);
+  }
+
+
+  public function editarContato(Request $request){
+
+    $model = $this->cast($request, EstudanteContatosModel::class);
+
+    $session = $this->getSession();
+
+    if (!$session)
+        return $this->unauthorized();
+    
+    $contato =  Contato::find($model->id);
+    
+    if (\is_null($contato))
+            throw new \Exception("Contato não encontrado");
+
+    if ($contato->deleted)
+            throw new \Exception("Contato encontra-se deletado");
+
+    if($contato->estudante_id != $session->estudanteId)
+      throw new \Exception("Você não pode editar este contato");
+
+    $contato->conteudo = $model->conteudo;
 
     $contato->save();
     
