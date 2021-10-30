@@ -104,8 +104,26 @@ class InstituicaoController extends UniversityMarketController {
   public function listarTodas() {
 
     $instituicoes = Instituicao::all()->getDictionary();
+
+    $listaModels = [];
+
+    foreach ($instituicoes as $instituicao) {
+
+      $model = new InstituicaoListaModel();
+
+      $model->instituicaoId = $instituicao->id;
+      $model->razaoSocial = $instituicao->razao_social;
+      $model->nomeFantasia = $instituicao->nome_fantasia;
+      $model->cnpj = $instituicao->cnpj;
+      $model->email = $instituicao->email;
+      $model->dataHoraCadastro = $instituicao->created_at;
+      $model->aprovada = !is_null($instituicao->aproved_at);
+      $model->ativa = $instituicao->ativa;
+
+      $listaModels[] = $model;
+    }
     
-    return $this->cast($instituicoes, InstituicaoListaModel::class);
+    return $this->response($listaModels);
   }
 
   // Private methods

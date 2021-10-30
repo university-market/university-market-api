@@ -5,14 +5,10 @@ namespace App\Http\Controllers\Curso;
 use App\Common\Datatype\KeyValuePair;
 use App\Exceptions\Base\UMException;
 use App\Http\Controllers\Base\UniversityMarketController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
 
 // Models de publicacao utilizadas
 use App\Models\Instituicao\Instituicao_Curso;
 use App\Models\Curso\Curso;
-use App\Http\Controllers\Curso\Models\CursoListaModel;
 use App\Models\Instituicao\Instituicao;
 
 class CursoController extends UniversityMarketController {
@@ -25,32 +21,41 @@ class CursoController extends UniversityMarketController {
     $instituicao = Instituicao::find($instituicaoId);
 
     if (is_null($instituicao))
-        throw new UMException("Instituição não encontrada");
+      throw new UMException("Instituição não encontrada");
 
-    $cursos = Instituicao_Curso::with('curso')->where('instituicaoId', $instituicaoId)->get();
+    $relations = Instituicao_Curso::with(['curso'])->where('instituicao_id', $instituicaoId)->get();
+
+    $list = [];
+    foreach ($relations as $relation) {
+
+      $model = new KeyValuePair();
+
+      $model->key = $relation->curso->id;
+      $model->value = $relation->curso->nome;
+
+      $list[] = $model;
+    }
+
+    return $this->response($list);
+  }
+
+  public function listarTodos() {
+
+    $cursos = Curso::all()->getDictionary();
 
     $list = [];
 
     // Construir listagem de models apenas com informações necessárias
     foreach ($cursos as $curso) {
 
-        $model = new KeyValuePair();
+      $model = new KeyValuePair();
 
-        $model->key = $curso->cursoId;
-        $model->value = $curso->curso->nome;
+      $model->key = $curso->id;
+      $model->value = $curso->nome;
 
-        $list[] = $model;
+      $list[] = $model;
     }
 
-    return response()->json($list);
-  }
-
-  public function listarTodos() {
-
-    $list = Curso::all()->getDictionary();
-
-    $listModel = $this->cast($list, CursoListaModel::class);
-
-    return response()->json($listModel);
+    return $this->response($list);
   }
 }

@@ -11,7 +11,7 @@ class Instituicao extends Model{
     public $timestamps = true;
 
     protected $table = 'Instituicoes';
-    // protected $primaryKey = 'id';
+    protected $primaryKey = 'id';
 
     /**
      * The attributes that should be cast.

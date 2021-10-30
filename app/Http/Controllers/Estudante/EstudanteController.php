@@ -21,7 +21,7 @@ class EstudanteController extends UniversityMarketController {
 
     $session = $this->getSession();
     
-    if (!$session)
+    if (is_null($session))
       return $this->unauthorized();
 
     $estudante = Estudante::find($estudanteId);
@@ -32,16 +32,15 @@ class EstudanteController extends UniversityMarketController {
     // Construir model de detalhes do estudante
     $model = new EstudanteDetalheModel();
 
-    $model->estudanteId = $estudante->estudanteId;
+    $model->estudanteId = $estudante->id;
     $model->nome = $estudante->nome;
     $model->email = $estudante->email;
-    $model->telefone = $estudante->telefone;
-    $model->dataNascimento = $estudante->dataNascimento;
-    $model->pathFotoPerfil = $estudante->pathFotoPerfil;
+    $model->dataNascimento = $estudante->data_nascimento;
+    $model->pathFotoPerfil = $estudante->caminho_foto_perfil;
     $model->cursoNome = $estudante->curso->nome;
-    $model->instituicaoRazaoSocial = $estudante->instituicao->razaoSocial;
+    $model->instituicaoRazaoSocial = $estudante->instituicao->razao_social;
 
-    return response()->json($model);
+    return $this->response($model);
   }
 
   public function criar(Request $request) {
@@ -51,6 +50,7 @@ class EstudanteController extends UniversityMarketController {
     $model->validar();
 
     $existente = $this->estudanteExistente($model->email);
+
     if ($existente !== false) {
 
       throw new \Exception("Estudante já possui cadastro em $existente");
@@ -60,14 +60,12 @@ class EstudanteController extends UniversityMarketController {
 
     $estudante->nome = $model->nome;
     $estudante->email = $model->email;
-    $estudante->telefone = $model->telefone;
-    $estudante->dataNascimento = $model->dataNascimento;
-    $estudante->hashSenha = Hash::make($model->senha);
-    $estudante->pathFotoPerfil = null;
+    $estudante->senha = Hash::make($model->senha);
     $estudante->ativo = true;
-    $estudante->dataHoraCadastro = date($this->dateTimeFormat);
-    $estudante->cursoId = $model->cursoId;
-    $estudante->instituicaoId = $model->instituicaoId;
+    $estudante->caminho_foto_perfil = null;
+    $estudante->data_nascimento = $model->dataNascimento;
+    $estudante->curso_id = $model->cursoId;
+    $estudante->instituicao_id = $model->instituicaoId;
     
     $estudante->save();
   }

@@ -55,7 +55,7 @@ class Estudante extends Model {
    */
   public function curso()
   {
-    return $this->hasOne(Curso::class);
+    return $this->hasOne(Curso::class, 'id');
   }
 
   /**
@@ -63,7 +63,7 @@ class Estudante extends Model {
    */
   public function instituicao()
   {
-    return $this->hasOne(Instituicao::class);
+    return $this->hasOne(Instituicao::class, 'id', 'instituicao_id');
   }
 
   /**
@@ -71,6 +71,6 @@ class Estudante extends Model {
    */
   public function publicacoes()
   {
-    return $this->hasMany(Publicacao::class);
+    return $this->hasMany(Publicacao::class, 'estudante_id', 'id');
   }
 }
