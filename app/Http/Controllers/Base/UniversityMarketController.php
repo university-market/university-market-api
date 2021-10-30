@@ -105,7 +105,7 @@ class UniversityMarketController extends BaseController {
 
     /**
      * @method getSession()
-     * @return BaseSession|false Returns a BaseSession instance, or false if unauthorized
+     * @return BaseSession|null Returns a BaseSession instance, or null if unauthorized
      */
     protected function getSession() {
 
