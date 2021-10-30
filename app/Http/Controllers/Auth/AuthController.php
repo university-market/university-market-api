@@ -173,14 +173,15 @@ class AuthController extends UniversityMarketController {
 
   public function validarTokenRecuperacaoSenhaEstudante($token, $obter = false) {
 
-    $solicitacao = RecuperacaoSenha::where('tokenRecuperacao', $token)
-      ->where('completo', false)
+    $solicitacao = RecuperacaoSenha::with('estudante')
+      ->where('token', $token)
+      ->where('completa', false)
       ->where('expirada', false)
       ->first();
 
     if (!is_null($solicitacao)) {
 
-      if ($solicitacao->tempoExpiracao < time()) {
+      if ($solicitacao->expiration_at < time()) {
 
         $solicitacao->expirada = true;
         $solicitacao->save();
@@ -224,7 +225,7 @@ class AuthController extends UniversityMarketController {
 
     $is_valid = false;
 
-    if ($solicitacao->estudante->estudanteId == $estudante->estudanteId) {
+    if ($solicitacao->estudante->id == $estudante->id) {
 
       $is_valid = true;
     }
@@ -241,7 +242,7 @@ class AuthController extends UniversityMarketController {
     if (is_null($solicitacao))
       throw new UMException("Não há mais uma solicitação ativa para este e-mail");
 
-    $maxTime = $solicitacao->tempoExpiracao + 5 * 60; // Tolerância de 5 minutos além do tempo de expiração
+    $maxTime = $solicitacao->expiration_at + 5 * 60; // Tolerância de 5 minutos além do tempo de expiração
 
     if ($maxTime < time())
       throw new UMException("Esta solicitação expirou. Uma nova solicitação é necessária");
@@ -251,15 +252,15 @@ class AuthController extends UniversityMarketController {
     if (is_null($estudante))
       throw new UMException("Estudante não localizado");
 
-    if (Hash::check($model->senha, $estudante->hashSenha))
+    if (Hash::check($model->senha, $estudante->senha))
       throw new UMException("A nova senha não pode ser igual à anterior");
 
     // Salvar nova senha para o estudante
-    $estudante->hashSenha = Hash::make($model->senha);
+    $estudante->senha = Hash::make($model->senha);
     $estudante->save();
 
     // Finalizar a solicitação de redefinição
-    $solicitacao->completo = true;
+    $solicitacao->completa = true;
     $solicitacao->save();
   }
 

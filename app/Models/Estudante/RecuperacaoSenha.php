@@ -12,7 +12,7 @@ class RecuperacaoSenha extends Model {
   public $timestamps = true;
 
   protected $table = 'Recuperacoes_Senhas';
-  // protected $primaryKey = 'id';
+  protected $primaryKey = 'id';
 
   /**
    * The attributes that should be cast.
@@ -20,14 +20,11 @@ class RecuperacaoSenha extends Model {
    * @var array
    */
   protected $casts = [
-    // 'id' => 'integer',
     'token' => 'string',
     'email' => 'string',
     'completa' => 'boolean',
     'expirada' => 'boolean',
-    'expiration_at' => 'integer',
-    // 'estudante_id' => 'integer',
-    // 'usuario_id' => 'integer'
+    'expiration_at' => 'integer'
   ];
 
   protected $id; // PK
@@ -36,8 +33,8 @@ class RecuperacaoSenha extends Model {
   protected $completa;
   protected $expirada;
   protected $expiration_at;
-  protected $created_at;
-  protected $updated_at;
+  private $created_at;
+  private $updated_at;
 
   protected $estudante_id; // FK Estudante
   // protected $usuario_id; // FK Usuario
@@ -49,7 +46,7 @@ class RecuperacaoSenha extends Model {
    */
   public function estudante()
   {
-    return $this->hasOne(Estudante::class);
+    return $this->hasOne(Estudante::class, 'id');
   }
 
   /**
