@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Instituicao;
 
+use App\Common\Datatype\KeyValuePair;
 use App\Exceptions\Base\UMException;
 use App\Http\Controllers\Base\UniversityMarketController;
 use Illuminate\Http\Request;
@@ -27,7 +28,7 @@ class InstituicaoController extends UniversityMarketController {
         function($query) use ($model) {
 
           $query->where('cnpj', $model->cnpj)
-            ->orWhere('razaoSocial', $model->razaoSocial);
+            ->orWhere('razao_social', $model->razaoSocial);
         }
       )->first();
 
@@ -36,20 +37,17 @@ class InstituicaoController extends UniversityMarketController {
 
     $instituicao = new Instituicao();
 
-    $instituicao->nomeFantasia = $model->nomeFantasia;
-    $instituicao->razaoSocial = $model->razaoSocial;
-    $instituicao->nomeReduzido = null; // Cadastro posterior
+    $instituicao->nome_fantasia = $model->nomeFantasia;
+    $instituicao->razao_social = $model->razaoSocial;
     $instituicao->cnpj = $model->cnpj;
     $instituicao->email = $model->email;
-    $instituicao->telefone = $model->telefone;
-    $instituicao->dataHoraCadastro = date($this->dateTimeFormat);
-    $instituicao->aprovada = false; // True somente quando aprovada
-    $instituicao->ativa = true; // Cadastro ativo
-    $instituicao->planoId = null; // Quando sistema de planos estiver implementado
+    $instituicao->ativa = false; // Cadastro deve iniciar desativado
+    $instituicao->approved_at = null; // Somente quando aprovada
+    $instituicao->plano_id = null; // Quando sistema de planos estiver implementado
 
     $instituicao->save();
 
-    return response()->json($instituicao->instituicaoId);
+    return $this->response($instituicao->id);
   }
 
   public function ativar($instituicaoId) {
@@ -66,34 +64,31 @@ class InstituicaoController extends UniversityMarketController {
 
     $session = $this->getSession();
 
-    // if (!$session)
-    //   throw new \Exception("Sem permissão para realizar esta operação");
+    $instituicao = Instituicao::find($instituicaoId);
 
-    $instituicao = Instituicao::where('instituicaoId', $instituicaoId)->first();
+    if (is_null($instituicao))
+      throw new UMException("Instituição não encontrada");
 
-    if (\is_null($instituicao))
-      throw new \Exception("Instituição não encontrada");
+    if (!is_null($instituicao->approved_at))
+      throw new UMException("Essa instituição já teve o cadastro aprovado");
 
-    if ($instituicao->aprovada)
-      throw new \Exception("Essa instituição já teve o cadastro aprovado");
-
-    $instituicao->aprovada = true;
-
+    $instituicao->approved_at = date($this->datetime_format);
     $instituicao->save();
 
-    return response(null, 200);
+    return $this->response();
   }
 
   public function listarDisponiveis() {
 
-    $instituicoes = Instituicao::where('ativa', true)->where('aprovada', true)->get();
+    $instituicoes = Instituicao::where('ativa', true)->where('approved_at', '!=', null)->get();
     $arr = [];
 
     foreach ($instituicoes as $e) {
 
-      $element = new stdClass;
-      $element->key = $e->instituicaoId;
-      $element->value = $e->razaoSocial;
+      $element = new KeyValuePair();
+
+      $element->key = $e->id;
+      $element->value = $e->razao_social;
 
       $arr[] = $element;
     }
@@ -117,7 +112,7 @@ class InstituicaoController extends UniversityMarketController {
       $model->cnpj = $instituicao->cnpj;
       $model->email = $instituicao->email;
       $model->dataHoraCadastro = $instituicao->created_at;
-      $model->aprovada = !is_null($instituicao->aproved_at);
+      $model->aprovada = !is_null($instituicao->approved_at);
       $model->ativa = $instituicao->ativa;
 
       $listaModels[] = $model;
@@ -130,12 +125,12 @@ class InstituicaoController extends UniversityMarketController {
 
   private function alterarStatusAtiva($instituicaoId, $novoStatus) {
 
-    $instituicao = Instituicao::where('instituicaoId', $instituicaoId)->first();
+    $instituicao = Instituicao::find($instituicaoId);
 
-    if (\is_null($instituicao))
+    if (is_null($instituicao))
       throw new \Exception("Instituição não encontrada");
 
-    if (!$instituicao->aprovada)
+    if (is_null($instituicao->approved_at))
       throw new \Exception("Cadastro da instituição ainda não foi aprovado");
 
     if ($instituicao->ativa == $novoStatus) {
@@ -147,7 +142,7 @@ class InstituicaoController extends UniversityMarketController {
     $instituicao->ativa = $novoStatus;
     $instituicao->save();
 
-    return response(null, 200);
+    return $this->response();
   }
 
 }
