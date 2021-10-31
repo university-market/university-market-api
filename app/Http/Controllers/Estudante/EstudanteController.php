@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Estudante;
 
 use App\Http\Controllers\Base\UniversityMarketController;
+use App\Exceptions\Base\UMException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,7 @@ class EstudanteController extends UniversityMarketController {
   public function obter($estudanteId) {
 
     if (!$estudanteId)
-      throw new \Exception("Estudante não encontrado");
+      throw new UMException("Estudante não encontrado");
 
     $session = $this->getSession();
     
@@ -27,7 +28,7 @@ class EstudanteController extends UniversityMarketController {
     $estudante = Estudante::find($estudanteId);
 
     if (\is_null($estudante))
-      throw new \Exception("Estudante não encontrado");
+      throw new UMException("Estudante não encontrado");
 
     // Construir model de detalhes do estudante
     $model = new EstudanteDetalheModel();
@@ -76,11 +77,11 @@ class EstudanteController extends UniversityMarketController {
    */
   private function estudanteExistente($email) {
 
-    $estudante = Estudante::where('email', $email)->first();
+    $estudante = Estudante::with('instituicao')->where('email', $email)->first();
 
     if (is_null($estudante))
       return false;
 
-    return $estudante->instituicao->razaoSocial;
+    return $estudante->instituicao->razao_social;
   }
 }

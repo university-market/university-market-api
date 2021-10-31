@@ -12,12 +12,11 @@ use App\Models\Publicacao\Publicacao;
 use App\Models\Curso\Curso;
 use App\Http\Controllers\Publicacao\Models\PublicacaoCriacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
-use App\Models\Publicacao\Tag_Publicacao;
+use App\Models\Estudante\Estudante;
+use App\Models\Publicacao\Publicacao_Tag;
 use Exception;
 
 class PublicacaoController extends UniversityMarketController {
-
-    private $dataHoraFormat = "Y-m-d H:i:s";
 
     public function obter($publicacaoId) {
 
@@ -55,31 +54,30 @@ class PublicacaoController extends UniversityMarketController {
 
     public function criar(Request $request) {
 
-        $model = $this->cast($request, PublicacaoCriacaoModel::class);
-
-        // Validar informacoes construidas na model
-        $model->validar();
-
         $session = $this->getSession();
 
         if (!$session)
             return $this->unauthorized();
 
+        $model = $this->cast($request, PublicacaoCriacaoModel::class);
+
+        // Validar informacoes construidas na model
+        $model->validar();
+        
         $publicacao = new Publicacao();
 
         $publicacao->titulo = $model->titulo;
         $publicacao->descricao = $model->descricao;
-        $publicacao->especificacoesTecnicas = $model->especificacoesTecnicas;
+        $publicacao->especificacao_tecnica = $model->especificacoesTecnicas;
         $publicacao->valor = $model->valor;
-        $publicacao->pathImagem = $this->uploadImage($request);
-        $publicacao->dataHoraCriacao = \date($this->dataHoraFormat);
-        $publicacao->dataHoraFinalizacao = null; // Somente quando finalizada
-        $publicacao->cursoId = 1;
-        $publicacao->estudanteId = $session->estudanteId;
+        $publicacao->caminho_imagem = $this->uploadImage($request);
+        $publicacao->data_hora_finalizacao = null; // Somente quando finalizada
+        $publicacao->curso_id = $session->estudante->curso->id;
+        $publicacao->estudante_id = $session->estudante_id;
 
         $publicacao->save();
 
-        return response(null, 200);
+        return $this->response();
     }
 
     public function listar() {
@@ -195,7 +193,7 @@ class PublicacaoController extends UniversityMarketController {
 
         $tagFields = ['tagId', 'conteudo'];
 
-        $tags = Tag_Publicacao::where('publicacaoId', $publicacaoId)
+        $tags = Publicacao_Tag::where('publicacaoId', $publicacaoId)
             ->with(['tag' => function($tagQuery) use($tagFields) {
                 $tagQuery->select($tagFields)->get();
             }])

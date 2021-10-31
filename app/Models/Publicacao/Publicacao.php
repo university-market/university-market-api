@@ -21,16 +21,13 @@ class Publicacao extends Model {
      * @var array
      */
     protected $casts = [
-        // 'id' => 'integer',
         'titulo' => 'string',
         'descricao' => 'string',
         'especificacao_tecnica' => 'string',
         'valor' => 'double',
         'caminho_imagem' => 'string',
         'data_hora_finalizacao' => 'datetime',
-        'deleted' => 'boolean',
-        // 'curso_id' => 'integer',
-        // 'estudante_id' => 'integer'
+        'deleted' => 'boolean'
     ];
 
     protected $id; // PK
@@ -41,8 +38,8 @@ class Publicacao extends Model {
     protected $caminho_imagem;
     protected $data_hora_finalizacao;
     protected $deleted;
-    protected $created_at;
-    protected $updated_at;
+    private $created_at;
+    private $updated_at;
 
     protected $curso_id; // FK Curso
     protected $estudante_id; // FK Estudante

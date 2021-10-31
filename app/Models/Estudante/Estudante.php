@@ -22,16 +22,13 @@ class Estudante extends Model {
    * @var array
    */
   protected $casts = [
-    // 'id' => 'integer',
     'nome' => 'string',
     'email' => 'string',
     'senha' => 'string',
     'ativo' => 'boolean',
     'caminho_foto_perfil' => 'string',
     'data_nascimento' => 'date',
-    'deleted_at' => 'datetime',
-    // 'curso_id' => 'integer',
-    // 'instituicao_id' => 'integer'
+    'deleted_at' => 'datetime'
   ];
 
   protected $id; // PK
@@ -42,8 +39,8 @@ class Estudante extends Model {
   protected $caminho_foto_perfil;
   protected $data_nascimento;
   protected $deleted_at;
-  protected $created_at;
-  protected $updated_at;
+  private $created_at;
+  private $updated_at;
 
   protected $curso_id; // FK Curso
   protected $instituicao_id; // FK Instituicao
