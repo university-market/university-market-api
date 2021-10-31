@@ -121,8 +121,10 @@ class UniversityMarketController extends BaseController {
         if (is_null($session_type))
             return null;
 
+        $owner_field_id = $this->get_field_id_by_session_type($session_type);
+        
         // Get session from database
-        $session = AppSession::where('token', $auth_token)->first();
+        $session = AppSession::with($owner_field_id)->where('token', $auth_token)->first();
         
         if (is_null($session))
             return null;
@@ -164,25 +166,38 @@ class UniversityMarketController extends BaseController {
      */
     private function clear_existing_session($owner_id, $session_type) {
 
-        $field_id = null;
-
-        switch ($session_type) {
-
-            case SESSION_TYPE_ADMIN: // Administrador
-
-                $field_id = null;
-                break;
-
-            case SESSION_TYPE_ESTUDANTE: // Estudante
-
-                $field_id = 'estudante_id';
-                break;
-        }
+        $field_id = $this->get_field_id_by_session_type($session_type, true);
 
         $collection_ids = AppSession::select('id')
             ->where($field_id, $owner_id)
             ->get();
 
         AppSession::destroy($collection_ids);
+    }
+
+    /**
+     * @method get_field_id_by_session_type()
+     * @param integer $session_type Tipo da sessão a ser trabalhada (1 - Admin | 2 - Estudante)
+     * @param boolean $only_id Quando verdadeiro, retorna o nome do campo id (FK). Falso ou não definido retorna o nome do campo que referencia a entidade
+     * @return string Nome do campo do proprietário da sessão na tabela
+     */
+    private function get_field_id_by_session_type($session_type, $only_id = false) {
+
+        $field_id = null;
+
+        switch ($session_type) {
+
+            case SESSION_TYPE_ADMIN: // Administrador
+
+                $field_id = $only_id ? 'usuario_id' : 'usuario';
+                break;
+
+            case SESSION_TYPE_ESTUDANTE: // Estudante
+
+                $field_id = $only_id ? 'estudante_id' : 'estudante';
+                break;
+        }
+
+        return $field_id;
     }
 }
