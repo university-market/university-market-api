@@ -51,7 +51,7 @@ class Publicacao extends Model {
      */
     public function curso()
     {
-        return $this->hasOne(Curso::class);
+        return $this->hasOne(Curso::class, 'id', 'curso_id');
     }
 
     /**
@@ -59,6 +59,6 @@ class Publicacao extends Model {
      */
     public function estudante()
     {
-        return $this->hasOne(Estudante::class);
+        return $this->hasOne(Estudante::class, 'id');
     }
 }
