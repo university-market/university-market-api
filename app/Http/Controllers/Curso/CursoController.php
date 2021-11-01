@@ -2,26 +2,33 @@
 
 namespace App\Http\Controllers\Curso;
 
-use App\Common\Datatype\KeyValuePair;
-use App\Exceptions\Base\UMException;
-use App\Http\Controllers\Base\UniversityMarketController;
+use Illuminate\Http\Request;
 
-// Models de publicacao utilizadas
-use App\Models\Instituicao\Instituicao_Curso;
+// Base
+use App\Base\Controllers\UniversityMarketController;
+use App\Base\Exceptions\UniversityMarketException;
+
+// Common
+use App\Common\Datatype\KeyValuePair;
+
+// Entidades
 use App\Models\Curso\Curso;
 use App\Models\Instituicao\Instituicao;
+use App\Models\Instituicao\Instituicao_Curso;
+
+// Models de curso utilizadas
 
 class CursoController extends UniversityMarketController {
 
   public function listarPorInstituicao($instituicaoId) {
 
     if (is_null($instituicaoId))
-        throw new UMException("Instituição não encontrada");
+      throw new UniversityMarketException("Instituição não encontrada");
 
     $instituicao = Instituicao::find($instituicaoId);
 
     if (is_null($instituicao))
-      throw new UMException("Instituição não encontrada");
+      throw new UniversityMarketException("Instituição não encontrada");
 
     $relations = Instituicao_Curso::with(['curso'])->where('instituicao_id', $instituicaoId)->get();
 
