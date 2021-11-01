@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers\Instituicao;
 
-use App\Common\Datatype\KeyValuePair;
-use App\Exceptions\Base\UMException;
-use App\Http\Controllers\Base\UniversityMarketController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
-// Models de conta utilizadas
+// Base
+use App\Base\Controllers\UniversityMarketController;
+use App\Base\Exceptions\UniversityMarketException;
+
+// Common
+use App\Common\Datatype\KeyValuePair;
+
+// Entidades
 use App\Models\Instituicao\Instituicao;
-use App\Http\Controllers\Instituicao\Models\InstituicaoCriacaoModel;
+
+// Models de instituicao utilizadas
 use App\Http\Controllers\Instituicao\Models\InstituicaoListaModel;
-use stdClass;
+use App\Http\Controllers\Instituicao\Models\InstituicaoCriacaoModel;
 
 class InstituicaoController extends UniversityMarketController {
 
@@ -33,7 +37,7 @@ class InstituicaoController extends UniversityMarketController {
       )->first();
 
     if (!\is_null($hasCadastro))
-      throw new UMException("A instituição de ensino já possui um cadastro");
+      throw new UniversityMarketException("A instituição de ensino já possui um cadastro");
 
     $instituicao = new Instituicao();
 
@@ -67,10 +71,10 @@ class InstituicaoController extends UniversityMarketController {
     $instituicao = Instituicao::find($instituicaoId);
 
     if (is_null($instituicao))
-      throw new UMException("Instituição não encontrada");
+      throw new UniversityMarketException("Instituição não encontrada");
 
     if (!is_null($instituicao->approved_at))
-      throw new UMException("Essa instituição já teve o cadastro aprovado");
+      throw new UniversityMarketException("Essa instituição já teve o cadastro aprovado");
 
     $instituicao->approved_at = date($this->datetime_format);
     $instituicao->save();
@@ -128,15 +132,15 @@ class InstituicaoController extends UniversityMarketController {
     $instituicao = Instituicao::find($instituicaoId);
 
     if (is_null($instituicao))
-      throw new \Exception("Instituição não encontrada");
+      throw new UniversityMarketException("Instituição não encontrada");
 
     if (is_null($instituicao->approved_at))
-      throw new \Exception("Cadastro da instituição ainda não foi aprovado");
+      throw new UniversityMarketException("Cadastro da instituição ainda não foi aprovado");
 
     if ($instituicao->ativa == $novoStatus) {
       
       $currentStatus = $instituicao->ativa ? "ativa" : "desativada";
-      throw new \Exception("A instituição já está registrada como $currentStatus");
+      throw new UniversityMarketException("A instituição já está registrada como $currentStatus");
     }
 
     $instituicao->ativa = $novoStatus;
