@@ -5,7 +5,7 @@ namespace App\Base\Controllers;
 use Laravel\Lumen\Routing\Controller as BaseController;
 
 use App\Models\Session\AppSession;
-use App\Exceptions\Base\UMException;
+use App\Base\Exceptions\UniversityMarketException;
 
 define('SESSION_TYPE_ADMIN', 1);
 define('SESSION_TYPE_ESTUDANTE', 2);
@@ -53,7 +53,7 @@ class UniversityMarketController extends BaseController {
 
         // Class exists test
         if (!$this->try_parse_model($target_class))
-            throw new UMException("Classe $target_class não encontrada ao realizar type casting");
+            throw new UniversityMarketException("Classe $target_class não encontrada ao realizar type casting");
 
         if (!is_array($initial_object)) {
 
