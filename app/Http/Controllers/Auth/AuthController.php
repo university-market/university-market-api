@@ -8,6 +8,10 @@ use Illuminate\Http\Request;
 use App\Base\Controllers\UniversityMarketController;
 use App\Base\Exceptions\UniversityMarketException;
 
+// Common
+use Illuminate\Support\Facades\Hash;
+use App\Http\Controllers\Auth\Data\AuthCommonData;
+
 // Helpers
 use App\Helpers\Token\TokenHelper;
 use App\Helpers\Email\EmailHelper;
@@ -19,16 +23,27 @@ use App\Models\Estudante\Estudante;
 use App\Models\Estudante\RecuperacaoSenha;
 
 // Models de publicacao utilizadas
+use App\Http\Controllers\Auth\Models\LoginModel;
 use App\Http\Controllers\Auth\Models\AppLoginModel;
 use App\Http\Controllers\Auth\Models\AppSummarySession;
 use App\Http\Controllers\Auth\Models\AlteracaoSenhaModel;
 use App\Http\Controllers\Auth\Models\RecuperacaoSenhaEstudanteModel;
 
-// Common
-use Illuminate\Support\Facades\Hash;
-use App\Http\Controllers\Auth\Data\AuthCommonData;
-
 class AuthController extends UniversityMarketController {
+
+  /**
+   * Login na plataforma (para qualquer session type)
+   * @method login
+   * @param Request $request Type Casting para `LoginModel` - dados de login
+   * @type Http POST
+   * @route `/login`
+   */
+  public function login(Request $request) {
+
+    $loginModel = $this->cast($request, LoginModel::class)->validar();
+
+    
+  }
 
   public function loginEstudante(Request $request) {
 
