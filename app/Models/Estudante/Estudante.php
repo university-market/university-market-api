@@ -2,13 +2,14 @@
 
 namespace App\Models\Estudante;
 
-use \Illuminate\Database\Eloquent\Model;
+// use \Illuminate\Database\Eloquent\Model;
+use App\Base\Models\UniversityMarketModel;
 
 use App\Models\Curso\Curso;
 use App\Models\Instituicao\Instituicao;
 use App\Models\Publicacao\Publicacao;
 
-class Estudante extends Model {
+class Estudante extends UniversityMarketModel {
   
   // Registrar data/hora criacao/alteracao
   public $timestamps = true;

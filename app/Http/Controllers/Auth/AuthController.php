@@ -2,25 +2,31 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Exceptions\Base\UMException;
-use App\Helpers\Email\EmailHelper;
-use App\Helpers\Email\EmailTemplateIdentifier;
-use App\Helpers\Token\TokenHelper;
-use App\Http\Controllers\Auth\Data\AuthCommonData;
-use App\Http\Controllers\Base\UniversityMarketController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+
+// Base
+use App\Base\Controllers\UniversityMarketController;
+use App\Base\Exceptions\UniversityMarketException;
+
+// Helpers
+use App\Helpers\Token\TokenHelper;
+use App\Helpers\Email\EmailHelper;
+use App\Helpers\Email\EmailTemplate;
+
+// Entidades
+use App\Models\Session\AppSession;
+use App\Models\Estudante\Estudante;
+use App\Models\Estudante\RecuperacaoSenha;
 
 // Models de publicacao utilizadas
-use App\Models\Session\AppSession;
 use App\Http\Controllers\Auth\Models\AppLoginModel;
 use App\Http\Controllers\Auth\Models\AppSummarySession;
-use App\Http\Controllers\Auth\Models\RecuperacaoSenhaEstudanteModel;
 use App\Http\Controllers\Auth\Models\AlteracaoSenhaModel;
-use App\Models\Estudante\RecuperacaoSenha;
-use App\Models\Estudante\Estudante;
+use App\Http\Controllers\Auth\Models\RecuperacaoSenhaEstudanteModel;
+
+// Common
 use Illuminate\Support\Facades\Hash;
-use Exception;
+use App\Http\Controllers\Auth\Data\AuthCommonData;
 
 class AuthController extends UniversityMarketController {
 
@@ -33,7 +39,7 @@ class AuthController extends UniversityMarketController {
     $estudante = Estudante::where('email', $model->email)->first();
 
     if (is_null($estudante) || !Hash::check($model->senha, $estudante->senha))
-      throw new UMException("E-mail ou senha incorretos");
+      throw new UniversityMarketException("E-mail ou senha incorretos");
 
     $activatedSession = AppSession::where('estudante_id', $estudante->id)->get();
 
@@ -97,7 +103,7 @@ class AuthController extends UniversityMarketController {
     $email = $request->only('email')['email'];
 
     if (is_null($email) || empty(trim($email)))
-      throw new UMException("E-mail informado inválido");
+      throw new UniversityMarketException("E-mail informado inválido");
 
     $email = trim($email);
 
@@ -105,13 +111,13 @@ class AuthController extends UniversityMarketController {
 
     // Validar existencia do estudante solicitante
     if (is_null($estudante))
-      throw new UMException("Não há cadastro relacionado a este endereço de e-mail");
+      throw new UniversityMarketException("Não há cadastro relacionado a este endereço de e-mail");
 
     $activatedSession = AppSession::where('estudante_id', $estudante->id)->first();
 
     // Validar existencia do estudante solicitante
     if (!is_null($activatedSession))
-      throw new UMException("Existe uma sessão ativa neste endereço de e-mail");
+      throw new UniversityMarketException("Existe uma sessão ativa neste endereço de e-mail");
 
     $solicitacaoExistente = RecuperacaoSenha::where('estudante_id', $estudante->id)
       ->where('completa', false)
@@ -154,7 +160,7 @@ class AuthController extends UniversityMarketController {
     ];
 
     // Enviar e-mail
-    EmailHelper::send(null, $payload, EmailTemplateIdentifier::$recuperarSenha);
+    EmailHelper::send(null, $payload, EmailTemplate::$recuperarSenha);
 
     // Persistir solicitação de recuperação de senha
     $recuperacao = new RecuperacaoSenha();
@@ -189,7 +195,7 @@ class AuthController extends UniversityMarketController {
         if ($obter)
           return null;
 
-        throw new UMException("Link expirado. Uma nova solicitação deve ser realizada");
+        throw new UniversityMarketException("Link expirado. Uma nova solicitação deve ser realizada");
       }
 
       if ($obter)
@@ -201,7 +207,7 @@ class AuthController extends UniversityMarketController {
     if ($obter)
       return null;
 
-    throw new UMException("Não foi possível encontrar esta página");
+    throw new UniversityMarketException("Não foi possível encontrar esta página");
   }
 
   public function validarEmailRecuperacaoSenhaEstudante(Request $request, $privateGet = false) {
@@ -211,7 +217,7 @@ class AuthController extends UniversityMarketController {
     $estudante = Estudante::where('email', $data['email'])->where('ativo', true)->first();
 
     if (is_null($estudante))
-      throw new UMException('Este e-mail não pertence à um estudante ativo');
+      throw new UniversityMarketException('Este e-mail não pertence à um estudante ativo');
 
     $solicitacao = $this->validarTokenRecuperacaoSenhaEstudante($data['token'], true);
 
@@ -220,7 +226,7 @@ class AuthController extends UniversityMarketController {
       if ($privateGet)
         return null;
 
-      throw new UMException("Não há solicitação de redefinição de senha ativa");
+      throw new UniversityMarketException("Não há solicitação de redefinição de senha ativa");
     }
 
     $is_valid = false;
@@ -240,20 +246,20 @@ class AuthController extends UniversityMarketController {
     $solicitacao = $this->validarEmailRecuperacaoSenhaEstudante($request, true);
 
     if (is_null($solicitacao))
-      throw new UMException("Não há mais uma solicitação ativa para este e-mail");
+      throw new UniversityMarketException("Não há mais uma solicitação ativa para este e-mail");
 
     $maxTime = $solicitacao->expiration_at + 5 * 60; // Tolerância de 5 minutos além do tempo de expiração
 
     if ($maxTime < time())
-      throw new UMException("Esta solicitação expirou. Uma nova solicitação é necessária");
+      throw new UniversityMarketException("Esta solicitação expirou. Uma nova solicitação é necessária");
 
     $estudante = Estudante::where('email', $model->email)->where('ativo', true)->first();
 
     if (is_null($estudante))
-      throw new UMException("Estudante não localizado");
+      throw new UniversityMarketException("Estudante não localizado");
 
     if (Hash::check($model->senha, $estudante->senha))
-      throw new UMException("A nova senha não pode ser igual à anterior");
+      throw new UniversityMarketException("A nova senha não pode ser igual à anterior");
 
     // Salvar nova senha para o estudante
     $estudante->senha = Hash::make($model->senha);
