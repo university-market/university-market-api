@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Estudante;
 
-use App\Http\Controllers\Base\UniversityMarketController;
+use App\Base\Controllers\UniversityMarketController;
 use App\Exceptions\Base\UMException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
