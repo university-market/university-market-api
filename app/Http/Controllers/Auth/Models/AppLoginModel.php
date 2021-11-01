@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth\Models;
 
+use App\Base\Exceptions\UniversityMarketException;
+
 class AppLoginModel {
 
   public $email;
@@ -10,9 +12,9 @@ class AppLoginModel {
   public function validar() {
 
     if (is_null($this->email) || empty($this->email))
-      throw new \Exception("Um e-mail deve ser informado");
+      throw new UniversityMarketException("Um e-mail deve ser informado");
 
     if (is_null($this->senha) || empty($this->senha))
-      throw new \Exception("A senha é obrigatória");
+      throw new UniversityMarketException("A senha é obrigatória");
   }
 }
