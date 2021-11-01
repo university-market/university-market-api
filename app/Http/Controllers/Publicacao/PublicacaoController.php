@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers\Publicacao;
 
-use App\Exceptions\Base\UMException;
-use App\Http\Controllers\Base\UniversityMarketController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+
+// Base
+use App\Base\Controllers\UniversityMarketController;
+use App\Base\Exceptions\UniversityMarketException;
+
+// Entidades
+use App\Models\Curso\Curso;
+use App\Models\Publicacao\Publicacao;
+use App\Models\Publicacao\Publicacao_Tag;
 
 // Models de publicacao utilizadas
-use App\Models\Publicacao\Publicacao;
-use App\Models\Curso\Curso;
 use App\Http\Controllers\Publicacao\Models\PublicacaoCriacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
-use App\Models\Publicacao\Publicacao_Tag;
 
 class PublicacaoController extends UniversityMarketController {
 
@@ -26,7 +29,7 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao = Publicacao::find($publicacaoId);
 
         if (\is_null($publicacao) || $publicacao->excluida)
-            throw new UMException("Publicação não encontrada");
+            throw new UniversityMarketException("Publicação não encontrada");
 
         $model = new PublicacaoDetalheModel();
 
@@ -127,12 +130,12 @@ class PublicacaoController extends UniversityMarketController {
     public function listarByCurso($cursoId) {
         
         if (is_null($cursoId))
-            throw new UMException("Curso não encontrado");
+            throw new UniversityMarketException("Curso não encontrado");
 
         $curso = Curso::find($cursoId);
 
         if (is_null($curso))
-            throw new UMException("Curso não encontrado");
+            throw new UniversityMarketException("Curso não encontrado");
 
         $cursoFields = ['id', 'nome'];
         $publicacaoFields = ['id', 'titulo', 'caminho_imagem'];
@@ -162,31 +165,31 @@ class PublicacaoController extends UniversityMarketController {
 
         $publicacao = Publicacao::find($publicacaoId);
 
-        if (\is_null($publicacao) || $publicacao->excluida)
-            throw new \Exception("Publicação não encontrada");
+        if (is_null($publicacao) || $publicacao->excluida)
+            throw new UniversityMarketException("Publicação não encontrada");
 
         // Validação valor recebido na model
-        if ($model->valor !== null && !\is_numeric($model->valor))
-            throw new \Exception("O valor informado não é válido");
+        if ($model->valor !== null && !is_numeric($model->valor))
+            throw new UniversityMarketException("O valor informado não é válido");
 
         // Titulo
         if ($publicacao->titulo != $model->titulo) {
 
-            $publicacao->titulo = (\is_null($model->titulo) || empty(trim($model->titulo))) ? 
+            $publicacao->titulo = (is_null($model->titulo) || empty(trim($model->titulo))) ? 
                 $publicacao->titulo : trim($model->titulo);
         }
         
         // Descricao
         if ($publicacao->descricao != $model->descricao) {
 
-            $publicacao->descricao = (\is_null($model->descricao) || empty(trim($model->descricao))) ? 
+            $publicacao->descricao = (is_null($model->descricao) || empty(trim($model->descricao))) ? 
                 $publicacao->descricao : trim($model->descricao);
         }
 
         // Valor
         if ($publicacao->valor != $model->valor) {
 
-            $publicacao->valor = (\is_null($model->valor) || empty(trim($model->valor))) ? 
+            $publicacao->valor = (is_null($model->valor) || empty(trim($model->valor))) ? 
                 $publicacao->valor : (double)$model->valor;
         }
 
@@ -219,12 +222,12 @@ class PublicacaoController extends UniversityMarketController {
     public function obterTags($publicacaoId) {
 
         if (is_null($publicacaoId))
-            throw new UMException("Publicação não encontrada");
+            throw new UniversityMarketException("Publicação não encontrada");
 
         $publicacao = Publicacao::find($publicacaoId);
 
         if (is_null($publicacao) || $publicacao->excluida)
-            throw new UMException("Publicação não encontrada");
+            throw new UniversityMarketException("Publicação não encontrada");
 
         $tagFields = ['id', 'conteudo'];
 
@@ -243,7 +246,7 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao = Publicacao::find($publicacaoId);
 
         if (\is_null($publicacao) || $publicacao->excluida)
-            throw new \Exception("Publicação não encontrada");
+            throw new UniversityMarketException("Publicação não encontrada");
 
         $publicacao->deleted = true;
 
@@ -273,7 +276,7 @@ class PublicacaoController extends UniversityMarketController {
             if ($request->file('image')->move($destination_path, $final_filename))
                 return '/storage/upload/publicacao/' . $final_filename;
         }
-        throw new \Exception("Não foi possível realizar o upload da imagem");
+        throw new UniversityMarketException("Não foi possível realizar o upload da imagem");
     }
 
 }

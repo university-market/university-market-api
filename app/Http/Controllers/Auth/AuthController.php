@@ -22,7 +22,7 @@ use App\Models\Session\AppSession;
 use App\Models\Estudante\Estudante;
 use App\Models\Estudante\RecuperacaoSenha;
 
-// Models de publicacao utilizadas
+// Models de autenticacao utilizadas
 use App\Http\Controllers\Auth\Models\LoginModel;
 use App\Http\Controllers\Auth\Models\AppLoginModel;
 use App\Http\Controllers\Auth\Models\AppSummarySession;
