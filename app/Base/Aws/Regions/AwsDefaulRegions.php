@@ -45,4 +45,31 @@ abstract class AwsDefaultRegions {
 
         return self::getDefaultRegionsFromFile('./aws-default-regions.csv');
     }
+
+    /**
+     * @method region_exists
+     * 
+     * @param string $key Chave pela qual deseja verificar a existência de uma region
+     * @param string $value Valor da chave informada
+     * 
+     * @example $key => 'name'      ; value => 'South America (São Paulo)'
+     * @example $key => 'region'    ; value => 'sa-east-1'
+     * 
+     * @return boolean If gived region exists
+     */
+    public static function region_exists($key, $value) {
+
+        if ($key != 'name' && $key != 'region')
+            throw new UniversityMarketException("Chave informada inválida. Chaves possíveis: 'name' & 'region'");
+
+        $list = self::to_array();
+
+        foreach ($list as $region) {
+
+            if ($region[$key] == $value) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
