@@ -2,7 +2,7 @@
 
 namespace App\Helpers\Email;
 
-abstract class EmailTemplateIdentifier {
+abstract class EmailTemplate {
 
     /**
      * @property string $example Template de exemplo

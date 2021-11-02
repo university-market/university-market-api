@@ -7,7 +7,11 @@ use App\Models\Plano\Plano;
 
 class Instituicao extends Model{
     
-    public $timestamps = false; // Nao registrar data/hora criacao/alteracao
+    // Registrar data/hora criacao/alteracao
+    public $timestamps = true;
+
+    protected $table = 'Instituicoes';
+    protected $primaryKey = 'id';
 
     /**
      * The attributes that should be cast.
@@ -15,27 +19,20 @@ class Instituicao extends Model{
      * @var array
      */
     protected $casts = [
-        'instituicaoId' => 'integer',
-        'dataHoraCadastro' => 'datetime',
-        'aprovada' => 'boolean',
         'ativa' => 'boolean',
-        'planoId' => 'integer'
+        'approved_at' => 'datetime'
     ];
 
-    protected $table = 'Instituicao';
-    protected $primaryKey = 'instituicaoId';
-
-    protected $instituicaoId; // PK Instituicao
-    protected $nomeFantasia;
-    protected $razaoSocial;
-    protected $nomeReduzido;
+    protected $id; // PK
+    protected $nome_fantasia;
+    protected $razao_social;
     protected $cnpj;
     protected $email;
-    protected $telefone;
-    protected $dataHoraCadastro;
-    protected $aprovada;
     protected $ativa;
-    protected $planoId;
+    protected $approved_at;
+    protected $plano_id;
+    private $created_at;
+    private $updated_at;
 
     // Entity Relationships
 
@@ -44,6 +41,6 @@ class Instituicao extends Model{
      */
     public function plano()
     {
-        return $this->hasOne(Plano::class, 'planoId', 'planoId');
+        return $this->hasOne(Plano::class);
     }
 }

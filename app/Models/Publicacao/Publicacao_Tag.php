@@ -7,9 +7,12 @@ use \Illuminate\Database\Eloquent\Model;
 use App\Models\Publicacao\Publicacao;
 use App\Models\Publicacao\Tag;
 
-class Tag_Publicacao extends Model {
+class Publicacao_Tag extends Model {
     
-    public $timestamps = false; // Nao registrar data/hora criacao/alteracao
+    // Nao registrar data/hora criacao/alteracao
+    public $timestamps = false;
+
+    protected $table = 'Publicacoes_Tags';
 
     /**
      * The attributes that should be cast.
@@ -17,14 +20,12 @@ class Tag_Publicacao extends Model {
      * @var array
      */
     protected $casts = [
-        'tagId' => 'integer',
-        'publicacaoId' => 'integer'
+        // 'tag_id' => 'integer',
+        // 'publicacao_id' => 'integer'
     ];
 
-    protected $table = 'Tag_Publicacao';
-
-    protected $tagId;
-    protected $publicacaoId;
+    protected $tag_id;
+    protected $publicacao_id;
 
     // Entity Relationships
 
@@ -33,7 +34,7 @@ class Tag_Publicacao extends Model {
      */
     public function tag()
     {
-        return $this->hasOne(Tag::class, 'tagId', 'tagId');
+        return $this->hasOne(Tag::class, 'id', 'tag_id');
     }
 
     /**
@@ -41,6 +42,6 @@ class Tag_Publicacao extends Model {
      */
     public function publicacao()
     {
-        return $this->hasOne(Publicacao::class, 'publicacaoId', 'publicacaoId');
+        return $this->hasOne(Publicacao::class, 'id');
     }
 }

@@ -129,15 +129,25 @@ $app->alias('mailer', Illuminate\Contracts\Mail\MailQueue::class);
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
-    require __DIR__.'/../routes/usuario.php';
-    require __DIR__.'/../routes/recuperacao.php';
+
+    /*
+    $routes_directory = dir(__DIR__.'/../routes/');
+
+    while ($file = $routes_directory->read()) {
+
+        require $file;
+    }
+    
+    $routes_directory->close();
+    */
+    
     require __DIR__.'/../routes/web.php';
-    require __DIR__.'/../routes/sale.php';
-    require __DIR__.'/../routes/publicacao.php';
-    require __DIR__.'/../routes/instituicao.php';
+
     require __DIR__.'/../routes/auth.php';
-    require __DIR__.'/../routes/estudante.php';
     require __DIR__.'/../routes/curso.php';
+    require __DIR__.'/../routes/estudante.php';
+    require __DIR__.'/../routes/instituicao.php';
+    require __DIR__.'/../routes/publicacao.php';
 });
 
 

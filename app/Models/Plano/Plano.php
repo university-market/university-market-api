@@ -5,8 +5,12 @@ namespace App\Models\Plano;
 use \Illuminate\Database\Eloquent\Model;
 
 class Plano extends Model {
-    
-  public $timestamps = false; // Nao registrar data/hora criacao/alteracao
+  
+  // Nao registrar data/hora criacao/alteracao
+  public $timestamps = false;
+
+  // protected $table = 'Planos';
+  // protected $primaryKey = 'id';
 
   /**
    * The attributes that should be cast.
@@ -14,13 +18,10 @@ class Plano extends Model {
    * @var array
    */
   protected $casts = [
-    'planoId' => 'integer',
+    'id' => 'integer',
     'nome' => 'string'
   ];
 
-  protected $table = 'Plano';
-  protected $primaryKey = 'planoId';
-
-  protected $planoId; // PK Plano
+  protected $id; // PK
   protected $nome;
 }

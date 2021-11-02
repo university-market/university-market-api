@@ -2,16 +2,21 @@
 
 namespace App\Http\Controllers\Instituicao;
 
-use App\Exceptions\Base\UMException;
-use App\Http\Controllers\Base\UniversityMarketController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
-// Models de conta utilizadas
+// Base
+use App\Base\Controllers\UniversityMarketController;
+use App\Base\Exceptions\UniversityMarketException;
+
+// Common
+use App\Common\Datatype\KeyValuePair;
+
+// Entidades
 use App\Models\Instituicao\Instituicao;
-use App\Http\Controllers\Instituicao\Models\InstituicaoCriacaoModel;
+
+// Models de instituicao utilizadas
 use App\Http\Controllers\Instituicao\Models\InstituicaoListaModel;
-use stdClass;
+use App\Http\Controllers\Instituicao\Models\InstituicaoCriacaoModel;
 
 class InstituicaoController extends UniversityMarketController {
 
@@ -27,29 +32,26 @@ class InstituicaoController extends UniversityMarketController {
         function($query) use ($model) {
 
           $query->where('cnpj', $model->cnpj)
-            ->orWhere('razaoSocial', $model->razaoSocial);
+            ->orWhere('razao_social', $model->razaoSocial);
         }
       )->first();
 
     if (!\is_null($hasCadastro))
-      throw new UMException("A instituição de ensino já possui um cadastro");
+      throw new UniversityMarketException("A instituição de ensino já possui um cadastro");
 
     $instituicao = new Instituicao();
 
-    $instituicao->nomeFantasia = $model->nomeFantasia;
-    $instituicao->razaoSocial = $model->razaoSocial;
-    $instituicao->nomeReduzido = null; // Cadastro posterior
+    $instituicao->nome_fantasia = $model->nomeFantasia;
+    $instituicao->razao_social = $model->razaoSocial;
     $instituicao->cnpj = $model->cnpj;
     $instituicao->email = $model->email;
-    $instituicao->telefone = $model->telefone;
-    $instituicao->dataHoraCadastro = date($this->dateTimeFormat);
-    $instituicao->aprovada = false; // True somente quando aprovada
-    $instituicao->ativa = true; // Cadastro ativo
-    $instituicao->planoId = null; // Quando sistema de planos estiver implementado
+    $instituicao->ativa = false; // Cadastro deve iniciar desativado
+    $instituicao->approved_at = null; // Somente quando aprovada
+    $instituicao->plano_id = null; // Quando sistema de planos estiver implementado
 
     $instituicao->save();
 
-    return response()->json($instituicao->instituicaoId);
+    return $this->response($instituicao->id);
   }
 
   public function ativar($instituicaoId) {
@@ -66,34 +68,31 @@ class InstituicaoController extends UniversityMarketController {
 
     $session = $this->getSession();
 
-    // if (!$session)
-    //   throw new \Exception("Sem permissão para realizar esta operação");
+    $instituicao = Instituicao::find($instituicaoId);
 
-    $instituicao = Instituicao::where('instituicaoId', $instituicaoId)->first();
+    if (is_null($instituicao))
+      throw new UniversityMarketException("Instituição não encontrada");
 
-    if (\is_null($instituicao))
-      throw new \Exception("Instituição não encontrada");
+    if (!is_null($instituicao->approved_at))
+      throw new UniversityMarketException("Essa instituição já teve o cadastro aprovado");
 
-    if ($instituicao->aprovada)
-      throw new \Exception("Essa instituição já teve o cadastro aprovado");
-
-    $instituicao->aprovada = true;
-
+    $instituicao->approved_at = date($this->datetime_format);
     $instituicao->save();
 
-    return response(null, 200);
+    return $this->response();
   }
 
   public function listarDisponiveis() {
 
-    $instituicoes = Instituicao::where('ativa', true)->where('aprovada', true)->get();
+    $instituicoes = Instituicao::where('ativa', true)->where('approved_at', '!=', null)->get();
     $arr = [];
 
     foreach ($instituicoes as $e) {
 
-      $element = new stdClass;
-      $element->key = $e->instituicaoId;
-      $element->value = $e->razaoSocial;
+      $element = new KeyValuePair();
+
+      $element->key = $e->id;
+      $element->value = $e->razao_social;
 
       $arr[] = $element;
     }
@@ -104,32 +103,50 @@ class InstituicaoController extends UniversityMarketController {
   public function listarTodas() {
 
     $instituicoes = Instituicao::all()->getDictionary();
+
+    $listaModels = [];
+
+    foreach ($instituicoes as $instituicao) {
+
+      $model = new InstituicaoListaModel();
+
+      $model->instituicaoId = $instituicao->id;
+      $model->razaoSocial = $instituicao->razao_social;
+      $model->nomeFantasia = $instituicao->nome_fantasia;
+      $model->cnpj = $instituicao->cnpj;
+      $model->email = $instituicao->email;
+      $model->dataHoraCadastro = $instituicao->created_at;
+      $model->aprovada = !is_null($instituicao->approved_at);
+      $model->ativa = $instituicao->ativa;
+
+      $listaModels[] = $model;
+    }
     
-    return $this->cast($instituicoes, InstituicaoListaModel::class);
+    return $this->response($listaModels);
   }
 
   // Private methods
 
   private function alterarStatusAtiva($instituicaoId, $novoStatus) {
 
-    $instituicao = Instituicao::where('instituicaoId', $instituicaoId)->first();
+    $instituicao = Instituicao::find($instituicaoId);
 
-    if (\is_null($instituicao))
-      throw new \Exception("Instituição não encontrada");
+    if (is_null($instituicao))
+      throw new UniversityMarketException("Instituição não encontrada");
 
-    if (!$instituicao->aprovada)
-      throw new \Exception("Cadastro da instituição ainda não foi aprovado");
+    if (is_null($instituicao->approved_at))
+      throw new UniversityMarketException("Cadastro da instituição ainda não foi aprovado");
 
     if ($instituicao->ativa == $novoStatus) {
       
       $currentStatus = $instituicao->ativa ? "ativa" : "desativada";
-      throw new \Exception("A instituição já está registrada como $currentStatus");
+      throw new UniversityMarketException("A instituição já está registrada como $currentStatus");
     }
 
     $instituicao->ativa = $novoStatus;
     $instituicao->save();
 
-    return response(null, 200);
+    return $this->response();
   }
 
 }

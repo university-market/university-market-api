@@ -2,73 +2,85 @@
 
 namespace App\Models\Estudante;
 
-use \Illuminate\Database\Eloquent\Model;
+// Base
+use App\Base\Models\UniversityMarketModel;
+use App\Base\Exceptions\UniversityMarketException;
 
+// Models
 use App\Models\Curso\Curso;
-use App\Models\Instituicao\Instituicao;
 use App\Models\Publicacao\Publicacao;
+use App\Models\Instituicao\Instituicao;
 
-class Estudante extends Model {
-    
-  public $timestamps = false; // Nao registrar data/hora criacao/alteracao
+class Estudante extends UniversityMarketModel {
+  
+  // Nome da entidade no banco de dados
+  protected $table = 'Estudantes';
 
-  /**
-   * The attributes that should be cast.
-   *
-   * @var array
-   */
+  // Registrar data/hora criacao/alteracao
+  public $timestamps = true;
+
+  // Type Casting para campos com tipos especiais (não string)
   protected $casts = [
-    'estudanteId' => 'integer',
-    'nome' => 'string',
-    'email' => 'string',
-    'telefone' => 'string',
-    'dataNascimento' => 'date',
-    'hashSenha' => 'string',
-    'pathFotoPerfil' => 'string',
-    'ativo' => 'boolean',
-    'dataHoraCadastro' => 'datetime',
-    'cursoId' => 'integer',
-    'instituicaoId' => 'integer'
+    'ativo'             => 'boolean',
+    'data_nascimento'   => 'date',
+    'deleted_at'        => 'datetime'
   ];
 
-  protected $table = 'Estudante';
-  protected $primaryKey = 'estudanteId';
+  // Primary key da entidade
+  protected $id;
+  protected $primaryKey = 'id';
 
-  protected $estudanteId; // PK Estudante
+  // Properties
   protected $nome;
   protected $email;
-  protected $telefone;
-  protected $dataNascimento;
-  protected $hashSenha;
-  protected $pathFotoPerfil;
+  protected $senha;
   protected $ativo;
-  protected $dataHoraCadastro;
-  protected $cursoId; // FK Curso
-  protected $instituicaoId; // FK Instituicao
+  protected $caminho_foto_perfil;
+  protected $data_nascimento;
 
-  // Entity Relationships
+  // Timestamps da entidade
+  private $created_at;
+  private $updated_at;
+  protected $deleted_at;
 
   /**
-   * Obtem o Curso associado ao Estudante
+   * @region Entity Relationships
    */
+
+  // Foreign Key para entidade de Curso
+  protected $curso_id;
   public function curso()
   {
-    return $this->hasOne(Curso::class, 'cursoId', 'cursoId');
+    return $this->hasOne(Curso::class, 'id', 'curso_id');
   }
 
-  /**
-   * Obtem a Instituicao associada ao Estudante
-   */
+  // Foreign Key para entidade de Instituicao
+  protected $instituicao_id;
   public function instituicao()
   {
-    return $this->hasOne(Instituicao::class, 'instituicaoId', 'instituicaoId');
+    return $this->hasOne(Instituicao::class, 'id', 'instituicao_id');
+  }
+
+  // Relacionamento Estudante com Publicacao
+  public function publicacoes()
+  {
+    return $this->hasMany(Publicacao::class, 'estudante_id', 'id');
   }
 
   /**
-   * Obtem a Instituicao associada ao Estudante
+   * @region Entity Acessors and Mutators
    */
-  public function publicacao()
-  {
-    return $this->hasMany(Publicacao::class, 'estudanteId');
+  
+  // Setter para Nome
+  public function setNomeAttribute($value) {
+
+    $counter = explode(' ', $value ?? '');
+
+    // Ao menos um nome informado
+    if (count($counter) <= 1)
+      throw new UniversityMarketException("Um nome completo deve ser fornecido para o estudante");
+
+    $this->attributes['nome'] = $value;
   }
+  
 }

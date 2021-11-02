@@ -6,7 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tag extends Model {
 
-    public $timestamps = false; // Nao registrar data/hora criacao/alteracao
+    // Nao registrar data/hora criacao/alteracao
+    public $timestamps = false;
+
+    // protected $table = 'Tags';
+    // protected $primaryKey = 'id';
 
     /**
      * The attributes that should be cast.
@@ -14,12 +18,9 @@ class Tag extends Model {
      * @var array
      */
     protected $casts = [
-        'tagId' => 'integer'
+        // 'id' => 'integer'
     ];
 
-    protected $table = 'Tag';
-    protected $primaryKey = 'tagId';
-
-    protected $tagId; // PK Tag
+    protected $id; // PK
     protected $conteudo;
 }
