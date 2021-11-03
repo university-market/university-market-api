@@ -2,6 +2,7 @@
 
 namespace App\Base\Aws\S3;
 
+use App\Base\Aws\S3\S3Base;
 use App\Base\Exceptions\UniversityMarketException;
 
 /**
