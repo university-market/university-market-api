@@ -99,8 +99,11 @@ class S3Base {
         }
         catch (MultipartUploadException | ObjectUploader | AwsException | Exception $e) {
 
+            // Adicionar erro à stack de logs
             echo '';
-            $callback_error();
+
+            if (!is_null($callback_error))
+                $callback_error();
         }
 
         return null;
@@ -131,8 +134,8 @@ class S3Base {
         if (is_null($bucket))
             throw new UniversityMarketException("Bucket informado não foi devidamente configurado");
 
-        if (!property_exists(UniversityMarketBuckets::class, $bucket))
-            throw new UniversityMarketException("Bucket informado não foi devidamente configurado");
+        // if (!property_exists(UniversityMarketBuckets::class, $bucket))
+        //     throw new UniversityMarketException("Bucket informado não foi devidamente configurado");
 
         $this->bucket = $bucket;
     }
