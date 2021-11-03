@@ -52,8 +52,8 @@ abstract class AwsDefaultRegions {
      * @param string $key Chave pela qual deseja verificar a existência de uma region
      * @param string $value Valor da chave informada
      * 
-     * @example $key => 'name'      ; value => 'South America (São Paulo)'
-     * @example $key => 'region'    ; value => 'sa-east-1'
+     * @example void `$key => 'name'      ; value => 'South America (São Paulo)'`
+     * @example void `$key => 'region'    ; value => 'sa-east-1'`
      * 
      * @return boolean If gived region exists
      */
