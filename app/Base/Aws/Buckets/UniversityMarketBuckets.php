@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Base\Aws\Buckets;
+
 /**
  * Definicao de buckets utilizados no S3 pelo projeto University Market
  */
