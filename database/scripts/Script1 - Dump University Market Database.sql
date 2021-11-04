@@ -262,7 +262,7 @@ VALUES (1, 'Telefone'), (2, 'Whatsapp'), (3, 'Telegram'), (4, 'E-mail');
  */
 DROP TABLE IF EXISTS `Contatos`;
 CREATE TABLE `Contatos` (
-    `id` INT NOT NULL,
+    `id` INT NOT NULL AUTO_INCREMENT,
     `conteudo` VARCHAR(100) NOT NULL,
     `deleted` BOOLEAN NOT NULL DEFAULT 0,
     `created_at` DATETIME NOT NULL,
