@@ -15,8 +15,13 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\Estudante\Estudante;
 
 // Models de estudante utilizadas
+use App\Models\Estudante\Bloqueios;
+use App\Models\Estudante\Contato;
+use App\Http\Controllers\Estudante\Models\EstudanteBloqueioModel;
 use App\Http\Controllers\Estudante\Models\EstudanteDetalheModel;
 use App\Http\Controllers\Estudante\Models\EstudanteCriacaoModel;
+use App\Http\Controllers\Estudante\Models\EstudanteDadosModel;
+use App\Http\Controllers\Estudante\Models\EstudanteContatosModel;
 
 class EstudanteController extends UniversityMarketController {
 
@@ -49,6 +54,31 @@ class EstudanteController extends UniversityMarketController {
     return $this->response($model);
   }
 
+  public function obterDados($estudanteId) {
+
+    if (!$estudanteId)
+      throw new \Exception("Estudante não encontrado");
+
+    $session = $this->getSession();
+    
+    if (!$session)
+      return $this->unauthorized();
+
+    $estudante = Estudante::find($estudanteId);
+
+    if (\is_null($estudante))
+      throw new \Exception("Estudante não encontrado");
+
+    // Construir model de detalhes do estudante
+    $model = new EstudanteDadosModel();
+
+    $model->nome = $estudante->nome;
+    $model->email = $estudante->email;
+    $model->cursoNome = $estudante->curso->nome;
+
+    return response()->json($model);
+  }
+
   public function criar(Request $request) {
 
     $model = $this->cast($request, EstudanteCriacaoModel::class);
@@ -76,6 +106,53 @@ class EstudanteController extends UniversityMarketController {
     $estudante->save();
   }
 
+  public function cadastrarContato(Request $request){
+    
+    $model = $this->cast($request, EstudanteContatosModel::class);
+
+    // Validar informacoes construidas na model
+    $model->validar();
+
+    $session = $this->getSession();
+
+    if (!$session)
+        return $this->unauthorized();
+  
+    //Valida se o tipo de contato já está cadastrado
+    $validacao = Contato::where('estudante_id',$model->estudante_id)
+                            ->where('tipo_contato_id',$model->tipo_contato_id)
+                            ->get()->toArray();
+
+    if($validacao)
+      throw new \Exception("Tipo de contato já cadastrado, favor edita-lo!");
+    
+    $contato = new Contato;
+
+    $contato->conteudo = $model->conteudo;
+    $contato->tipo_contato_id = $model->tipo_contato_id;
+    $contato->estudante_id = $model->estudante_id;
+
+    $contato->save();
+    
+    return response(null, 200);
+  }
+
+  public function obterContatos($estudanteId){
+
+    $session = $this->getSession();
+
+      if (!$session)
+          return $this->unauthorized();
+
+      $contatos = Contato::where('estudante_id', $estudanteId)
+                              ->where('deleted',false)
+                              ->get()->toArray();
+                              
+      $model = $this->cast($contatos, EstudanteContatosModel::class);
+
+      return response()->json($model);
+  }
+
   /**
    * @param string $email E-mail do estudante (deve ser único na instituicao)
    * @param string $instituicaoId Id da intituicao de ensino
@@ -89,4 +166,37 @@ class EstudanteController extends UniversityMarketController {
 
     return $estudante->instituicao->razao_social;
   }
+
+  private function estudanteBloqueado($estudante_id) {
+
+    $estudante = Bloqueios::where('estudante_id', $estudante_id)->first();
+
+    if (is_null($estudante))
+      return false;
+
+    return $estudante;
+  }
+
+
+  public function bloquear(Request $request) {
+
+    $model = $this->cast($request, EstudanteBloqueioModel::class);    
+
+    $existente = $this->estudanteBloqueado($model->estudante_id);
+
+    if ($existente) {
+      throw new \Exception("Estudante já está bloqueado");
+    }
+
+    $bloqueio = new Bloqueios();
+
+    $bloqueio->estudante_id = $model->estudante_id;
+    $bloqueio->motivo = $model->motivo;
+    $bloqueio->finished_at = $model->finished_at;
+
+    
+    $bloqueio->save();
+
+  }
+
 }
