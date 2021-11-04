@@ -130,7 +130,7 @@ class EstudanteController extends UniversityMarketController {
 
     $contato->conteudo = $model->conteudo;
     $contato->tipo_contato_id = $model->tipo_contato_id;
-    $contato->estudante_id = $model->estudante_id;
+    $contato->estudante_id = $model->estudante_id ?? $session->estudante_id;
 
     $contato->save();
     
