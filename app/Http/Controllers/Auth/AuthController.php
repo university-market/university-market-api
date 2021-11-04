@@ -146,8 +146,8 @@ class AuthController extends UniversityMarketController {
     if (!is_null($activatedSession)) {
 
       $this->logoutEstudante($activatedSession->id);
+      // throw new UniversityMarketException("Existe uma sessão ativa neste endereço de e-mail");
     }
-      throw new UniversityMarketException("Existe uma sessão ativa neste endereço de e-mail");
 
     $solicitacaoExistente = RecuperacaoSenha::where('estudante_id', $estudante->id)
       ->where('completa', false)

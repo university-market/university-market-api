@@ -55,7 +55,7 @@ class PublicacaoController extends UniversityMarketController {
 
         $publicacoes = Publicacao::where('estudante_id', $estudanteId)
             ->where('deleted', false)
-            ->get()->toArray();
+            ->get();
 
         $list = [];
 

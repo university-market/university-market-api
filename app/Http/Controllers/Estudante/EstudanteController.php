@@ -57,7 +57,7 @@ class EstudanteController extends UniversityMarketController {
   public function obterDados($estudanteId) {
 
     if (!$estudanteId)
-      throw new \Exception("Estudante não encontrado");
+      throw new UniversityMarketException("Estudante não encontrado");
 
     $session = $this->getSession();
     
@@ -67,7 +67,7 @@ class EstudanteController extends UniversityMarketController {
     $estudante = Estudante::find($estudanteId);
 
     if (\is_null($estudante))
-      throw new \Exception("Estudante não encontrado");
+      throw new UniversityMarketException("Estudante não encontrado");
 
     // Construir model de detalhes do estudante
     $model = new EstudanteDadosModel();
@@ -76,7 +76,7 @@ class EstudanteController extends UniversityMarketController {
     $model->email = $estudante->email;
     $model->cursoNome = $estudante->curso->nome;
 
-    return response()->json($model);
+    return $this->response($model);
   }
 
   public function criar(Request $request) {
@@ -89,7 +89,7 @@ class EstudanteController extends UniversityMarketController {
 
     if ($existente !== false) {
 
-      throw new \Exception("Estudante já possui cadastro em $existente");
+      throw new UniversityMarketException("Estudante já possui cadastro em $existente");
     }
 
     $estudante = new Estudante();
@@ -120,11 +120,11 @@ class EstudanteController extends UniversityMarketController {
   
     //Valida se o tipo de contato já está cadastrado
     $validacao = Contato::where('estudante_id',$model->estudante_id)
-                            ->where('tipo_contato_id',$model->tipo_contato_id)
-                            ->get()->toArray();
+      ->where('tipo_contato_id',$model->tipo_contato_id)
+      ->get()->toArray();
 
     if($validacao)
-      throw new \Exception("Tipo de contato já cadastrado, favor edita-lo!");
+      throw new UniversityMarketException("Tipo de contato já cadastrado, favor edita-lo!");
     
     $contato = new Contato;
 
@@ -134,7 +134,7 @@ class EstudanteController extends UniversityMarketController {
 
     $contato->save();
     
-    return response(null, 200);
+    return $this->response();
   }
 
   public function obterContatos($estudanteId){
@@ -145,12 +145,12 @@ class EstudanteController extends UniversityMarketController {
           return $this->unauthorized();
 
       $contatos = Contato::where('estudante_id', $estudanteId)
-                              ->where('deleted',false)
-                              ->get()->toArray();
+        ->where('deleted',false)
+        ->get()->toArray();
                               
       $model = $this->cast($contatos, EstudanteContatosModel::class);
 
-      return response()->json($model);
+      return $this->response($model);
   }
 
   /**
