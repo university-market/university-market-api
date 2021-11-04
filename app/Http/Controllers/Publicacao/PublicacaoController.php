@@ -49,11 +49,11 @@ class PublicacaoController extends UniversityMarketController {
         $session = $this->getSession();
 
         if (!$session)
-            return $this->unauthorized();
+             return $this->unauthorized();
 
-        $publicacoes = Publicacao::where('estudanteId', $estudanteId)
-            ->where('excluida',false)
-            ->get()->toArray();
+        $publicacoes = Publicacao::where('estudante_id', $estudanteId)
+                                 ->where('deleted',false)
+                                 ->get();
 
         $list = [];
 
@@ -65,9 +65,9 @@ class PublicacaoController extends UniversityMarketController {
             $model->titulo = $publicacao->titulo;
             $model->descricao = $publicacao->descricao;
             $model->valor = $publicacao->valor;
-            $model->especificacoesTecnicas = $publicacao->especificacao_tecnica;
-            $model->pathImagem = $publicacao->caminho_imagem;
-            $model->dataHoraCriacao = $publicacao->created_at;
+            $model->especificacao_tecnica = $publicacao->especificacao_tecnica;
+            $model->caminho_imagem = $publicacao->caminho_imagem;
+            $model->created_at = $publicacao->created_at;
 
             $list[] = $model;
         }

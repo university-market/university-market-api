@@ -28,8 +28,8 @@ class Contato extends Model {
   protected $id; // PK
   protected $conteudo;
   protected $deleted;
-  protected $created_at;
-  protected $updated_at;
+  private $created_at;
+  private $updated_at;
 
 //   protected $tipo_contato_id; // FK Tipo Contato
   protected $estudante_id; // FK Estudante

@@ -117,7 +117,7 @@ class EstudanteController extends UniversityMarketController {
         return $this->unauthorized();
   
     //Valida se o tipo de contato já está cadastrado
-    $validacao = Contato::where('estudante_id',$session->estudanteId)
+    $validacao = Contato::where('estudante_id',$session->estudante_id)
                             ->where('tipo_contato_id',$model->tipo_contato_id)
                             ->where('deleted',false)
                             ->get()->toArray();
@@ -129,7 +129,7 @@ class EstudanteController extends UniversityMarketController {
 
     $contato->conteudo = $model->conteudo;
     $contato->tipo_contato_id = $model->tipo_contato_id;
-    $contato->estudante_id = $session->estudanteId;
+    $contato->estudante_id = $session->estudante_id;
 
     $contato->save();
 
@@ -184,7 +184,7 @@ class EstudanteController extends UniversityMarketController {
     if ($contato->deleted)
             throw new \Exception("Contato encontra-se deletado");
 
-    if($contato->estudante_id != $session->estudanteId)
+    if($contato->estudante_id != $session->estudante_id)
       throw new \Exception("Você não pode editar este contato");
 
     $contato->conteudo = $model->conteudo;
