@@ -113,6 +113,18 @@ class AuthController extends UniversityMarketController {
     ));
   }
 
+  public function logoutEstudante($activatedSessionId = null) {
+
+    $session = $this->getSession();
+
+    if (!$session && is_null($activatedSessionId))
+      return $this->unauthorized("Não há login ativo");
+
+    AppSession::destroy($activatedSessionId ?? $session->id);
+
+    return $this->response();
+  }
+
   public function solicitarRecuperacaoSenhaEstudante(Request $request) {
 
     $email = $request->only('email')['email'];
@@ -131,7 +143,10 @@ class AuthController extends UniversityMarketController {
     $activatedSession = AppSession::where('estudante_id', $estudante->id)->first();
 
     // Validar existencia do estudante solicitante
-    if (!is_null($activatedSession))
+    if (!is_null($activatedSession)) {
+
+      $this->logoutEstudante($activatedSession->id);
+    }
       throw new UniversityMarketException("Existe uma sessão ativa neste endereço de e-mail");
 
     $solicitacaoExistente = RecuperacaoSenha::where('estudante_id', $estudante->id)
