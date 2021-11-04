@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Publicacao;
 
+use App\Helpers\Aws\S3\S3Helper;
 use Illuminate\Http\Request;
 
 // Base
@@ -16,6 +17,7 @@ use App\Models\Publicacao\Publicacao_Tag;
 // Models de publicacao utilizadas
 use App\Http\Controllers\Publicacao\Models\PublicacaoCriacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
+use App\Base\Aws\Buckets\UniversityMarketBuckets;
 
 class PublicacaoController extends UniversityMarketController {
 
@@ -51,8 +53,8 @@ class PublicacaoController extends UniversityMarketController {
         //if (!$session)
             //return $this->unauthorized();
 
-        $publicacoes = Publicacao::where('estudanteId', $estudanteId)
-            ->where('excluida',false)
+        $publicacoes = Publicacao::where('estudante_id', $estudanteId)
+            ->where('deleted', false)
             ->get()->toArray();
 
         $list = [];
@@ -93,10 +95,18 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao->descricao = $model->descricao;
         $publicacao->especificacao_tecnica = $model->especificacoesTecnicas;
         $publicacao->valor = $model->valor;
-        $publicacao->caminho_imagem = $this->uploadImage($request);
+        // $publicacao->caminho_imagem = $this->uploadImage($request);
         $publicacao->data_hora_finalizacao = null; // Somente quando finalizada
         $publicacao->curso_id = $session->estudante->curso->id;
         $publicacao->estudante_id = $session->estudante_id;
+
+        $image_url = S3Helper::upload(
+            UniversityMarketBuckets::$default,
+            $request->file('image'),
+            'imagem-teste-upload-s3',
+        ) ?? $this->uploadImage($request);
+
+        $publicacao->caminho_imagem = $image_url;
 
         $publicacao->save();
 
