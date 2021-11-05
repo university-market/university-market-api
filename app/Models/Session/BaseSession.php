@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class BaseSession extends Model {
 
   // Registrar data/hora criacao/alteracao
-  public $timestamps = true;
+  public $timestamps = false;
 
   // protected $primaryKey = 'id';
 

@@ -156,7 +156,7 @@ class EstudanteController extends UniversityMarketController {
     if ($contato->deleted)
             throw new \Exception("Contato já deletado");
     
-    if($contato->estudante_id != $session->estudanteId)
+    if($contato->estudante_id != $session->estudante_id)
       throw new \Exception("Você não pode deletar este contato");
 
     $contato->deleted = true;
