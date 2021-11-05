@@ -23,6 +23,7 @@ use App\Models\Publicacao\Publicacao_Tag;
 // Models de publicacao utilizadas
 use App\Http\Controllers\Publicacao\Models\PublicacaoCriacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
+use App\Models\Publicacao\Tag;
 
 class PublicacaoController extends UniversityMarketController {
 
@@ -35,7 +36,7 @@ class PublicacaoController extends UniversityMarketController {
 
         $publicacao = Publicacao::find($publicacaoId);
 
-        if (\is_null($publicacao) || $publicacao->excluida)
+        if (is_null($publicacao) || $publicacao->deleted)
             throw new UniversityMarketException("Publicação não encontrada");
 
         $model = new PublicacaoDetalheModel();
@@ -47,6 +48,13 @@ class PublicacaoController extends UniversityMarketController {
         $model->especificacoesTecnicas = $publicacao->especificacao_tecnica;
         $model->pathImagem = $publicacao->caminho_imagem;
         $model->dataHoraCriacao = $publicacao->created_at;
+
+        // Query e map de tags da publicacao
+        $tags = array_map(function($item) {
+            return $item->tag->conteudo;
+        }, $this->obterTags($publicacaoId, true)->all());
+        
+        $model->tags = implode(',', $tags);
 
         return $this->response($model);
     }
@@ -106,6 +114,26 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao->estudante_id = $session->estudante_id;
 
         $publicacao->save();
+
+        $tags = is_null($model->tags) ? null : explode(',', $model->tags);
+
+        if (!is_null($tags)) {
+
+            foreach($tags as $tag_item) {
+
+                $tag = new Tag();
+
+                $tag->conteudo = $tag_item;
+                $tag->save();
+
+                $tag_publicacao = new Publicacao_Tag();
+
+                $tag_publicacao->tag_id = $tag->id;
+                $tag_publicacao->publicacao_id = $publicacao->id;
+
+                $tag_publicacao->save();
+            }
+        }
 
         return $this->response($publicacao->id);
     }
@@ -200,7 +228,7 @@ class PublicacaoController extends UniversityMarketController {
 
         $publicacao = Publicacao::find($publicacaoId);
 
-        if (is_null($publicacao) || $publicacao->excluida)
+        if (is_null($publicacao) || $publicacao->deleted)
             throw new UniversityMarketException("Publicação não encontrada");
 
         // Validação valor recebido na model
@@ -254,14 +282,14 @@ class PublicacaoController extends UniversityMarketController {
         return $this->response();
     }
 
-    public function obterTags($publicacaoId) {
+    public function obterTags($publicacaoId, $internal = false) {
 
         if (is_null($publicacaoId))
             throw new UniversityMarketException("Publicação não encontrada");
 
         $publicacao = Publicacao::find($publicacaoId);
 
-        if (is_null($publicacao) || $publicacao->excluida)
+        if (is_null($publicacao) || $publicacao->deleted)
             throw new UniversityMarketException("Publicação não encontrada");
 
         $tagFields = ['id', 'conteudo'];
@@ -273,14 +301,14 @@ class PublicacaoController extends UniversityMarketController {
             ->select('tag_id')
             ->get();
 
-        return $this->response($tags);
+        return !$internal ? $this->response($tags) : $tags;
     }
 
     public function excluir($publicacaoId) {
 
         $publicacao = Publicacao::find($publicacaoId);
 
-        if (\is_null($publicacao) || $publicacao->excluida)
+        if (\is_null($publicacao) || $publicacao->deleted)
             throw new UniversityMarketException("Publicação não encontrada");
 
         $publicacao->deleted = true;
