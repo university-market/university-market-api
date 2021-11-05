@@ -17,11 +17,13 @@ use App\Models\Estudante\Estudante;
 // Models de estudante utilizadas
 use App\Models\Estudante\Bloqueios;
 use App\Models\Estudante\Contato;
+use App\Http\Controllers\Estudante\Models\EstudanteDenunciaModel;
 use App\Http\Controllers\Estudante\Models\EstudanteBloqueioModel;
 use App\Http\Controllers\Estudante\Models\EstudanteDetalheModel;
 use App\Http\Controllers\Estudante\Models\EstudanteCriacaoModel;
 use App\Http\Controllers\Estudante\Models\EstudanteDadosModel;
 use App\Http\Controllers\Estudante\Models\EstudanteContatosModel;
+use App\Models\Estudante\Denuncia;
 
 class EstudanteController extends UniversityMarketController {
 
@@ -198,5 +200,30 @@ class EstudanteController extends UniversityMarketController {
     $bloqueio->save();
 
   }
+
+  public function denunciar(Request $request) {
+
+    $model = $this->cast($request, EstudanteDenunciaModel::class);   
+    
+    $model->validar(); 
+
+    $session = $this->getSession();
+
+    if (!$session)
+        return $this->unauthorized();
+
+    $denuncia = new Denuncia();
+
+    $denuncia->descricao = $model->descricao;
+    $denuncia->estudante_id_autor = $model->estudante_id_autor;
+    $denuncia->estudante_id_denunciado = $model->estudante_id_denunciado;
+    $denuncia->movimentacao_id = $model->movimentacao_id;
+  
+
+    
+    $denuncia->save();
+
+  }
+
 
 }
