@@ -184,6 +184,12 @@ class EstudanteController extends UniversityMarketController {
 
     $model = $this->cast($request, EstudanteBloqueioModel::class);    
 
+
+    $session = $this->getSession();
+
+    if (!$session)
+        return $this->unauthorized();
+
     $existente = $this->estudanteBloqueado($model->estudante_id);
 
     if ($existente) {
@@ -219,11 +225,11 @@ class EstudanteController extends UniversityMarketController {
     $denuncia->estudante_id_denunciado = $model->estudante_id_denunciado;
     $denuncia->movimentacao_id = $model->movimentacao_id;
   
-
-    
     $denuncia->save();
 
   }
+
+  
 
 
 }
