@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Base\Logger;
+namespace App\Base\Logs\Logger;
 
 abstract class UniversityMarketLogger {
 
