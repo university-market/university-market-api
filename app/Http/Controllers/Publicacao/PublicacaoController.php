@@ -264,9 +264,9 @@ class PublicacaoController extends UniversityMarketController {
         // }
 
         // Detalhes tecnicos
-        if ($publicacao->especificacoesTecnicas != $model->especificacoesTecnicas) {
+        if ($publicacao->especificacao_tecnica != $model->especificacoesTecnicas) {
 
-            $publicacao->especificacoesTecnicas = strlen(trim($model->especificacoesTecnicas)) == 0 ?
+            $publicacao->especificacao_tecnica = strlen(trim($model->especificacoesTecnicas)) == 0 ?
                 null : trim($model->especificacoesTecnicas);
         }
         
