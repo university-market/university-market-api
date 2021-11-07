@@ -4,5 +4,5 @@ namespace App\Base\Logs\Interfaces;
 
 interface LogChangeSerializer {
 
-    public function serialize();
+    public function serializeChanges();
 }

@@ -19,7 +19,12 @@ class StdLogChange implements LogChangeSerializer {
         return $this;
     }
 
-    public function setBefore($model) {
+    /**
+     * Persiste o estado de um objeto antes de sua alteração
+     * 
+     * @method setBeforeState
+     */
+    public function setBeforeState($model) {
 
         if (is_null($model))
             throw new UniversityMarketException("Cannot set property 'before' in log change with null");
@@ -29,7 +34,12 @@ class StdLogChange implements LogChangeSerializer {
         return $this;
     }
 
-    public function setAfter($model) {
+    /**
+     * Persiste o estado de um objeto depois de sua alteração
+     * 
+     * @method setAfterState
+     */
+    public function setAfterState($model) {
 
         if (is_null($model))
             throw new UniversityMarketException("Cannot set property 'after' in log change with null");
@@ -39,7 +49,14 @@ class StdLogChange implements LogChangeSerializer {
         return $this;
     }
 
-    public function serialize() {
+    /**
+     * Serializar mudanças persistidas para serem armazenadas no log
+     * 
+     * @method serializeChanges
+     * 
+     * @return string Model de mudanças serializadas como JSON
+     */
+    public function serializeChanges() {
 
         $change_entity = new stdClass();
 
