@@ -27,11 +27,11 @@ abstract class UniversityMarketLogger {
      * 
      * @param UniversityMarketResource $resource Recurso ao qual se refere o log a ser persistido
      * @param int|string $resource_id Id do registro referente ao recurso trabalhado
-     * @param UniversityMarketLogType $log_type Tipo de operação aplicada sobre o recurso
+     * @param StdLogType $log_type Tipo de operação aplicada sobre o recurso
      * @param string $message Mensagem adicional a ser persistida no registro
      * @param int $usuario_id Id do usuário que realizou a operação
-     * @param UniversityMarketLogChange $changes Mudanças aplicadas sobre determinado registro (utilizar método `serialize()` de `UniversityMarketLogChange`)
-     * @example $ `$changes = new UniversityMarketLogChange()->setBefore(['a' => 'a'])->setAfter(['a' => 'b'])->serialize();`
+     * @param StdLogChange $changes Mudanças aplicadas sobre determinado registro (utilizar método `serialize()` de `StdLogChange`)
+     * @example $ `$changes = new StdLogChange()->setBefore(['a' => 'a'])->setAfter(['a' => 'b'])->serialize();`
      * 
      * @return void
      */
@@ -47,10 +47,10 @@ abstract class UniversityMarketLogger {
      * 
      * @param UniversityMarketResource $resource Recurso ao qual se refere o log a ser persistido
      * @param int|string $resource_id Id do registro referente ao recurso trabalhado
-     * @param UniversityMarketLogType $log_type Tipo de operação aplicada sobre o recurso
+     * @param StdLogType $log_type Tipo de operação aplicada sobre o recurso
      * @param string $message Mensagem adicional a ser persistida no registro
      * @param int $usuario_id Id do usuário que realizou a operação
-     * @param UniversityMarketLogChange $changes Mudanças aplicadas sobre determinado registro (utilizar método `serialize()` de `UniversityMarketLogChange`)
+     * @param StdLogChange $changes Mudanças aplicadas sobre determinado registro (utilizar método `serialize()` de `StdLogChange`)
      * 
      * @return object Model de log pronta para ser persistida
      */
