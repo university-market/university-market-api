@@ -9,7 +9,7 @@ use App\Base\Exceptions\UniversityMarketException;
 // Common
 use stdClass;
 
-class UniversityMarketLogChange implements LogChangeSerializer {
+class StdLogChange implements LogChangeSerializer {
 
     private $_before;
     private $_after;
