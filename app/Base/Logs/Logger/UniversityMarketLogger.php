@@ -83,8 +83,6 @@ abstract class UniversityMarketLogger {
 
         $log_file_path = self::getLogFilePath();
 
-        dd($log_file_path);
-
         file_put_contents($log_file_path, $serialized . self::$log_end_line, FILE_APPEND);
     }
 
