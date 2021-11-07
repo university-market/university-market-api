@@ -58,12 +58,16 @@ abstract class UniversityMarketLogger {
 
         $model = new stdClass();
 
+        // Campos customizados do log
         $model->resource = $resource;
         $model->resourceId = $resource_id;
         $model->logType = $log_type;
         $model->message = $message;
         $model->changes = $changes ?? null;
         $model->usuarioId = $usuario_id;
+
+        // Campos padrao do log
+        $model->date = date('d-m-Y H:i:s');
 
         return $model;
     }
