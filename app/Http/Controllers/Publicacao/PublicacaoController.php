@@ -8,7 +8,9 @@ use Illuminate\Http\Request;
 use App\Base\Aws\Buckets\UniversityMarketBuckets;
 use App\Base\Exceptions\UniversityMarketException;
 use App\Base\Controllers\UniversityMarketController;
-
+use App\Base\Logs\Logger\UniversityMarketLogger;
+use App\Base\Logs\Type\StdLogType;
+use App\Base\Resource\UniversityMarketResource;
 // Helpers
 use App\Helpers\Aws\S3\S3Helper;
 
@@ -134,6 +136,16 @@ class PublicacaoController extends UniversityMarketController {
                 $tag_publicacao->save();
             }
         }
+
+        // Persistir log de criacao de publicacao
+        UniversityMarketLogger::log(
+            UniversityMarketResource::$publicacao,
+            $publicacao->id,
+            StdLogType::$criacao,
+            "Publicação criada",
+            $session->estudante_id,
+            null
+        );
 
         return $this->response($publicacao->id);
     }
