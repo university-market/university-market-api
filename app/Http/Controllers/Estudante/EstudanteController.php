@@ -229,6 +229,31 @@ class EstudanteController extends UniversityMarketController {
 
   }
 
+  public function obterDenuncias($estudanteId){
+
+    $session = $this->getSession();
+
+      if (!$session)
+          return $this->unauthorized();
+
+      $denuncias = Denuncia::where('estudante_id_denunciado', $estudanteId)->get();
+      
+      $list = [];
+
+      foreach ($denuncias as $denuncia) {
+
+        $model = new EstudanteDenunciaModel();
+        $model->descricao = $denuncia->descricao;
+        $model->estudante_id_autor = $denuncia->estudante_id_autor;
+        $model->estudante_id_denunciado = $denuncia->estudante_id_denunciado;
+        $model->movimentacao_id = $denuncia->movimentacao_id;
+
+        $list[]= $model;
+      }
+
+      return $this->response($list);
+  }
+
   
 
 

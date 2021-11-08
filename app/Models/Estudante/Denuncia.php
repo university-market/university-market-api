@@ -33,6 +33,6 @@ class Denuncia extends Model {
   protected $dataHoraAtualizacao;
   protected $finished_at;
   protected $estudante_id_autor; // FK Estudante
-  protected $estudante_id_denunciado; // F
+  protected $estudante_id_denunciado; // 
   protected $movimentacao_id;
 }
