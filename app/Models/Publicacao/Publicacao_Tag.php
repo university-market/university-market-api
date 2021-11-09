@@ -34,7 +34,7 @@ class Publicacao_Tag extends Model {
      */
     public function tag()
     {
-        return $this->hasOne(Tag::class);
+        return $this->hasOne(Tag::class, 'id', 'tag_id');
     }
 
     /**
@@ -42,6 +42,6 @@ class Publicacao_Tag extends Model {
      */
     public function publicacao()
     {
-        return $this->hasOne(Publicacao::class);
+        return $this->hasOne(Publicacao::class, 'id', 'publicacao_id');
     }
 }

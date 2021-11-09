@@ -19,7 +19,7 @@ class AppSession extends BaseSession {
      */
     public function estudante()
     {
-        return $this->hasOne(Estudante::class);
+        return $this->hasOne(Estudante::class, 'id', 'estudante_id');
     }
 
     /**

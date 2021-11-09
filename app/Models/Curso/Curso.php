@@ -13,7 +13,7 @@ class Curso extends Model {
   public $timestamps = false;
 
   // protected $table = 'Cursos';
-  // protected $primaryKey = 'id';
+  protected $primaryKey = 'id';
 
   /**
    * The attributes that should be cast.
@@ -21,7 +21,7 @@ class Curso extends Model {
    * @var array
    */
   protected $casts = [
-      'id' => 'integer',
+      // 'id' => 'integer',
       'nome' => 'string',
       'caminho_imagem' => 'string'
   ];

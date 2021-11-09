@@ -2,75 +2,85 @@
 
 namespace App\Models\Estudante;
 
-use \Illuminate\Database\Eloquent\Model;
+// Base
+use App\Base\Models\UniversityMarketModel;
+use App\Base\Exceptions\UniversityMarketException;
 
+// Models
 use App\Models\Curso\Curso;
-use App\Models\Instituicao\Instituicao;
 use App\Models\Publicacao\Publicacao;
+use App\Models\Instituicao\Instituicao;
 
-class Estudante extends Model {
+class Estudante extends UniversityMarketModel {
   
+  // Nome da entidade no banco de dados
+  protected $table = 'Estudantes';
+
   // Registrar data/hora criacao/alteracao
   public $timestamps = true;
 
-  // protected $table = 'Estudantes';
-  // protected $primaryKey = 'id';
-
-  /**
-   * The attributes that should be cast.
-   *
-   * @var array
-   */
+  // Type Casting para campos com tipos especiais (não string)
   protected $casts = [
-    // 'id' => 'integer',
-    'nome' => 'string',
-    'email' => 'string',
-    'senha' => 'string',
-    'ativo' => 'boolean',
-    'caminho_foto_perfil' => 'string',
-    'data_nascimento' => 'date',
-    'deleted_at' => 'datetime',
-    // 'curso_id' => 'integer',
-    // 'instituicao_id' => 'integer'
+    'ativo'             => 'boolean',
+    'data_nascimento'   => 'date',
+    'deleted_at'        => 'datetime'
   ];
 
-  protected $id; // PK
+  // Primary key da entidade
+  protected $id;
+  protected $primaryKey = 'id';
+
+  // Properties
   protected $nome;
   protected $email;
   protected $senha;
   protected $ativo;
   protected $caminho_foto_perfil;
   protected $data_nascimento;
+
+  // Timestamps da entidade
+  private $created_at;
+  private $updated_at;
   protected $deleted_at;
-  protected $created_at;
-  protected $updated_at;
-
-  protected $curso_id; // FK Curso
-  protected $instituicao_id; // FK Instituicao
-
-  // Entity Relationships
 
   /**
-   * Obtem o Curso associado ao Estudante
+   * @region Entity Relationships
    */
+
+  // Foreign Key para entidade de Curso
+  protected $curso_id;
   public function curso()
   {
-    return $this->hasOne(Curso::class);
+    return $this->hasOne(Curso::class, 'id', 'curso_id');
   }
 
-  /**
-   * Obtem a Instituicao associada ao Estudante
-   */
+  // Foreign Key para entidade de Instituicao
+  protected $instituicao_id;
   public function instituicao()
   {
-    return $this->hasOne(Instituicao::class);
+    return $this->hasOne(Instituicao::class, 'id', 'instituicao_id');
+  }
+
+  // Relacionamento Estudante com Publicacao
+  public function publicacoes()
+  {
+    return $this->hasMany(Publicacao::class, 'estudante_id', 'id');
   }
 
   /**
-   * Obtem as Publicacoes associadas ao Estudante
+   * @region Entity Acessors and Mutators
    */
-  public function publicacoes()
-  {
-    return $this->hasMany(Publicacao::class);
+  
+  // Setter para Nome
+  public function setNomeAttribute($value) {
+
+    $counter = explode(' ', $value ?? '');
+
+    // Ao menos um nome informado
+    if (count($counter) <= 1)
+      throw new UniversityMarketException("Um nome completo deve ser fornecido para o estudante");
+
+    $this->attributes['nome'] = $value;
   }
+  
 }

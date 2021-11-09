@@ -34,7 +34,7 @@ class Instituicao_Curso extends Model {
      */
     public function instituicao()
     {
-        return $this->hasOne(Instituicao::class);
+        return $this->hasOne(Instituicao::class, 'id', 'instituicao_id');
     }
 
     /**
@@ -42,6 +42,6 @@ class Instituicao_Curso extends Model {
      */
     public function curso()
     {
-        return $this->hasOne(Curso::class);
+        return $this->hasOne(Curso::class, 'id', 'curso_id');
     }
 }

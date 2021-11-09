@@ -6,49 +6,51 @@ use \Illuminate\Database\Eloquent\Model;
 
 class Contato extends Model {
   
+  // Nome da entidade no banco de dados
+  protected $table = 'Contatos';
+
   // Registrar data/hora criacao/alteracao
   public $timestamps = true;
 
-  // protected $table = 'Contatos';
-  // protected $primaryKey = 'id';
-
-  /**
-   * The attributes that should be cast.
-   *
-   * @var array
-   */
+  // Type Casting para campos com tipos especiais (não string)
   protected $casts = [
-    // 'id' => 'integer',
     'conteudo' => 'string',
-    'deleted' => 'boolean',
-    // 'tipo_contato_id' => 'integer',
-    // 'estudante_id' => 'integer'
+    'deleted' => 'boolean'
   ];
 
-  protected $id; // PK
+  // Primary Key da entidade
+  protected $id;
+  protected $primaryKey = 'id';
+
+  // Properties
   protected $conteudo;
   protected $deleted;
-  protected $created_at;
-  protected $updated_at;
 
-//   protected $tipo_contato_id; // FK Tipo Contato
-  protected $estudante_id; // FK Estudante
-
-  // Entity Relationships
+  // Timestamps da entidade
+  private $created_at;
+  private $updated_at;
 
   /**
-   * Obtem o Tipo Contato associado ao Contato
+   * @region Entity Relationships
    */
-//   public function tipo_contato()
-//   {
-//     return $this->hasOne(TipoContato::class);
-//   }
 
-  /**
-   * Obtem o Estudante associado ao Contato
-   */
+  // Foreign Key para entidade de Tipo_Contato
+  protected $tipo_contato_id;
+  public function tipo_contato()
+  {
+    return $this->hasOne(TipoContato::class);
+  }
+
+  // Foreign Key para entidade de Estudante
+  protected $estudante_id;
   public function estudante()
   {
     return $this->hasOne(Estudante::class);
   }
+  
+  /**
+   * @region Entity Acessors and Mutators
+   */
+  
+
 }

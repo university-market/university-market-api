@@ -2,22 +2,32 @@
 
 namespace App\Http\Controllers\Publicacao;
 
-use App\Exceptions\Base\UMException;
-use App\Http\Controllers\Base\UniversityMarketController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
-// Models de publicacao utilizadas
-use App\Models\Publicacao\Publicacao;
-use App\Models\Curso\Curso;
-use App\Http\Controllers\Publicacao\Models\PublicacaoCriacaoModel;
-use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
-use App\Models\Publicacao\Tag_Publicacao;
+// Base
+use App\Base\Aws\Buckets\UniversityMarketBuckets;
+use App\Base\Exceptions\UniversityMarketException;
+use App\Base\Controllers\UniversityMarketController;
+use App\Base\Logs\Logger\UniversityMarketLogger;
+use App\Base\Logs\Type\StdLogType;
+use App\Base\Resource\UniversityMarketResource;
+// Helpers
+use App\Helpers\Aws\S3\S3Helper;
+
+// Common
 use Exception;
 
-class PublicacaoController extends UniversityMarketController {
+// Entidades
+use App\Models\Curso\Curso;
+use App\Models\Publicacao\Publicacao;
+use App\Models\Publicacao\Publicacao_Tag;
 
-    private $dataHoraFormat = "Y-m-d H:i:s";
+// Models de publicacao utilizadas
+use App\Http\Controllers\Publicacao\Models\PublicacaoCriacaoModel;
+use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
+use App\Models\Publicacao\Tag;
+
+class PublicacaoController extends UniversityMarketController {
 
     public function obter($publicacaoId) {
 
@@ -28,85 +38,186 @@ class PublicacaoController extends UniversityMarketController {
 
         $publicacao = Publicacao::find($publicacaoId);
 
-        if (\is_null($publicacao) || $publicacao->excluida)
-            throw new \Exception("Publicação não encontrada");
+        if (is_null($publicacao) || $publicacao->deleted)
+            throw new UniversityMarketException("Publicação não encontrada");
 
-        $model = $this->cast($publicacao, PublicacaoDetalheModel::class);
+        $model = new PublicacaoDetalheModel();
 
-        return response()->json($model);
+        $model->publicacaoId = $publicacao->id;
+        $model->titulo = $publicacao->titulo;
+        $model->descricao = $publicacao->descricao;
+        $model->valor = $publicacao->valor;
+        $model->especificacoesTecnicas = $publicacao->especificacao_tecnica;
+        $model->pathImagem = $publicacao->caminho_imagem;
+        $model->dataHoraCriacao = $publicacao->created_at;
+
+        // Query e map de tags da publicacao
+        $tags = array_map(function($item) {
+            return $item->tag->conteudo;
+        }, $this->obterTags($publicacaoId, true)->all());
+        
+        $model->tags = implode(',', $tags);
+
+        return $this->response($model);
     }
 
     public function obterByUser($estudanteId) {
-
-        //$session = $this->getSession();
-
-        //if (!$session)
-            //return $this->unauthorized();
-
-        $publicacao = Publicacao::where('estudanteId', $estudanteId)
-                                ->where('excluida',false)
-                                ->get()->toArray();
-
-        $model = $this->cast($publicacao, PublicacaoDetalheModel::class);
-
-        return response()->json($model);
-        
-    }
-
-    public function criar(Request $request) {
-
-        $model = $this->cast($request, PublicacaoCriacaoModel::class);
-
-        // Validar informacoes construidas na model
-        $model->validar();
 
         $session = $this->getSession();
 
         if (!$session)
             return $this->unauthorized();
 
+        $publicacoes = Publicacao::where('estudante_id', $estudanteId)
+            ->where('deleted', false)
+            ->get();
+
+        $list = [];
+
+        foreach ($publicacoes as $publicacao) {
+
+            $model = new PublicacaoDetalheModel();
+
+            $model->publicacaoId = $publicacao->id;
+            $model->titulo = $publicacao->titulo;
+            $model->descricao = $publicacao->descricao;
+            $model->valor = $publicacao->valor;
+            $model->especificacoesTecnicas = $publicacao->especificacao_tecnica;
+            $model->pathImagem = $publicacao->caminho_imagem;
+            $model->dataHoraCriacao = $publicacao->created_at;
+
+            $list[] = $model;
+        }
+    
+        return $this->response($list);
+    }
+
+    public function criar(Request $request) {
+
+        $session = $this->getSession();
+
+        if (!$session)
+            return $this->unauthorized();
+
+        $model = $this->cast($request, PublicacaoCriacaoModel::class);
+
+        // Validar informacoes construidas na model
+        $model->validar();
+        
         $publicacao = new Publicacao();
 
         $publicacao->titulo = $model->titulo;
         $publicacao->descricao = $model->descricao;
-        $publicacao->especificacoesTecnicas = $model->especificacoesTecnicas;
+        $publicacao->especificacao_tecnica = $model->especificacoesTecnicas;
         $publicacao->valor = $model->valor;
-        $publicacao->pathImagem = $this->uploadImage($request);
-        $publicacao->dataHoraCriacao = \date($this->dataHoraFormat);
-        $publicacao->dataHoraFinalizacao = null; // Somente quando finalizada
-        $publicacao->cursoId = 1;
-        $publicacao->estudanteId = $session->estudanteId;
+        $publicacao->caminho_imagem = null; // Alterado em requisição separa para upload de imagem
+        $publicacao->data_hora_finalizacao = null; // Somente quando finalizada
+        $publicacao->curso_id = $session->estudante->curso->id;
+        $publicacao->estudante_id = $session->estudante_id;
 
         $publicacao->save();
 
-        return response(null, 200);
+        $tags = is_null($model->tags) ? null : explode(',', $model->tags);
+
+        if (!is_null($tags)) {
+
+            foreach($tags as $tag_item) {
+
+                $tag = new Tag();
+
+                $tag->conteudo = $tag_item;
+                $tag->save();
+
+                $tag_publicacao = new Publicacao_Tag();
+
+                $tag_publicacao->tag_id = $tag->id;
+                $tag_publicacao->publicacao_id = $publicacao->id;
+
+                $tag_publicacao->save();
+            }
+        }
+
+        // Persistir log de criacao de publicacao
+        UniversityMarketLogger::log(
+            UniversityMarketResource::$publicacao,
+            $publicacao->id,
+            StdLogType::$criacao,
+            "Publicação criada",
+            $session->estudante_id,
+            null
+        );
+
+        return $this->response($publicacao->id);
+    }
+
+    public function uploadImagemPublicacao($publicacaoId, Request $request) {
+
+        if (is_null($publicacaoId))
+            throw new UniversityMarketException("Publicação não encontrada");
+
+        $publicacao = Publicacao::find($publicacaoId);
+
+        if (is_null($publicacao) || $publicacao->deleted)
+            throw new UniversityMarketException("Publicação não encontrada");
+
+        $publicacao_image_key = 'publicacaoImage';
+
+        if (!$request->hasFile($publicacao_image_key))
+            throw new UniversityMarketException("Nenhuma imagem foi fornecida");
+
+        $file = $request->file($publicacao_image_key);
+
+        $url = $this->uploadImage($publicacao->id, $file);
+
+        if (is_null($url))
+            throw new UniversityMarketException("Ocorreu um erro ao realizar upload da imagem");
+
+        $publicacao->caminho_imagem = $url;
+        $publicacao->save();
+
+        return $this->response();
     }
 
     public function listar() {
 
-        $publicacoes = Publicacao::where('excluida', false)->get()->toArray();
+        $publicacoes = Publicacao::where('deleted', false)->get();
 
-        $model = $this->cast($publicacoes, PublicacaoDetalheModel::class);
+        $list = [];
 
-        return response()->json($model);
+        foreach ($publicacoes as $publicacao) {
+
+            $model = new PublicacaoDetalheModel();
+
+            $model->publicacaoId = $publicacao->id;
+            $model->titulo = $publicacao->titulo;
+            $model->descricao = $publicacao->descricao;
+            $model->valor = $publicacao->valor;
+            $model->especificacoesTecnicas = $publicacao->especificacao_tecnica;
+            $model->pathImagem = $publicacao->caminho_imagem;
+            $model->dataHoraCriacao = $publicacao->created_at;
+
+            $list[] = $model;
+        }
+
+        return $this->response($list);
     }
 
     public function listarByCurso($cursoId) {
         
         if (is_null($cursoId))
-            throw new UMException("Curso não encontrado");
+            throw new UniversityMarketException("Curso não encontrado");
 
         $curso = Curso::find($cursoId);
 
         if (is_null($curso))
-            throw new UMException("Curso não encontrado");
+            throw new UniversityMarketException("Curso não encontrado");
 
-        $cursoFields = ['cursoId', 'nome'];
-        $publicacaoFields = ['publicacaoId', 'titulo', 'pathImagem', 'estudanteId'];
-        $estudanteFields = ['estudanteId', 'nome', 'email'];
+        $cursoFields = ['id', 'nome'];
+        $publicacaoFields = ['id', 'titulo', 'caminho_imagem'];
+        $estudanteFields = ['id', 'nome', 'email'];
 
-        $list = Curso::where('cursoId', $cursoId)
-            ->with(['publicacao' => function($publicacaoQuery) use ($publicacaoFields, $estudanteFields) {
+        $list = Curso::where('id', $cursoId)
+            ->with(['publicacoes' => function($publicacaoQuery) use ($publicacaoFields, $estudanteFields) {
                 $publicacaoQuery->with(['estudante' => function($estudanteQuery) use ($estudanteFields) {
                     $estudanteQuery->select($estudanteFields);
                 }])
@@ -115,7 +226,7 @@ class PublicacaoController extends UniversityMarketController {
             ->select($cursoFields)
             ->get();
 
-        return response()->json($list);
+        return $this->response($list);
     }
 
     public function alterar(Request $request, $publicacaoId) {
@@ -129,31 +240,31 @@ class PublicacaoController extends UniversityMarketController {
 
         $publicacao = Publicacao::find($publicacaoId);
 
-        if (\is_null($publicacao) || $publicacao->excluida)
-            throw new \Exception("Publicação não encontrada");
+        if (is_null($publicacao) || $publicacao->deleted)
+            throw new UniversityMarketException("Publicação não encontrada");
 
         // Validação valor recebido na model
-        if ($model->valor !== null && !\is_numeric($model->valor))
-            throw new \Exception("O valor informado não é válido");
+        if ($model->valor !== null && !is_numeric($model->valor))
+            throw new UniversityMarketException("O valor informado não é válido");
 
         // Titulo
         if ($publicacao->titulo != $model->titulo) {
 
-            $publicacao->titulo = (\is_null($model->titulo) || empty(trim($model->titulo))) ? 
+            $publicacao->titulo = (is_null($model->titulo) || empty(trim($model->titulo))) ? 
                 $publicacao->titulo : trim($model->titulo);
         }
         
         // Descricao
         if ($publicacao->descricao != $model->descricao) {
 
-            $publicacao->descricao = (\is_null($model->descricao) || empty(trim($model->descricao))) ? 
+            $publicacao->descricao = (is_null($model->descricao) || empty(trim($model->descricao))) ? 
                 $publicacao->descricao : trim($model->descricao);
         }
 
         // Valor
         if ($publicacao->valor != $model->valor) {
 
-            $publicacao->valor = (\is_null($model->valor) || empty(trim($model->valor))) ? 
+            $publicacao->valor = (is_null($model->valor) || empty(trim($model->valor))) ? 
                 $publicacao->valor : (double)$model->valor;
         }
 
@@ -165,9 +276,9 @@ class PublicacaoController extends UniversityMarketController {
         // }
 
         // Detalhes tecnicos
-        if ($publicacao->especificacoesTecnicas != $model->especificacoesTecnicas) {
+        if ($publicacao->especificacao_tecnica != $model->especificacoesTecnicas) {
 
-            $publicacao->especificacoesTecnicas = strlen(trim($model->especificacoesTecnicas)) == 0 ?
+            $publicacao->especificacao_tecnica = strlen(trim($model->especificacoesTecnicas)) == 0 ?
                 null : trim($model->especificacoesTecnicas);
         }
         
@@ -180,67 +291,82 @@ class PublicacaoController extends UniversityMarketController {
 
         $publicacao->save();
 
-        return response(null, 200);
+        return $this->response();
     }
 
-    public function obterTags($publicacaoId) {
+    public function obterTags($publicacaoId, $internal = false) {
 
         if (is_null($publicacaoId))
-            throw new UMException("Publicação não encontrada");
+            throw new UniversityMarketException("Publicação não encontrada");
 
         $publicacao = Publicacao::find($publicacaoId);
 
-        if (is_null($publicacao) || $publicacao->excluida)
-            throw new UMException("Publicação não encontrada");
+        if (is_null($publicacao) || $publicacao->deleted)
+            throw new UniversityMarketException("Publicação não encontrada");
 
-        $tagFields = ['tagId', 'conteudo'];
+        $tagFields = ['id', 'conteudo'];
 
-        $tags = Tag_Publicacao::where('publicacaoId', $publicacaoId)
+        $tags = Publicacao_Tag::where('publicacao_id', $publicacaoId)
             ->with(['tag' => function($tagQuery) use($tagFields) {
                 $tagQuery->select($tagFields)->get();
             }])
-            ->select('tagId')
+            ->select('tag_id')
             ->get();
 
-        return response()->json($tags);
+        return !$internal ? $this->response($tags) : $tags;
     }
 
     public function excluir($publicacaoId) {
 
         $publicacao = Publicacao::find($publicacaoId);
 
-        if (\is_null($publicacao) || $publicacao->excluida)
-            throw new \Exception("Publicação não encontrada");
+        if (\is_null($publicacao) || $publicacao->deleted)
+            throw new UniversityMarketException("Publicação não encontrada");
 
-        $publicacao->excluida = true;
+        $publicacao->deleted = true;
 
         $publicacao->save();
         
-        return response(null, 200);
+        return $this->response();
     }
 
-    public function uploadImage(Request $request)
+    private function uploadImage($publicacaoId, $file)
     {
-        if ($request->hasFile('image')) {
+        $filename = $file->getClientOriginalName();
+        $filename_arr = explode('.', str_replace(" ", "_", $filename));
 
-            $original_filename = $request->file('image')->getClientOriginalName();
-            $original_filename_arr = explode('.', str_replace(" ", "_", $original_filename));
-            $file_ext = $original_filename_arr[count($original_filename_arr)-1];
-            
-            $filename_parts = [];
-            foreach ($original_filename_arr as $key => $value)
-                if ($key < count($original_filename_arr)-1)
-                    $filename_parts[] = $value;
+        $extension = $filename_arr[count($filename_arr)-1];
+        
+        try {
 
-            $filename = implode('.', $filename_parts);
-            
-            $destination_path = './storage/upload/publicacao/';
-            $final_filename = $filename . '-um-pub-' . time() . '.' . $file_ext;
+            $filename = 'image-' . $publicacaoId . '.' . $extension;
 
-            if ($request->file('image')->move($destination_path, $final_filename))
-                return '/storage/upload/publicacao/' . $final_filename;
+            /*
+            // Upload do arquivo para bucket do S3
+            $url = S3Helper::upload(
+                UniversityMarketBuckets::$default,
+                $file,
+                $filename
+            );
+            */
+            // /*
+
+            // Persistir arquivo localmente no servidor
+            $destination_path = '/storage/upload/publicacao/';
+            $url = env('APP_URL') . $destination_path . $filename;
+    
+            if (!$file->move('.' . $destination_path, $filename))
+                throw new UniversityMarketException("Não foi possível salvar o arquivo");
+            // */
+
+            return $url;
+
+        } catch (Exception $e) {
+
+            // Registrar log de erro da operação
         }
-        throw new \Exception("Não foi possível realizar o upload da imagem");
+
+        return null;
     }
 
 }

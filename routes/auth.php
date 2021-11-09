@@ -22,6 +22,9 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
     // Efetuar login
     $router->post('estudante/login', 'AuthController@loginEstudante');
 
+    // Efetuar logout
+    $router->post('estudante/logout', 'AuthController@logoutEstudante');
+
     // Solicitar recuperação de senha
     $router->patch('estudante/recuperarsenha/solicitar', 'AuthController@solicitarRecuperacaoSenhaEstudante');
 

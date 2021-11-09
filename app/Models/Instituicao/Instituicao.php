@@ -11,7 +11,7 @@ class Instituicao extends Model{
     public $timestamps = true;
 
     protected $table = 'Instituicoes';
-    // protected $primaryKey = 'id';
+    protected $primaryKey = 'id';
 
     /**
      * The attributes that should be cast.
@@ -19,10 +19,8 @@ class Instituicao extends Model{
      * @var array
      */
     protected $casts = [
-        'id' => 'integer',
         'ativa' => 'boolean',
-        'approved_at' => 'datetime',
-        // 'plano_id' => 'integer'
+        'approved_at' => 'datetime'
     ];
 
     protected $id; // PK
@@ -32,9 +30,9 @@ class Instituicao extends Model{
     protected $email;
     protected $ativa;
     protected $approved_at;
-    protected $created_at;
-    protected $updated_at;
     protected $plano_id;
+    private $created_at;
+    private $updated_at;
 
     // Entity Relationships
 
