@@ -40,4 +40,10 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
   //editat contatos do estudante
   $router->put('contatos','EstudanteController@editarContato');
 
+  //obter endereços pelo estudande id
+  $router->get('endereco/{estudanteId}','EstudanteController@obterEndereco');
+
+  //cadastrar endereços 
+  $router->get('endereco','EstudanteController@cadastrarEndereco');
+
 });
