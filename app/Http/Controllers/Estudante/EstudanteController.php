@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 // Base
 use App\Base\Controllers\UniversityMarketController;
 use App\Base\Exceptions\UniversityMarketException;
-
+use App\Base\Logs\Logger\UniversityMarketLogger;
+use App\Base\Logs\Type\StdLogType;
+use App\Base\Resource\UniversityMarketResource;
 // Common
 use Illuminate\Support\Facades\Hash;
 
@@ -104,6 +106,17 @@ class EstudanteController extends UniversityMarketController {
     $estudante->instituicao_id = $model->instituicaoId;
     
     $estudante->save();
+
+    // Persistir log de criacao do estudante
+    UniversityMarketLogger::log(
+      UniversityMarketResource::$estudante,
+      $estudante->id,
+      StdLogType::$criacao,
+      "Estudante Criado",
+      null,
+      null
+    );
+
   }
 
   public function cadastrarContato(Request $request){
@@ -133,6 +146,17 @@ class EstudanteController extends UniversityMarketController {
     $contato->estudante_id = $model->estudante_id ?? $session->estudante_id;
 
     $contato->save();
+
+    // Persistir log de criacao de contato do estudante
+    UniversityMarketLogger::log(
+      UniversityMarketResource::$estudante,
+      $contato->id,
+      StdLogType::$criacao,
+      "Contato criado",
+      $session->estudante_id,
+      null
+    );
+
     
     return $this->response();
   }

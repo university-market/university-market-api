@@ -291,6 +291,17 @@ class PublicacaoController extends UniversityMarketController {
 
         $publicacao->save();
 
+        // Persistir log de criacao de edição da publicacao
+    UniversityMarketLogger::log(
+        UniversityMarketResource::$publicacao,
+        $publicacao->id,
+        StdLogType::$edicao,
+        "Publicação editada",
+        $session->estudante_id,
+        null
+      );
+  
+
         return $this->response();
     }
 
@@ -318,6 +329,11 @@ class PublicacaoController extends UniversityMarketController {
 
     public function excluir($publicacaoId) {
 
+        $session = $this->getSession();
+
+        if (!$session)
+            return $this->unauthorized();
+
         $publicacao = Publicacao::find($publicacaoId);
 
         if (\is_null($publicacao) || $publicacao->deleted)
@@ -326,6 +342,16 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao->deleted = true;
 
         $publicacao->save();
+
+        // Persistir log de criacao de edição da publicacao
+    UniversityMarketLogger::log(
+        UniversityMarketResource::$publicacao,
+        $publicacao->id,
+        StdLogType::$exclusao,
+        "Publicação excluida",
+        $session->estudante_id,
+        null
+      );
         
         return $this->response();
     }
