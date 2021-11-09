@@ -206,6 +206,7 @@ CREATE TABLE `Enderecos` (
     `atual` BOOLEAN NOT NULL DEFAULT 1,
     `deleted_at` DATETIME NULL,
     `created_at` DATETIME NOT NULL,
+    `updated_at` DATETIME,
     `estudante_id` INT NULL,
     `instituicao_id` INT NULL,
 
