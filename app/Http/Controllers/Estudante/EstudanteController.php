@@ -16,12 +16,16 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\Estudante\Estudante;
 
 // Models de estudante utilizadas
+use App\Models\Estudante\Bloqueios;
+use App\Models\Estudante\Contato;
+use App\Http\Controllers\Estudante\Models\EstudanteBloqueioModel;
 use App\Http\Controllers\Estudante\Models\EstudanteDetalheModel;
 use App\Http\Controllers\Estudante\Models\EstudanteCriacaoModel;
 use App\Http\Controllers\Estudante\Models\EstudanteDadosModel;
 use App\Http\Controllers\Estudante\Models\EstudanteEnderecosModel;
 use App\Models\Estudante\Contato;
 use App\Models\Estudante\Endereco;
+use App\Http\Controllers\Estudante\Models\EstudanteContatosModel;
 
 class EstudanteController extends UniversityMarketController
 {
@@ -60,7 +64,7 @@ class EstudanteController extends UniversityMarketController
   {
 
     if (!$estudanteId)
-      throw new \Exception("Estudante não encontrado");
+      throw new UniversityMarketException("Estudante não encontrado");
 
     $session = $this->getSession();
 
@@ -70,7 +74,7 @@ class EstudanteController extends UniversityMarketController
     $estudante = Estudante::find($estudanteId);
 
     if (\is_null($estudante))
-      throw new \Exception("Estudante não encontrado");
+      throw new UniversityMarketException("Estudante não encontrado");
 
     // Construir model de detalhes do estudante
     $model = new EstudanteDadosModel();
@@ -79,7 +83,7 @@ class EstudanteController extends UniversityMarketController
     $model->email = $estudante->email;
     $model->cursoNome = $estudante->curso->nome;
 
-    return response()->json($model);
+    return $this->response($model);
   }
 
   public function criar(Request $request)
@@ -93,7 +97,7 @@ class EstudanteController extends UniversityMarketController
 
     if ($existente !== false) {
 
-      throw new \Exception("Estudante já possui cadastro em $existente");
+      throw new UniversityMarketException("Estudante já possui cadastro em $existente");
     }
 
     $estudante = new Estudante();
@@ -132,6 +136,13 @@ class EstudanteController extends UniversityMarketController
     if ($validacao)
       throw new \Exception("Tipo de contato já cadastrado, favor edita-lo!");
 
+    $validacao = Contato::where('estudante_id',$model->estudante_id)
+      ->where('tipo_contato_id',$model->tipo_contato_id)
+      ->get()->toArray();
+
+    if($validacao)
+      throw new UniversityMarketException("Tipo de contato já cadastrado, favor edita-lo!");
+    
     $contato = new Contato;
 
     $contato->conteudo = $model->conteudo;
@@ -172,6 +183,11 @@ class EstudanteController extends UniversityMarketController
     $contato->save();
 
     return response(null, 200);
+    $contato->estudante_id = $model->estudante_id ?? $session->estudante_id;
+
+    $contato->save();
+    
+    return $this->response();
   }
 
 
@@ -248,6 +264,13 @@ class EstudanteController extends UniversityMarketController
     }
 
     return response()->json($list);
+      $contatos = Contato::where('estudante_id', $estudanteId)
+        ->where('deleted',false)
+        ->get()->toArray();
+                              
+      $model = $this->cast($contatos, EstudanteContatosModel::class);
+
+      return $this->response($model);
   }
 
   /**
@@ -264,4 +287,38 @@ class EstudanteController extends UniversityMarketController
 
     return $estudante->instituicao->razao_social;
   }
+}
+
+  private function estudanteBloqueado($estudante_id) {
+
+    $estudante = Bloqueios::where('estudante_id', $estudante_id)->first();
+
+    if (is_null($estudante))
+      return false;
+
+    return $estudante;
+  }
+
+
+  public function bloquear(Request $request) {
+
+    $model = $this->cast($request, EstudanteBloqueioModel::class);    
+
+    $existente = $this->estudanteBloqueado($model->estudante_id);
+
+    if ($existente) {
+      throw new \Exception("Estudante já está bloqueado");
+    }
+
+    $bloqueio = new Bloqueios();
+
+    $bloqueio->estudante_id = $model->estudante_id;
+    $bloqueio->motivo = $model->motivo;
+    $bloqueio->finished_at = $model->finished_at;
+
+    
+    $bloqueio->save();
+
+  }
+
 }

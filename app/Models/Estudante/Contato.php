@@ -30,25 +30,29 @@ class Contato extends Model {
   protected $deleted;
   private $created_at;
   private $updated_at;
-
-//   protected $tipo_contato_id; // FK Tipo Contato
-  protected $estudante_id; // FK Estudante
-
-  // Entity Relationships
+  
 
   /**
-   * Obtem o Tipo Contato associado ao Contato
+   * @region Entity Relationships
    */
-//   public function tipo_contato()
-//   {
-//     return $this->hasOne(TipoContato::class);
-//   }
 
-  /**
-   * Obtem o Estudante associado ao Contato
-   */
+  // Foreign Key para entidade de Tipo_Contato
+  protected $tipo_contato_id;
+  public function tipo_contato()
+  {
+    return $this->hasOne(TipoContato::class);
+  }
+
+  // Foreign Key para entidade de Estudante
+  protected $estudante_id;
   public function estudante()
   {
     return $this->hasOne(Estudante::class);
   }
+  
+  /**
+   * @region Entity Acessors and Mutators
+   */
+  
+
 }

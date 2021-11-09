@@ -5,8 +5,17 @@ namespace App\Http\Controllers\Publicacao;
 use Illuminate\Http\Request;
 
 // Base
-use App\Base\Controllers\UniversityMarketController;
+use App\Base\Aws\Buckets\UniversityMarketBuckets;
 use App\Base\Exceptions\UniversityMarketException;
+use App\Base\Controllers\UniversityMarketController;
+use App\Base\Logs\Logger\UniversityMarketLogger;
+use App\Base\Logs\Type\StdLogType;
+use App\Base\Resource\UniversityMarketResource;
+// Helpers
+use App\Helpers\Aws\S3\S3Helper;
+
+// Common
+use Exception;
 
 // Entidades
 use App\Models\Curso\Curso;
@@ -16,6 +25,7 @@ use App\Models\Publicacao\Publicacao_Tag;
 // Models de publicacao utilizadas
 use App\Http\Controllers\Publicacao\Models\PublicacaoCriacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
+use App\Models\Publicacao\Tag;
 
 class PublicacaoController extends UniversityMarketController {
 
@@ -28,7 +38,7 @@ class PublicacaoController extends UniversityMarketController {
 
         $publicacao = Publicacao::find($publicacaoId);
 
-        if (\is_null($publicacao) || $publicacao->excluida)
+        if (is_null($publicacao) || $publicacao->deleted)
             throw new UniversityMarketException("Publicação não encontrada");
 
         $model = new PublicacaoDetalheModel();
@@ -40,6 +50,13 @@ class PublicacaoController extends UniversityMarketController {
         $model->especificacoesTecnicas = $publicacao->especificacao_tecnica;
         $model->pathImagem = $publicacao->caminho_imagem;
         $model->dataHoraCriacao = $publicacao->created_at;
+
+        // Query e map de tags da publicacao
+        $tags = array_map(function($item) {
+            return $item->tag->conteudo;
+        }, $this->obterTags($publicacaoId, true)->all());
+        
+        $model->tags = implode(',', $tags);
 
         return $this->response($model);
     }
@@ -93,11 +110,69 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao->descricao = $model->descricao;
         $publicacao->especificacao_tecnica = $model->especificacoesTecnicas;
         $publicacao->valor = $model->valor;
-        $publicacao->caminho_imagem = $this->uploadImage($request);
+        $publicacao->caminho_imagem = null; // Alterado em requisição separa para upload de imagem
         $publicacao->data_hora_finalizacao = null; // Somente quando finalizada
         $publicacao->curso_id = $session->estudante->curso->id;
         $publicacao->estudante_id = $session->estudante_id;
 
+        $publicacao->save();
+
+        $tags = is_null($model->tags) ? null : explode(',', $model->tags);
+
+        if (!is_null($tags)) {
+
+            foreach($tags as $tag_item) {
+
+                $tag = new Tag();
+
+                $tag->conteudo = $tag_item;
+                $tag->save();
+
+                $tag_publicacao = new Publicacao_Tag();
+
+                $tag_publicacao->tag_id = $tag->id;
+                $tag_publicacao->publicacao_id = $publicacao->id;
+
+                $tag_publicacao->save();
+            }
+        }
+
+        // Persistir log de criacao de publicacao
+        UniversityMarketLogger::log(
+            UniversityMarketResource::$publicacao,
+            $publicacao->id,
+            StdLogType::$criacao,
+            "Publicação criada",
+            $session->estudante_id,
+            null
+        );
+
+        return $this->response($publicacao->id);
+    }
+
+    public function uploadImagemPublicacao($publicacaoId, Request $request) {
+
+        if (is_null($publicacaoId))
+            throw new UniversityMarketException("Publicação não encontrada");
+
+        $publicacao = Publicacao::find($publicacaoId);
+
+        if (is_null($publicacao) || $publicacao->deleted)
+            throw new UniversityMarketException("Publicação não encontrada");
+
+        $publicacao_image_key = 'publicacaoImage';
+
+        if (!$request->hasFile($publicacao_image_key))
+            throw new UniversityMarketException("Nenhuma imagem foi fornecida");
+
+        $file = $request->file($publicacao_image_key);
+
+        $url = $this->uploadImage($publicacao->id, $file);
+
+        if (is_null($url))
+            throw new UniversityMarketException("Ocorreu um erro ao realizar upload da imagem");
+
+        $publicacao->caminho_imagem = $url;
         $publicacao->save();
 
         return $this->response();
@@ -165,7 +240,7 @@ class PublicacaoController extends UniversityMarketController {
 
         $publicacao = Publicacao::find($publicacaoId);
 
-        if (is_null($publicacao) || $publicacao->excluida)
+        if (is_null($publicacao) || $publicacao->deleted)
             throw new UniversityMarketException("Publicação não encontrada");
 
         // Validação valor recebido na model
@@ -201,9 +276,9 @@ class PublicacaoController extends UniversityMarketController {
         // }
 
         // Detalhes tecnicos
-        if ($publicacao->especificacoesTecnicas != $model->especificacoesTecnicas) {
+        if ($publicacao->especificacao_tecnica != $model->especificacoesTecnicas) {
 
-            $publicacao->especificacoesTecnicas = strlen(trim($model->especificacoesTecnicas)) == 0 ?
+            $publicacao->especificacao_tecnica = strlen(trim($model->especificacoesTecnicas)) == 0 ?
                 null : trim($model->especificacoesTecnicas);
         }
         
@@ -219,14 +294,14 @@ class PublicacaoController extends UniversityMarketController {
         return $this->response();
     }
 
-    public function obterTags($publicacaoId) {
+    public function obterTags($publicacaoId, $internal = false) {
 
         if (is_null($publicacaoId))
             throw new UniversityMarketException("Publicação não encontrada");
 
         $publicacao = Publicacao::find($publicacaoId);
 
-        if (is_null($publicacao) || $publicacao->excluida)
+        if (is_null($publicacao) || $publicacao->deleted)
             throw new UniversityMarketException("Publicação não encontrada");
 
         $tagFields = ['id', 'conteudo'];
@@ -238,14 +313,14 @@ class PublicacaoController extends UniversityMarketController {
             ->select('tag_id')
             ->get();
 
-        return $this->response($tags);
+        return !$internal ? $this->response($tags) : $tags;
     }
 
     public function excluir($publicacaoId) {
 
         $publicacao = Publicacao::find($publicacaoId);
 
-        if (\is_null($publicacao) || $publicacao->excluida)
+        if (\is_null($publicacao) || $publicacao->deleted)
             throw new UniversityMarketException("Publicação não encontrada");
 
         $publicacao->deleted = true;
@@ -255,28 +330,43 @@ class PublicacaoController extends UniversityMarketController {
         return $this->response();
     }
 
-    public function uploadImage(Request $request)
+    private function uploadImage($publicacaoId, $file)
     {
-        if ($request->hasFile('image')) {
+        $filename = $file->getClientOriginalName();
+        $filename_arr = explode('.', str_replace(" ", "_", $filename));
 
-            $original_filename = $request->file('image')->getClientOriginalName();
-            $original_filename_arr = explode('.', str_replace(" ", "_", $original_filename));
-            $file_ext = $original_filename_arr[count($original_filename_arr)-1];
-            
-            $filename_parts = [];
-            foreach ($original_filename_arr as $key => $value)
-                if ($key < count($original_filename_arr)-1)
-                    $filename_parts[] = $value;
+        $extension = $filename_arr[count($filename_arr)-1];
+        
+        try {
 
-            $filename = implode('.', $filename_parts);
-            
-            $destination_path = './storage/upload/publicacao/';
-            $final_filename = $filename . '-um-pub-' . time() . '.' . $file_ext;
+            $filename = 'image-' . $publicacaoId . '.' . $extension;
 
-            if ($request->file('image')->move($destination_path, $final_filename))
-                return '/storage/upload/publicacao/' . $final_filename;
+            /*
+            // Upload do arquivo para bucket do S3
+            $url = S3Helper::upload(
+                UniversityMarketBuckets::$default,
+                $file,
+                $filename
+            );
+            */
+            // /*
+
+            // Persistir arquivo localmente no servidor
+            $destination_path = '/storage/upload/publicacao/';
+            $url = env('APP_URL') . $destination_path . $filename;
+    
+            if (!$file->move('.' . $destination_path, $filename))
+                throw new UniversityMarketException("Não foi possível salvar o arquivo");
+            // */
+
+            return $url;
+
+        } catch (Exception $e) {
+
+            // Registrar log de erro da operação
         }
-        throw new UniversityMarketException("Não foi possível realizar o upload da imagem");
+
+        return null;
     }
 
 }

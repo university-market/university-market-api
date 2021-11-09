@@ -42,6 +42,6 @@ class Publicacao_Tag extends Model {
      */
     public function publicacao()
     {
-        return $this->hasOne(Publicacao::class, 'id');
+        return $this->hasOne(Publicacao::class, 'id', 'publicacao_id');
     }
 }
