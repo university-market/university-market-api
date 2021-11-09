@@ -50,6 +50,7 @@ class PublicacaoController extends UniversityMarketController {
         $model->especificacoesTecnicas = $publicacao->especificacao_tecnica;
         $model->pathImagem = $publicacao->caminho_imagem;
         $model->dataHoraCriacao = $publicacao->created_at;
+        $model->estudanteId = $publicacao->estudante_id;
 
         // Query e map de tags da publicacao
         $tags = array_map(function($item) {

@@ -12,4 +12,5 @@ class PublicacaoDetalheModel {
     public $especificacoesTecnicas;
     public $pathImagem;
     public $dataHoraCriacao;
+    public $estudante_id;
 }
