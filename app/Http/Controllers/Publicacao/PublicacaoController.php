@@ -25,11 +25,16 @@ use App\Models\Publicacao\Publicacao_Tag;
 // Models de publicacao utilizadas
 use App\Http\Controllers\Publicacao\Models\PublicacaoCriacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
+use App\Http\Controllers\Publicacao\Models\PublicacaoMovimentacaoModel;
+use App\Models\Publicacao\Movimentacao;
 use App\Models\Publicacao\Tag;
+use Illuminate\Support\Facades\DB;
 
-class PublicacaoController extends UniversityMarketController {
+class PublicacaoController extends UniversityMarketController
+{
 
-    public function obter($publicacaoId) {
+    public function obter($publicacaoId)
+    {
 
         $session = $this->getSession();
 
@@ -53,25 +58,26 @@ class PublicacaoController extends UniversityMarketController {
         $model->estudanteId = $publicacao->estudante_id;
 
         // Query e map de tags da publicacao
-        $tags = array_map(function($item) {
+        $tags = array_map(function ($item) {
             return $item->tag->conteudo;
         }, $this->obterTags($publicacaoId, true)->all());
-        
+
         $model->tags = implode(',', $tags);
 
         return $this->response($model);
     }
 
-    public function obterByUser($estudanteId) {
+    public function obterByUser($estudanteId)
+    {
 
         $session = $this->getSession();
 
         if (!$session)
-             return $this->unauthorized();
+            return $this->unauthorized();
 
         $publicacoes = Publicacao::where('estudante_id', $estudanteId)
-                                 ->where('deleted',false)
-                                 ->get();
+            ->where('deleted', false)
+            ->get();
 
         $list = [];
 
@@ -89,11 +95,12 @@ class PublicacaoController extends UniversityMarketController {
 
             $list[] = $model;
         }
-    
+
         return $this->response($list);
     }
 
-    public function criar(Request $request) {
+    public function criar(Request $request)
+    {
 
         $session = $this->getSession();
 
@@ -104,7 +111,7 @@ class PublicacaoController extends UniversityMarketController {
 
         // Validar informacoes construidas na model
         $model->validar();
-        
+
         $publicacao = new Publicacao();
 
         $publicacao->titulo = $model->titulo;
@@ -122,7 +129,7 @@ class PublicacaoController extends UniversityMarketController {
 
         if (!is_null($tags)) {
 
-            foreach($tags as $tag_item) {
+            foreach ($tags as $tag_item) {
 
                 $tag = new Tag();
 
@@ -151,7 +158,8 @@ class PublicacaoController extends UniversityMarketController {
         return $this->response($publicacao->id);
     }
 
-    public function uploadImagemPublicacao($publicacaoId, Request $request) {
+    public function uploadImagemPublicacao($publicacaoId, Request $request)
+    {
 
         if (is_null($publicacaoId))
             throw new UniversityMarketException("Publicação não encontrada");
@@ -179,9 +187,18 @@ class PublicacaoController extends UniversityMarketController {
         return $this->response();
     }
 
-    public function listar() {
+    public function listar()
+    {
 
-        $publicacoes = Publicacao::where('deleted', false)->get();
+        $vendidas = $vendidas = Movimentacao::where('tipo_movimentacao_id', 1)
+                                            ->get();
+
+        foreach($vendidas as $vendida){
+            $data[] = $vendida->publicacao_id;
+        }
+
+        $publicacoes = Publicacao::where('deleted', false)
+                             ->whereNotIn('id',$data)->get();
 
         $list = [];
 
@@ -203,8 +220,9 @@ class PublicacaoController extends UniversityMarketController {
         return $this->response($list);
     }
 
-    public function listarByCurso($cursoId) {
-        
+    public function listarByCurso($cursoId)
+    {
+
         if (is_null($cursoId))
             throw new UniversityMarketException("Curso não encontrado");
 
@@ -218,11 +236,11 @@ class PublicacaoController extends UniversityMarketController {
         $estudanteFields = ['id', 'nome', 'email'];
 
         $list = Curso::where('id', $cursoId)
-            ->with(['publicacoes' => function($publicacaoQuery) use ($publicacaoFields, $estudanteFields) {
-                $publicacaoQuery->with(['estudante' => function($estudanteQuery) use ($estudanteFields) {
+            ->with(['publicacoes' => function ($publicacaoQuery) use ($publicacaoFields, $estudanteFields) {
+                $publicacaoQuery->with(['estudante' => function ($estudanteQuery) use ($estudanteFields) {
                     $estudanteQuery->select($estudanteFields);
                 }])
-                ->select($publicacaoFields);
+                    ->select($publicacaoFields);
             }])
             ->select($cursoFields)
             ->get();
@@ -230,7 +248,8 @@ class PublicacaoController extends UniversityMarketController {
         return $this->response($list);
     }
 
-    public function alterar(Request $request, $publicacaoId) {
+    public function alterar(Request $request, $publicacaoId)
+    {
 
         $model = $this->cast($request, PublicacaoCriacaoModel::class);
 
@@ -251,22 +270,22 @@ class PublicacaoController extends UniversityMarketController {
         // Titulo
         if ($publicacao->titulo != $model->titulo) {
 
-            $publicacao->titulo = (is_null($model->titulo) || empty(trim($model->titulo))) ? 
+            $publicacao->titulo = (is_null($model->titulo) || empty(trim($model->titulo))) ?
                 $publicacao->titulo : trim($model->titulo);
         }
-        
+
         // Descricao
         if ($publicacao->descricao != $model->descricao) {
 
-            $publicacao->descricao = (is_null($model->descricao) || empty(trim($model->descricao))) ? 
+            $publicacao->descricao = (is_null($model->descricao) || empty(trim($model->descricao))) ?
                 $publicacao->descricao : trim($model->descricao);
         }
 
         // Valor
         if ($publicacao->valor != $model->valor) {
 
-            $publicacao->valor = (is_null($model->valor) || empty(trim($model->valor))) ? 
-                $publicacao->valor : (double)$model->valor;
+            $publicacao->valor = (is_null($model->valor) || empty(trim($model->valor))) ?
+                $publicacao->valor : (float)$model->valor;
         }
 
         // Tags
@@ -282,10 +301,10 @@ class PublicacaoController extends UniversityMarketController {
             $publicacao->especificacao_tecnica = strlen(trim($model->especificacoesTecnicas)) == 0 ?
                 null : trim($model->especificacoesTecnicas);
         }
-        
+
         // Imagem
         // if ($publicacao->pathImagem != $model->pathImagem) {
-        
+
         //     $publicacao->pathImagem = (\is_null($model->pathImagem) || empty(trim($model->pathImagem))) ? 
         //         $publicacao->pathImagem : trim($model->pathImagem);
         // }
@@ -295,7 +314,8 @@ class PublicacaoController extends UniversityMarketController {
         return $this->response();
     }
 
-    public function obterTags($publicacaoId, $internal = false) {
+    public function obterTags($publicacaoId, $internal = false)
+    {
 
         if (is_null($publicacaoId))
             throw new UniversityMarketException("Publicação não encontrada");
@@ -308,7 +328,7 @@ class PublicacaoController extends UniversityMarketController {
         $tagFields = ['id', 'conteudo'];
 
         $tags = Publicacao_Tag::where('publicacao_id', $publicacaoId)
-            ->with(['tag' => function($tagQuery) use($tagFields) {
+            ->with(['tag' => function ($tagQuery) use ($tagFields) {
                 $tagQuery->select($tagFields)->get();
             }])
             ->select('tag_id')
@@ -317,7 +337,8 @@ class PublicacaoController extends UniversityMarketController {
         return !$internal ? $this->response($tags) : $tags;
     }
 
-    public function excluir($publicacaoId) {
+    public function excluir($publicacaoId)
+    {
 
         $publicacao = Publicacao::find($publicacaoId);
 
@@ -327,7 +348,7 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao->deleted = true;
 
         $publicacao->save();
-        
+
         return $this->response();
     }
 
@@ -336,8 +357,8 @@ class PublicacaoController extends UniversityMarketController {
         $filename = $file->getClientOriginalName();
         $filename_arr = explode('.', str_replace(" ", "_", $filename));
 
-        $extension = $filename_arr[count($filename_arr)-1];
-        
+        $extension = $filename_arr[count($filename_arr) - 1];
+
         try {
 
             $filename = 'image-' . $publicacaoId . '.' . $extension;
@@ -355,13 +376,12 @@ class PublicacaoController extends UniversityMarketController {
             // Persistir arquivo localmente no servidor
             $destination_path = '/storage/upload/publicacao/';
             $url = env('APP_URL') . $destination_path . $filename;
-    
+
             if (!$file->move('.' . $destination_path, $filename))
                 throw new UniversityMarketException("Não foi possível salvar o arquivo");
             // */
 
             return $url;
-
         } catch (Exception $e) {
 
             // Registrar log de erro da operação
@@ -369,5 +389,4 @@ class PublicacaoController extends UniversityMarketController {
 
         return null;
     }
-
 }
