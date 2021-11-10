@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 // Base
 use App\Base\Controllers\UniversityMarketController;
 use App\Base\Exceptions\UniversityMarketException;
-
+use App\Base\Logs\Logger\UniversityMarketLogger;
+use App\Base\Logs\Type\StdLogType;
+use App\Base\Resource\UniversityMarketResource;
 // Common
 use App\Common\Datatype\KeyValuePair;
 
@@ -50,6 +52,16 @@ class InstituicaoController extends UniversityMarketController {
     $instituicao->plano_id = null; // Quando sistema de planos estiver implementado
 
     $instituicao->save();
+
+    // Persistir log de criacao de contato da instituicao
+    UniversityMarketLogger::log(
+      UniversityMarketResource::$estudante,
+      $instituicao->id,
+      StdLogType::$criacao,
+      "Contato criado",
+      null,
+      null
+    );
 
     return $this->response($instituicao->id);
   }

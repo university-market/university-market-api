@@ -8,7 +8,9 @@ use Illuminate\Http\Request;
 use App\Base\Aws\Buckets\UniversityMarketBuckets;
 use App\Base\Exceptions\UniversityMarketException;
 use App\Base\Controllers\UniversityMarketController;
-
+use App\Base\Logs\Logger\UniversityMarketLogger;
+use App\Base\Logs\Type\StdLogType;
+use App\Base\Resource\UniversityMarketResource;
 // Helpers
 use App\Helpers\Aws\S3\S3Helper;
 
@@ -134,6 +136,16 @@ class PublicacaoController extends UniversityMarketController {
                 $tag_publicacao->save();
             }
         }
+
+        // Persistir log de criacao de publicacao
+        UniversityMarketLogger::log(
+            UniversityMarketResource::$publicacao,
+            $publicacao->id,
+            StdLogType::$criacao,
+            "Publicação criada",
+            $session->estudante_id,
+            null
+        );
 
         return $this->response($publicacao->id);
     }
@@ -279,6 +291,17 @@ class PublicacaoController extends UniversityMarketController {
 
         $publicacao->save();
 
+        // Persistir log de criacao de edição da publicacao
+    UniversityMarketLogger::log(
+        UniversityMarketResource::$publicacao,
+        $publicacao->id,
+        StdLogType::$edicao,
+        "Publicação editada",
+        $session->estudante_id,
+        null
+      );
+  
+
         return $this->response();
     }
 
@@ -306,6 +329,11 @@ class PublicacaoController extends UniversityMarketController {
 
     public function excluir($publicacaoId) {
 
+        $session = $this->getSession();
+
+        if (!$session)
+            return $this->unauthorized();
+
         $publicacao = Publicacao::find($publicacaoId);
 
         if (\is_null($publicacao) || $publicacao->deleted)
@@ -314,6 +342,16 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao->deleted = true;
 
         $publicacao->save();
+
+        // Persistir log de criacao de edição da publicacao
+    UniversityMarketLogger::log(
+        UniversityMarketResource::$publicacao,
+        $publicacao->id,
+        StdLogType::$exclusao,
+        "Publicação excluida",
+        $session->estudante_id,
+        null
+      );
         
         return $this->response();
     }
