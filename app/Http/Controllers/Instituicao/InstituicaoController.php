@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 // Base
 use App\Base\Controllers\UniversityMarketController;
 use App\Base\Exceptions\UniversityMarketException;
-
+use App\Base\Logs\Logger\UniversityMarketLogger;
+use App\Base\Logs\Type\StdLogType;
+use App\Base\Resource\UniversityMarketResource;
 // Common
 use App\Common\Datatype\KeyValuePair;
 
@@ -51,15 +53,29 @@ class InstituicaoController extends UniversityMarketController {
 
     $instituicao->save();
 
+    // Persistir log de criacao de contato da instituicao
+    UniversityMarketLogger::log(
+      UniversityMarketResource::$instituicao,
+      $instituicao->id,
+      StdLogType::$criacao,
+      "Instituição criada",
+      null,
+      null
+    );
+
     return $this->response($instituicao->id);
   }
 
   public function ativar($instituicaoId) {
 
+    // Log de ativacao de instituicao
+
     return $this->alterarStatusAtiva($instituicaoId, true);
   }
 
   public function desativar($instituicaoId) {
+
+    // Log de desativacao de instituicao
 
     return $this->alterarStatusAtiva($instituicaoId, false);
   }
@@ -78,6 +94,8 @@ class InstituicaoController extends UniversityMarketController {
 
     $instituicao->approved_at = date($this->datetime_format);
     $instituicao->save();
+
+    // Log de aprovacao de cadastro de instituicao
 
     return $this->response();
   }

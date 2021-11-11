@@ -113,6 +113,17 @@ class EstudanteController extends UniversityMarketController
     $estudante->instituicao_id = $model->instituicaoId;
 
     $estudante->save();
+
+    // Persistir log de criacao do estudante
+    UniversityMarketLogger::log(
+      UniversityMarketResource::$estudante,
+      $estudante->id,
+      StdLogType::$criacao,
+      "Estudante Criado",
+      null,
+      null
+    );
+
   }
 
   public function cadastrarContato(Request $request)
@@ -157,7 +168,18 @@ class EstudanteController extends UniversityMarketController
     $model->conteudo = $contato->conteudo;
     $model->tipo_contato_id = $contato->tipo_contato_id;
 
-    return response()->json($model);
+    // Persistir log de criacao de contato do estudante
+    UniversityMarketLogger::log(
+      UniversityMarketResource::$contato,
+      $contato->id,
+      StdLogType::$criacao,
+      "Contato criado",
+      $session->estudante_id,
+      null
+    );
+
+    
+    return $this->response();
   }
 
   public function deletarContato($contatoId)
@@ -439,8 +461,9 @@ class EstudanteController extends UniversityMarketController
     $bloqueio->motivo = $model->motivo;
     $bloqueio->finished_at = $model->finished_at;
 
-
     $bloqueio->save();
+
+    // Log de criacao
   }
 
   /**
