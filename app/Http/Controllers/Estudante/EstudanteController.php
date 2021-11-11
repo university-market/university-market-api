@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Estudante;
 
-use App\Http\Controllers\Estudante\Models\EstudanteContatosModel;
 use Illuminate\Http\Request;
 
 // Base
@@ -12,20 +11,22 @@ use App\Base\Logs\Logger\UniversityMarketLogger;
 use App\Base\Logs\Type\StdLogChange;
 use App\Base\Logs\Type\StdLogType;
 use App\Base\Resource\UniversityMarketResource;
+
 // Common
 use Illuminate\Support\Facades\Hash;
 
 // Entidades
-use App\Models\Estudante\Estudante;
-
-// Models de estudante utilizadas
-use App\Models\Estudante\Bloqueios;
 use App\Models\Estudante\Contato;
 use App\Models\Estudante\Endereco;
-use App\Http\Controllers\Estudante\Models\EstudanteBloqueioModel;
+use App\Models\Estudante\Estudante;
+use App\Models\Estudante\Bloqueios;
+
+// Models de estudante utilizadas
+use App\Http\Controllers\Estudante\Models\EstudanteDadosModel;
 use App\Http\Controllers\Estudante\Models\EstudanteDetalheModel;
 use App\Http\Controllers\Estudante\Models\EstudanteCriacaoModel;
-use App\Http\Controllers\Estudante\Models\EstudanteDadosModel;
+use App\Http\Controllers\Estudante\Models\EstudanteBloqueioModel;
+use App\Http\Controllers\Estudante\Models\EstudanteContatosModel;
 use App\Http\Controllers\Estudante\Models\EstudanteEnderecosModel;
 
 class EstudanteController extends UniversityMarketController
