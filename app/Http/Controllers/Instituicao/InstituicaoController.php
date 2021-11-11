@@ -55,10 +55,10 @@ class InstituicaoController extends UniversityMarketController {
 
     // Persistir log de criacao de contato da instituicao
     UniversityMarketLogger::log(
-      UniversityMarketResource::$estudante,
+      UniversityMarketResource::$instituicao,
       $instituicao->id,
       StdLogType::$criacao,
-      "Contato criado",
+      "Instituição criada",
       null,
       null
     );
@@ -68,10 +68,14 @@ class InstituicaoController extends UniversityMarketController {
 
   public function ativar($instituicaoId) {
 
+    // Log de ativacao de instituicao
+
     return $this->alterarStatusAtiva($instituicaoId, true);
   }
 
   public function desativar($instituicaoId) {
+
+    // Log de desativacao de instituicao
 
     return $this->alterarStatusAtiva($instituicaoId, false);
   }
@@ -90,6 +94,8 @@ class InstituicaoController extends UniversityMarketController {
 
     $instituicao->approved_at = date($this->datetime_format);
     $instituicao->save();
+
+    // Log de aprovacao de cadastro de instituicao
 
     return $this->response();
   }

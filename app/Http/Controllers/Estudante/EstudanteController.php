@@ -149,7 +149,7 @@ class EstudanteController extends UniversityMarketController {
 
     // Persistir log de criacao de contato do estudante
     UniversityMarketLogger::log(
-      UniversityMarketResource::$estudante,
+      UniversityMarketResource::$contato,
       $contato->id,
       StdLogType::$criacao,
       "Contato criado",
@@ -218,9 +218,9 @@ class EstudanteController extends UniversityMarketController {
     $bloqueio->motivo = $model->motivo;
     $bloqueio->finished_at = $model->finished_at;
 
-    
     $bloqueio->save();
 
+    // Log de criacao
   }
 
 }

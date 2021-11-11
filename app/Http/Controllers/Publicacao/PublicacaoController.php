@@ -9,6 +9,7 @@ use App\Base\Aws\Buckets\UniversityMarketBuckets;
 use App\Base\Exceptions\UniversityMarketException;
 use App\Base\Controllers\UniversityMarketController;
 use App\Base\Logs\Logger\UniversityMarketLogger;
+use App\Base\Logs\Type\StdLogChange;
 use App\Base\Logs\Type\StdLogType;
 use App\Base\Resource\UniversityMarketResource;
 // Helpers
@@ -175,6 +176,8 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao->caminho_imagem = $url;
         $publicacao->save();
 
+        // Log de upload de imagem
+
         return $this->response();
     }
 
@@ -247,25 +250,43 @@ class PublicacaoController extends UniversityMarketController {
         if ($model->valor !== null && !is_numeric($model->valor))
             throw new UniversityMarketException("O valor informado não é válido");
 
+        // Edicao da publicacao
+
+        $beforeState = [];
+        $afterState = [];
+
         // Titulo
         if ($publicacao->titulo != $model->titulo) {
 
+            $beforeState['titulo'] = $publicacao->titulo;
+
             $publicacao->titulo = (is_null($model->titulo) || empty(trim($model->titulo))) ? 
                 $publicacao->titulo : trim($model->titulo);
+
+            $afterState['titulo'] = $publicacao->titulo;
+
         }
         
         // Descricao
         if ($publicacao->descricao != $model->descricao) {
 
+            $beforeState['descricao'] = $publicacao->descricao;
+
             $publicacao->descricao = (is_null($model->descricao) || empty(trim($model->descricao))) ? 
                 $publicacao->descricao : trim($model->descricao);
+
+            $afterState['descricao'] = $publicacao->descricao;
         }
 
         // Valor
         if ($publicacao->valor != $model->valor) {
 
+            $beforeState['valor'] = $publicacao->valor;
+
             $publicacao->valor = (is_null($model->valor) || empty(trim($model->valor))) ? 
                 $publicacao->valor : (double)$model->valor;
+
+            $afterState['valor'] = $publicacao->valor;
         }
 
         // Tags
@@ -278,8 +299,12 @@ class PublicacaoController extends UniversityMarketController {
         // Detalhes tecnicos
         if ($publicacao->especificacao_tecnica != $model->especificacoesTecnicas) {
 
+            $beforeState['especificacao_tecnica'] = $publicacao->especificacao_tecnica;
+
             $publicacao->especificacao_tecnica = strlen(trim($model->especificacoesTecnicas)) == 0 ?
                 null : trim($model->especificacoesTecnicas);
+
+            $afterState['especificacao_tecnica'] = $publicacao->especificacao_tecnica;
         }
         
         // Imagem
@@ -291,16 +316,17 @@ class PublicacaoController extends UniversityMarketController {
 
         $publicacao->save();
 
+        $changes = new StdLogChange();
+
         // Persistir log de criacao de edição da publicacao
-    UniversityMarketLogger::log(
-        UniversityMarketResource::$publicacao,
-        $publicacao->id,
-        StdLogType::$edicao,
-        "Publicação editada",
-        $session->estudante_id,
-        null
-      );
-  
+        UniversityMarketLogger::log(
+            UniversityMarketResource::$publicacao,
+            $publicacao->id,
+            StdLogType::$edicao,
+            "Publicação editada",
+            $session->estudante_id,
+            $changes->setBeforeState($beforeState)->setAfterState($afterState)->serializeChanges()
+        );
 
         return $this->response();
     }
@@ -344,14 +370,14 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao->save();
 
         // Persistir log de criacao de edição da publicacao
-    UniversityMarketLogger::log(
-        UniversityMarketResource::$publicacao,
-        $publicacao->id,
-        StdLogType::$exclusao,
-        "Publicação excluida",
-        $session->estudante_id,
-        null
-      );
+        UniversityMarketLogger::log(
+            UniversityMarketResource::$publicacao,
+            $publicacao->id,
+            StdLogType::$exclusao,
+            "Publicação excluida",
+            $session->estudante_id,
+            null
+        );
         
         return $this->response();
     }
