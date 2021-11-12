@@ -57,7 +57,7 @@ class EstudanteController extends UniversityMarketController
     $model->dataNascimento = $estudante->data_nascimento;
     $model->pathFotoPerfil = $estudante->caminho_foto_perfil;
     $model->cursoNome = $estudante->curso->nome;
-    $model->instituicaoRazaoSocial = $estudante->instituicao->razao_social;
+    $model->instituicaoRazaoSocial = $estudante->instituicao->razao_social ?? null;
 
     return $this->response($model);
   }

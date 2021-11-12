@@ -7,23 +7,23 @@ use Illuminate\Database\Eloquent\Model;
 class BaseSession extends Model {
 
   // Registrar data/hora criacao/alteracao
-  public $timestamps = false;
+  public $timestamps = true;
 
-  // protected $primaryKey = 'id';
+  // Primary Key da entidade
+  protected $id;
+  protected $primaryKey = 'id';
 
-  /**
-   * The attributes that should be cast.
-   *
-   * @var array
-   */
+  // Type Casting para propriedades com valores especiais (não-string)
   protected $casts = [
-    // 'id' => 'integer',
     'token' => 'string',
     'expiration_time' => 'integer'
   ];
 
-  protected $id; // PK
+  // Columns
   protected $token;
   protected $expiration_time;
+
+  // Timestamps
+  private $created_at;
 
 }
