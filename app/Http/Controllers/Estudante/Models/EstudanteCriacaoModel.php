@@ -48,8 +48,9 @@ class EstudanteCriacaoModel {
     if (is_null($this->cursoId) || empty(trim($this->cursoId)))
       throw new UniversityMarketException("É obrigatório informar o curso");
 
-    if (is_null($this->instituicaoId) || empty($this->instituicaoId))
-      throw new UniversityMarketException("É obrigatório informar a instituição de ensino");
+    // Instituição não é obrigatória no cadastro do estudante
+    // if (is_null($this->instituicaoId) || empty($this->instituicaoId))
+    //   throw new UniversityMarketException("É obrigatório informar a instituição de ensino");
   }
 
   private function isMenorIdade($dataNascimento) {
