@@ -24,11 +24,11 @@ use App\Models\Publicacao\Publicacao_Tag;
 
 // Models de publicacao utilizadas
 use App\Http\Controllers\Publicacao\Models\PublicacaoCriacaoModel;
+use App\Http\Controllers\Publicacao\Models\PublicacaoCriaMovimentacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoMovimentacaoModel;
 use App\Models\Publicacao\Movimentacao;
 use App\Models\Publicacao\Tag;
-use Illuminate\Support\Facades\DB;
 
 class PublicacaoController extends UniversityMarketController
 {
@@ -76,8 +76,8 @@ class PublicacaoController extends UniversityMarketController
             return $this->unauthorized();
 
         $publicacoes = Publicacao::where('estudante_id', $estudanteId)
-            ->where('deleted', false)
-            ->get();
+                                ->where('deleted', false)
+                                ->get();
 
         $list = [];
 
@@ -93,6 +93,16 @@ class PublicacaoController extends UniversityMarketController
             $model->pathImagem = $publicacao->caminho_imagem;
             $model->dataHoraCriacao = $publicacao->created_at;
 
+            $vendida =  Movimentacao::where('publicacao_id', $publicacao->id)
+                                    ->where('tipo_movimentacao_id', 1)
+                                    ->get()->toArray();
+
+            if($vendida){
+                $model->vendida = true;
+            }else{
+                $model->vendida = false;
+            }
+            
             $list[] = $model;
         }
 
@@ -348,6 +358,38 @@ class PublicacaoController extends UniversityMarketController
         $publicacao->deleted = true;
 
         $publicacao->save();
+
+        return $this->response();
+    }
+
+    public function marcarPublicacaoComoVendida(Request $request){
+        
+         $session = $this->getSession();
+
+         if (!$session)
+             return $this->unauthorized();
+
+        $model = $this->cast($request, PublicacaoCriaMovimentacaoModel::class);
+
+        if (is_null($request->publicacaoId))
+            throw new UniversityMarketException("Id da publicação não encontrado");
+
+        $publicacao = Publicacao::find($model->publicacaoId);
+
+        if (is_null($publicacao))
+            throw new UniversityMarketException("Publicação não encontrada");
+        
+        if($publicacao->estudante_id != $session->estudante_id)
+            throw new UniversityMarketException("Você não pode editar esta publicação");
+
+        $movimentacao = new Movimentacao();
+        
+        $movimentacao->valor = $model->valor;
+        $movimentacao->tipo_movimentacao_id = 1;
+        $movimentacao->publicacao_id = $model->publicacaoId;
+        $movimentacao->estudante_id = $publicacao->estudante_id;
+
+        $movimentacao->save();
 
         return $this->response();
     }
