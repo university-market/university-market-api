@@ -118,7 +118,10 @@ class UniversityMarketController extends BaseController {
     }
 
     /**
+     * Obtém o tipo de requisicao recebida, provida do `Estudante` ou `Usuario`
+     * 
      * @method getRequestSource()
+     * 
      * @return const `SESSION_TYPE_ADMIN`(1) => Requisição do Admin
      * @return const `SESSION_TYPE_ESTUDANTE`(2) => Requisição do estudante
      * @example $ `if (getRequestSource() == SESSION_TYPE_ADMIN) elseif (getRequestSource() == SESSION_TYPE_ESTUDANTE)`

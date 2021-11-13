@@ -34,7 +34,7 @@ class AccountController extends UniversityMarketController {
 
 			$model = new ProfileUsuarioModel();
 
-			$model->token = $session->token;
+			// $model->token = $session->token;
 			$model->nome = $session->usuario->nome ?? null;
 			$model->email = $session->usuario->email ?? null;
 			$model->usuarioId = $session->usuario_id;
@@ -42,14 +42,19 @@ class AccountController extends UniversityMarketController {
 			return $this->response($model);
     }
 
-    $model = new ProfileEstudanteModel();
+		if ($profile_type == SESSION_TYPE_ESTUDANTE) {
 
-    $model->token = $session->token;
-    $model->nome = $session->estudante->nome ?? null;
-    $model->email = $session->estudante->email ?? null;
-    $model->estudanteId = $session->estudante_id;
+			$model = new ProfileEstudanteModel();
+	
+			// $model->token = $session->token;
+			$model->nome = $session->estudante->nome ?? null;
+			$model->email = $session->estudante->email ?? null;
+			$model->estudanteId = $session->estudante_id;
 
-    return $this->response($model);
+			return $this->response($model);
+		}
+
+		throw new UniversityMarketException("Ocorreu um erro na obtenção do profile");
 	}
 
 }

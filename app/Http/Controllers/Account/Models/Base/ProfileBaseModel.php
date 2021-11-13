@@ -7,7 +7,7 @@ abstract class ProfileBaseModel {
     /**
      * Token utilizado na autenticacao das requisicoes
      */
-    public $token;
+    // public $token;
 
     /**
      * Endereço de e-mail utilizado na criação da sessão do estudante/usuário
