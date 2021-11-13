@@ -34,8 +34,10 @@ class AuthController extends UniversityMarketController {
 
   /**
    * Login na plataforma (para qualquer session type)
+   * 
    * @method login
    * @param Request $request Type Casting para `LoginModel` - dados de login
+   * 
    * @type Http POST
    * @route `/login`
    */

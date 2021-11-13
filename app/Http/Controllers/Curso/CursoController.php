@@ -24,6 +24,7 @@ class CursoController extends UniversityMarketController {
    * Listar cursos de determinada Instituição de Ensino
    * 
    * @method listarPorInstituicao
+   * @param int $instituicaoId Id da Instituicao a ser considerada na busca de cursos
    * 
    * @type Http GET
    * @route `/{instituicaoId}/listar`
