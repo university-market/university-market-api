@@ -82,5 +82,13 @@ class Estudante extends UniversityMarketModel {
 
     $this->attributes['nome'] = $value;
   }
+
+  /**
+   * @region Queryable methods
+   */
+  public static function findByEmail($value) {
+
+    return Estudante::where('email', $value)->first();
+  }
   
 }
