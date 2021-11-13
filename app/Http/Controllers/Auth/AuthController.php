@@ -27,6 +27,7 @@ use App\Http\Controllers\Auth\Models\LoginModel;
 use App\Http\Controllers\Auth\Models\AppLoginModel;
 use App\Http\Controllers\Auth\Models\AppSummarySession;
 use App\Http\Controllers\Auth\Models\AlteracaoSenhaModel;
+use App\Http\Controllers\Auth\Models\LoginResponseModel;
 use App\Http\Controllers\Auth\Models\RecuperacaoSenhaEstudanteModel;
 
 class AuthController extends UniversityMarketController {
@@ -40,9 +41,42 @@ class AuthController extends UniversityMarketController {
    */
   public function login(Request $request) {
 
-    $loginModel = $this->cast($request, LoginModel::class)->validar();
+    $model = $this->cast($request, LoginModel::class);
+    $model->validar();
 
-    
+    $requestType = $this->getRequestSource();
+
+    $owner = null;
+
+    if ($requestType == SESSION_TYPE_ADMIN) {
+
+
+    } elseif ($requestType == SESSION_TYPE_ESTUDANTE) {
+
+      $owner = Estudante::findByEmail($model->email);
+
+    } else {
+
+      $owner = null;
+    }
+
+    if (is_null($owner) || !Hash::check($model->senha, $owner->senha))
+      throw new UniversityMarketException("E-mail ou senha incorretos");
+
+    $activatedSession = $this->getActivatedSession($owner->id, $requestType);
+
+    if (!is_null($activatedSession)) {
+
+      return $this->response(
+        new LoginResponseModel($activatedSession->token)
+      );
+    }
+
+    $session = $this->createSession($owner, $requestType);
+
+    return $this->response(
+      new LoginResponseModel($session->token)
+    );
   }
 
   public function loginEstudante(Request $request) {
@@ -309,5 +343,103 @@ class AuthController extends UniversityMarketController {
     $timestamp = time() + $minutes * 60; // now + ($minutes * 60 seconds)
 
     return $timestamp;
+  }
+
+  private function getActivatedSession($owner_id, $session_type) {
+
+    if (is_null($owner_id) || is_null($session_type))
+      throw new UniversityMarketException("Id ou tipo de sessão não informado");
+
+    $owner_id_session_field = null;
+
+    switch ($session_type) {
+
+      case SESSION_TYPE_ADMIN:
+        $owner_id_session_field = 'usuario_id';
+        break;
+
+      case SESSION_TYPE_ESTUDANTE:
+        $owner_id_session_field = 'estudante_id';
+        break;
+    }
+
+    if (is_null($owner_id_session_field))
+      throw new UniversityMarketException("Tipo de sessão inválido");
+
+    $session = AppSession::where($owner_id_session_field, $owner_id)->get();
+
+    // Limpar session existente
+    if (count($session) > 1) {
+
+      $last_session = $session[count($session)-1];
+
+      $sessionIds = array_map(function($session) use($last_session) {
+        if ($session['id'] == $last_session['id'])
+          return;
+
+        return $session['id'];
+      }, $session->toArray());
+
+      AppSession::destroy($sessionIds);
+
+      if ($last_session->expiration_time < time()) {
+
+        AppSession::destroy($last_session->id);
+
+        $session = null;
+
+      } else {
+
+        $session = $last_session;
+      }
+
+    } elseif (count($session) == 1) {
+
+      $session = $session[0];
+      
+      // Validar expiration time da sessao ativa
+      if ($session->expiration_time < time()) {
+
+        AppSession::destroy($session->id);
+
+        $session = null;
+      }
+    } else {
+
+      $session = null;
+    }
+
+    return $session;
+  }
+
+  /**
+   * Cria uma instância de sessão no banco de dados e retorna a mesma intância
+   * 
+   * @method createSession
+   * 
+   * @param UniversityMarketActorBase $owner Entidade de Estudante|Usuario do sistema (ambos do tipo `UniversityMarketActorBase`)
+   * @param SESSION_TYPE_ESTUDANTE|SESSION_TYPE_ADMIN $session_type Tipo de sessão solicitada para criação
+   * 
+   * @return \App\Models\Session\BaseSession Instância da sessão criada
+   */
+  private function createSession($owner, $session_type) {
+
+    // Gerar tempo de expiracao da sessao em minutos
+    $expiration = $this->generateExpirationDate();
+
+    $session = new AppSession();
+
+    $session->estudante_id = $session_type == SESSION_TYPE_ESTUDANTE ? $owner->id : null;
+    $session->usuario_id = $session_type == SESSION_TYPE_ADMIN ? $owner->id : null;
+
+    if ($session->estudante_id == null && $session->usuario_id == null)
+      throw new UniversityMarketException("Não foi possível criar a sessão");
+
+    $session->token = TokenHelper::generateSessionToken();
+    $session->expiration_time = $expiration;
+
+    $session->save();
+
+    return $session;
   }
 }

@@ -12,6 +12,7 @@ class LoginModel {
   /**
    * Validar dados iniciais recebidos neste model (logo após type casting)
    * @method validar
+   * @return void
    */
   public function validar() {
 
@@ -20,7 +21,5 @@ class LoginModel {
 
     if (is_null($this->senha) || empty($this->senha))
       throw new UniversityMarketException("A senha é obrigatória");
-
-    return $this;
   }
 }
