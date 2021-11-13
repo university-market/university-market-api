@@ -20,6 +20,14 @@ use App\Models\Instituicao\Instituicao_Curso;
 
 class CursoController extends UniversityMarketController {
 
+  /**
+   * Listar cursos de determinada Instituição de Ensino
+   * 
+   * @method listarPorInstituicao
+   * 
+   * @type Http GET
+   * @route `/{instituicaoId}/listar`
+   */
   public function listarPorInstituicao($instituicaoId) {
 
     if (is_null($instituicaoId))
@@ -32,37 +40,54 @@ class CursoController extends UniversityMarketController {
 
     $relations = Instituicao_Curso::with(['curso'])->where('instituicao_id', $instituicaoId)->get();
 
-    $list = [];
-    foreach ($relations as $relation) {
+    $lista_cursos = array_map(function($e) {
+      return $e->curso;
+    }, $relations->all());
 
-      $model = new KeyValuePair();
-
-      $model->key = $relation->curso->id;
-      $model->value = $relation->curso->nome;
-
-      $list[] = $model;
-    }
-
-    return $this->response($list);
+    return $this->response(
+      $this->criarListaKeyValue($lista_cursos)
+    );
   }
 
+  /**
+   * Listar todos os cursos disponiveis cadastrados no banco de dados
+   * 
+   * @method listarTodos
+   * 
+   * @type Http GET
+   * @route `/all`
+   */
   public function listarTodos() {
 
-    $cursos = Curso::all()->getDictionary();
+    $lista_cursos = Curso::all()->getDictionary();
 
-    $list = [];
+    return $this->response(
+      $this->criarListaKeyValue($lista_cursos)
+    );
+  }
 
-    // Construir listagem de models apenas com informações necessárias
-    foreach ($cursos as $curso) {
+  // Private methods
 
-      $model = new KeyValuePair();
+  /**
+   * Criar listagem de cursos no formato KeyValuePair
+   * 
+   * @method criarListaKeyValue
+   * @param array $lista_cursos Listagem de entidade Curso a ser convertida em listagem KeyValuePair
+   */
+  private function criarListaKeyValue($lista_cursos) {
 
-      $model->key = $curso->id;
-      $model->value = $curso->nome;
+    $listagem = [];
 
-      $list[] = $model;
+    foreach ($lista_cursos as $curso) {
+
+      $keyValue = new KeyValuePair();
+
+      $keyValue->key = $curso->id;
+      $keyValue->value = $curso->nome;
+
+      $listagem[] = $keyValue;
     }
 
-    return $this->response($list);
+    return $listagem;
   }
 }
