@@ -144,6 +144,20 @@ class UniversityMarketController extends BaseController {
     }
 
     /**
+     * @method isAdminMaster()
+     * @return boolean Returns a boolean with current session is admin flag
+     */
+    protected function isAdminMaster($usuario_id = null) {
+
+        $id = $usuario_id ?? $this->getSession()->usuario_id;
+
+        if (is_null($id))
+            throw new UniversityMarketException("Usuário solicitado não encontrado");
+
+        // Realizar busca por $id e retornar flag is admin
+    }
+
+    /**
      * @method unauthorized()
      * @return Response Returns a unauthorized response (code 401)
      */
