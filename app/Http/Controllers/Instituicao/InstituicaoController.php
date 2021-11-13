@@ -8,8 +8,11 @@ use Illuminate\Http\Request;
 use App\Base\Controllers\UniversityMarketController;
 use App\Base\Exceptions\UniversityMarketException;
 use App\Base\Logs\Logger\UniversityMarketLogger;
-use App\Base\Logs\Type\StdLogType;
 use App\Base\Resource\UniversityMarketResource;
+
+// Logs
+use App\Base\Logs\Type\StdLogType;
+
 // Common
 use App\Common\Datatype\KeyValuePair;
 
@@ -22,24 +25,19 @@ use App\Http\Controllers\Instituicao\Models\InstituicaoCriacaoModel;
 
 class InstituicaoController extends UniversityMarketController {
 
+  /**
+   * Cadastrar Instituicao de ensino
+   * 
+   * @method cadastrar
+   * @param Request $request Instância de requisição - Cast para `InstituicaoCriacaoModel`
+   * 
+   * @type Http POST
+   * @route ``
+   */
   public function cadastrar(Request $request) {
 
     $model = $this->cast($request, InstituicaoCriacaoModel::class);
-
     $model->validar();
-
-    // Validacao se ja existe um cadastro ativo para a instituicao
-    $hasCadastro = Instituicao::where('ativa', true)
-      ->where(
-        function($query) use ($model) {
-
-          $query->where('cnpj', $model->cnpj)
-            ->orWhere('razao_social', $model->razaoSocial);
-        }
-      )->first();
-
-    if (!\is_null($hasCadastro))
-      throw new UniversityMarketException("A instituição de ensino já possui um cadastro");
 
     $instituicao = new Instituicao();
 
@@ -63,7 +61,7 @@ class InstituicaoController extends UniversityMarketController {
       null
     );
 
-    return $this->response($instituicao->id);
+    return $this->response();
   }
 
   public function ativar($instituicaoId) {

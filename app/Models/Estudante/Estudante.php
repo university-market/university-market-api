@@ -126,6 +126,8 @@ class Estudante extends UniversityMarketModel {
   /**
    * @region Queryable methods
    */
+
+  // Buscar Estudante por e-mail (UNIQUE)
   public static function findByEmail($value) {
 
     return Estudante::where('email', $value)->first();
