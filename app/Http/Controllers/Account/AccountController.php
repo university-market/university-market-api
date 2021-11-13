@@ -16,7 +16,9 @@ class AccountController extends UniversityMarketController {
 
   /**
    * Obter model de perfil - Conta estudante/usuario/admin
+   * 
    * @method profile
+   * 
    * @type Http GET
    * @route `/profile`
    */
