@@ -6,10 +6,13 @@ use App\Base\Exceptions\UniversityMarketException;
 
 class LoginResponseModel {
 
+    /**
+     * Token de autenticação enviado como resposta do login
+     */
     public $token;
 
     function __construct($auth_token)
     {
-        $this->auth_token = $auth_token ?? throw new UniversityMarketException("Token de autenticação inválido");
+        $this->token = $auth_token ?? throw new UniversityMarketException("Token de autenticação inválido");
     }
 }
