@@ -336,6 +336,13 @@ class AuthController extends UniversityMarketController {
 
   // Private methods
 
+  /**
+   * Timestamp de sessão com base na parametrizacao de `AuthCommonData`
+   * 
+   * @method generateExpirationDate
+   * 
+   * @return int Timestamp da expiração da session
+   */
   private function generateExpirationDate() {
 
     $minutes = AuthCommonData::getSessionDefaultExpirationTime();
@@ -345,6 +352,16 @@ class AuthController extends UniversityMarketController {
     return $timestamp;
   }
 
+  /**
+   * Obtem session ativa no banco de dados, de acordo com o tipo de sessao solicitada
+   * 
+   * @method getActivatedSession
+   * 
+   * @param int $owner_id Id de Estudante|Usuario do sistema (ambos do tipo `UniversityMarketActorBase`)
+   * @param SESSION_TYPE_ESTUDANTE|SESSION_TYPE_ADMIN $session_type Tipo de sessão solicitada para obtenção
+   * 
+   * @return \App\Models\Session\BaseSession|null Instância da sessão existente (ativa e válida) ou null caso não exista
+   */
   private function getActivatedSession($owner_id, $session_type) {
 
     if (is_null($owner_id) || is_null($session_type))
