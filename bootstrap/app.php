@@ -143,6 +143,7 @@ $app->router->group([
     
     require __DIR__.'/../routes/web.php';
 
+    require __DIR__.'/../routes/account.php';
     require __DIR__.'/../routes/auth.php';
     require __DIR__.'/../routes/curso.php';
     require __DIR__.'/../routes/estudante.php';
