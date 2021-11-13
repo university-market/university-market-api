@@ -40,6 +40,16 @@ class UniversityMarketController extends BaseController {
     private $session_type = "session-type";
 
     /**
+     * Obter DateTime atual - Para operações que necessitam de current time
+     * 
+     * @return string Datetime no formato padrão utilizado no projeto
+     */
+    public function now() {
+
+        return date($this->datetime_format);
+    }
+
+    /**
      * Convert an or more objects to a specific class.
      * @method cast()
      * @param object|object[] $initial_object Initial object
