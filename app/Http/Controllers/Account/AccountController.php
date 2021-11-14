@@ -300,7 +300,7 @@ class AccountController extends UniversityMarketController
 			throw new UniversityMarketException("Não há solicitação de redefinição de senha ativa");
 		}
 
-		$id_solicitante_recuperacao = $solicitacao->estudante->id ?? $solicitacao->usuario->id ?? null;
+		$id_solicitante_recuperacao = $solicitacao->estudante_id ?? $solicitacao->usuario_id ?? null;
 		$is_valid = false;
 
 		if ($solicitante->id == $id_solicitante_recuperacao) {
@@ -356,7 +356,7 @@ class AccountController extends UniversityMarketController
 			throw new UniversityMarketException("A nova senha não pode ser igual à anterior");
 
 		// Salvar nova senha
-		$solicitante->senha = Hash::make($model->senha);
+		$solicitante->senha = $model->senha;
 		$solicitante->save();
 
 		// Finalizar a solicitação de redefinição
