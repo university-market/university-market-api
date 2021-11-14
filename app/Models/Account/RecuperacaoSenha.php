@@ -2,58 +2,70 @@
 
 namespace App\Models\Account;
 
-use \Illuminate\Database\Eloquent\Model;
+// Base
+use App\Base\Models\UniversityMarketModel;
 
+// Models
 use App\Models\Estudante\Estudante;
 
-class RecuperacaoSenha extends Model {
+class RecuperacaoSenha extends UniversityMarketModel {
   
+  // Nome da entidade no banco de dados
+  protected $table = 'Recuperacoes_Senhas';
+
   // Registrar data/hora criacao/alteracao
   public $timestamps = true;
 
-  protected $table = 'Recuperacoes_Senhas';
-  protected $primaryKey = 'id';
-
-  /**
-   * The attributes that should be cast.
-   *
-   * @var array
-   */
+  // Type Casting para campos com tipos especiais (não string)
   protected $casts = [
-    'token' => 'string',
-    'email' => 'string',
     'completa' => 'boolean',
     'expirada' => 'boolean',
     'expiration_at' => 'integer'
   ];
 
-  protected $id; // PK
+  // Primary Key da entidade
+  protected $id;
+  protected $primaryKey = 'id';
+
+  // Properties
   protected $token;
   protected $email;
   protected $completa;
   protected $expirada;
-  protected $expiration_at;
+
+  // Timestamps
   private $created_at;
   private $updated_at;
-
-  protected $estudante_id; // FK Estudante
-  // protected $usuario_id; // FK Usuario
-
-  // Entity Relationships
+  protected $expiration_at;
 
   /**
-   * Obtem Estudante associado a Recuperacao de Senha
+   * @region Entity Relationships
    */
+
+  // Foreign Key para entidade de Estudante
+  protected $estudante_id;
   public function estudante()
   {
     return $this->hasOne(Estudante::class, 'id');
   }
 
-  /**
-   * Obtem Estudante associado a Recuperacao de Senha
-   */
+  // Foreign Key para entidade de Usuario
+  // protected $usuario_id;
   // public function usuario()
   // {
   //   return $this->hasOne(Usuario::class);
   // }
+
+  /**
+   * @region Entity Acessors and Mutators
+   */
+
+  /**
+   * @region Queryable methods
+   */
+
+  // FindPendenteByToken()
+
+  // FindPendenteByEmail()
+
 }
