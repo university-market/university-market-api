@@ -7,6 +7,16 @@ use Exception;
 abstract class UniversityMarketConstants {
 
     /**
+     * Configurações padrão de autenticação da plataforma University Market
+     */
+    public static function auth()  {
+
+        $constant_reader = new UniversityMarketConstantsReader(true);
+
+        return $constant_reader->get('auth');
+    }
+
+    /**
      * Configurações de senha da plataforma University Market
      */
     public static function password()  {
