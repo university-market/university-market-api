@@ -81,6 +81,26 @@ class AuthController extends UniversityMarketController {
     );
   }
 
+  /**
+   * Logout da plataforma (para qualquer session type)
+   * 
+   * @method logout
+   * 
+   * @type Http POST
+   * @route `/logout`
+   */
+  public function logout() {
+
+    $session = $this->getSession();
+
+    if (is_null($session))
+      return $this->unauthorized("Não há login ativo");
+
+    $this->destroySession($session->id);
+
+    return $this->response();
+  }
+
   public function loginEstudante(Request $request) {
 
     $model = $this->cast($request, AppLoginModel::class);
@@ -181,7 +201,7 @@ class AuthController extends UniversityMarketController {
     // Validar existencia do estudante solicitante
     if (!is_null($activatedSession)) {
 
-      $this->logoutEstudante($activatedSession->id);
+      $this->destroySession($activatedSession->id);
       // throw new UniversityMarketException("Existe uma sessão ativa neste endereço de e-mail");
     }
 
@@ -460,5 +480,19 @@ class AuthController extends UniversityMarketController {
     $session->save();
 
     return $session;
+  }
+
+  /**
+   * Exclui definitivamente uma session do banco de dados
+   * 
+   * @method destroySession
+   * 
+   * @param int $session_id Id da sessão a ser excluida
+   * 
+   * @return void
+   */
+  private function destroySession($session_id) {
+
+    AppSession::destroy($session_id);
   }
 }
