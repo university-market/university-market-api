@@ -224,7 +224,7 @@ class AccountController extends UniversityMarketController
 	 * @param boolean $obter Parâmetro interno para obter a solicitação ao invés de apenas validar
 	 * 
 	 * @type Http GET
-	 * @route `/recuperacaosenha/validar/token`
+	 * @route `/recuperacaosenha/validar/token/{token}`
 	 */
 	public function validarTokenRecuperacaoSenha($token, $obter = false) {
 
@@ -323,6 +323,7 @@ class AccountController extends UniversityMarketController
 	public function alterarSenha(Request $request) {
 
 		$model = $this->cast($request, AlteracaoSenhaModel::class);
+		$model->validar();
 
 		$solicitacao = $this->validarEmailRecuperacaoSenha($request, true);
 
