@@ -135,7 +135,7 @@ class AuthRepository {
     }
 
     /**
-     * Timestamp de sessão com base na parametrizacao de `AuthCommonData`
+     * Timestamp de sessão com base na parametrizacao de `UniversityMarketConstants`
      * 
      * @method generateExpirationTimestamp
      * 
