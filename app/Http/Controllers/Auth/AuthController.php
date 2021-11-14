@@ -24,8 +24,6 @@ use App\Models\Estudante\RecuperacaoSenha;
 
 // Models de autenticacao utilizadas
 use App\Http\Controllers\Auth\Models\LoginModel;
-use App\Http\Controllers\Auth\Models\AppLoginModel;
-use App\Http\Controllers\Auth\Models\AppSummarySession;
 use App\Http\Controllers\Auth\Models\AlteracaoSenhaModel;
 use App\Http\Controllers\Auth\Models\LoginResponseModel;
 use App\Http\Controllers\Auth\Models\RecuperacaoSenhaEstudanteModel;
