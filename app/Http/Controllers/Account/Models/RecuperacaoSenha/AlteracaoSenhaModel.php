@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Auth\Models;
+namespace App\Http\Controllers\Account\Models\RecuperacaoSenha;
 
 class AlteracaoSenhaModel {
 
