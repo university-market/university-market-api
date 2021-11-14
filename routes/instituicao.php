@@ -19,9 +19,9 @@ $namespace = 'Instituicao';
 
 $router->group(['prefix' => $base, 'namespace' => $namespace], function () use ($router) {
 
-  $router->get('all', 'InstituicaoController@listarTodas');
+  $router->get('buscar', 'InstituicaoController@listarTodas');
 
-  $router->get('listar', 'InstituicaoController@listarDisponiveis');
+  $router->get('buscar/disponiveis', 'InstituicaoController@listarDisponiveis');
 
   // Cadastrar instituicao
   $router->post('', 'InstituicaoController@cadastrar');

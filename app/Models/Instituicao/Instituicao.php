@@ -12,7 +12,7 @@ use App\Models\Plano\Plano;
 class Instituicao extends UniversityMarketModel {
     
     // Nome da entidade no banco de dados
-    protected $table = 'Estudantes';
+    protected $table = 'Instituicoes';
 
     // Registrar data/hora criacao/alteracao
     public $timestamps = true;
@@ -94,5 +94,19 @@ class Instituicao extends UniversityMarketModel {
         )->first();
 
         return !is_null($exists);
+    }
+
+    /**
+     * Listar instituicoes disponíveis para que estudantes se cadastrem
+     * 
+     * @return array Aprovadas e ativas
+     */
+    public static function getDisponiveis() {
+
+        $disponiveis = Instituicao::where('ativa', true)
+            ->where('approved_at', '!=', null)
+            ->get();
+
+        return $disponiveis;
     }
 }

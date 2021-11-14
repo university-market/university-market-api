@@ -64,6 +64,15 @@ class InstituicaoController extends UniversityMarketController {
     return $this->response();
   }
 
+  /**
+   * Ativar cadastro da Instituicao
+   * 
+   * @method ativar
+   * @param int $instituicaoId Id da Instituicao a ser ativada
+   * 
+   * @type Http PUT
+   * @route `/{instituicaoId}/ativar`
+   */
   public function ativar($instituicaoId) {
 
     // Log de ativacao de instituicao
@@ -71,6 +80,15 @@ class InstituicaoController extends UniversityMarketController {
     return $this->alterarStatusAtiva($instituicaoId, true);
   }
 
+  /**
+   * Desativar cadastro da Instituicao
+   * 
+   * @method desativar
+   * @param int $instituicaoId Id da Instituicao a ser desativada
+   * 
+   * @type Http PUT
+   * @route `/{instituicaoId}/desativar`
+   */
   public function desativar($instituicaoId) {
 
     // Log de desativacao de instituicao
@@ -78,9 +96,18 @@ class InstituicaoController extends UniversityMarketController {
     return $this->alterarStatusAtiva($instituicaoId, false);
   }
 
+  /**
+   * Aprovar cadastro da Instituicao
+   * 
+   * Dados devem ser validados na Receita Federal e pagamento inicial deve ser confirmado
+   * 
+   * @method aprovar
+   * @param int $instituicaoId Id da Instituicao a ser aprovada
+   * 
+   * @type Http POST
+   * @route `/{instituicaoId}/aprovar`
+   */
   public function aprovar($instituicaoId) {
-
-    $session = $this->getSession();
 
     $instituicao = Instituicao::find($instituicaoId);
 
@@ -90,7 +117,7 @@ class InstituicaoController extends UniversityMarketController {
     if (!is_null($instituicao->approved_at))
       throw new UniversityMarketException("Essa instituição já teve o cadastro aprovado");
 
-    $instituicao->approved_at = date($this->datetime_format);
+    $instituicao->approved_at = $this->now();
     $instituicao->save();
 
     // Log de aprovacao de cadastro de instituicao
@@ -98,24 +125,14 @@ class InstituicaoController extends UniversityMarketController {
     return $this->response();
   }
 
-  public function listarDisponiveis() {
-
-    $instituicoes = Instituicao::where('ativa', true)->where('approved_at', '!=', null)->get();
-    $arr = [];
-
-    foreach ($instituicoes as $e) {
-
-      $element = new KeyValuePair();
-
-      $element->key = $e->id;
-      $element->value = $e->razao_social;
-
-      $arr[] = $element;
-    }
-    
-    return $arr;
-  }
-
+  /**
+   * Listar todas as instituicoes cadastradas na plataforma
+   * 
+   * @method listarTodas
+   * 
+   * @type Http GET
+   * @route `/buscar`
+   */
   public function listarTodas() {
 
     $instituicoes = Instituicao::all()->getDictionary();
@@ -139,6 +156,33 @@ class InstituicaoController extends UniversityMarketController {
     }
     
     return $this->response($listaModels);
+  }
+
+  /**
+   * Listar insituicoes Disponiveis para cadastro de estudantes
+   * 
+   * @method listarDisponiveis
+   * 
+   * @type Http GET
+   * @route `/buscar/disponiveis`
+   */
+  public function listarDisponiveis() {
+
+    $instituicoes = Instituicao::getDisponiveis();
+
+    $lista_instituicoes = [];
+
+    foreach ($instituicoes as $e) {
+
+      $element = new KeyValuePair();
+
+      $element->key = $e->id;
+      $element->value = $e->razao_social;
+
+      $lista_instituicoes[] = $element;
+    }
+    
+    return $lista_instituicoes;
   }
 
   // Private methods
