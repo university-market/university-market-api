@@ -17,6 +17,16 @@ abstract class UniversityMarketConstants {
     }
 
     /**
+     * Valores padrão de recuperação de senha da plataforma University Market
+     */
+    public static function recuperacao_senha()  {
+
+        $constant_reader = new UniversityMarketConstantsReader(true);
+
+        return $constant_reader->get('recuperacao_senha');
+    }
+
+    /**
      * Configurações de senha da plataforma University Market
      */
     public static function password()  {
