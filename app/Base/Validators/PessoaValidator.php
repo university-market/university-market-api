@@ -75,7 +75,7 @@ abstract class PessoaValidator {
      * 
      * @method validarMaioridade
      * @static
-     * @param string $data_nascimento Data de nascimento - Formato (yyyy-mm-dd) - (Y-m-d)
+     * @param string $data_nascimento Data de nascimento - Formato (`yyyy-mm-dd`) - (`Y-m-d`)
      * 
      * @return boolean
      */
