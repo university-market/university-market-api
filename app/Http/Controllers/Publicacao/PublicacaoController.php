@@ -9,6 +9,7 @@ use App\Base\Aws\Buckets\UniversityMarketBuckets;
 use App\Base\Exceptions\UniversityMarketException;
 use App\Base\Controllers\UniversityMarketController;
 use App\Base\Logs\Logger\UniversityMarketLogger;
+use App\Base\Logs\Type\StdLogChange;
 use App\Base\Logs\Type\StdLogType;
 use App\Base\Resource\UniversityMarketResource;
 // Helpers
@@ -25,13 +26,18 @@ use App\Models\Publicacao\Publicacao_Tag;
 
 // Models de publicacao utilizadas
 use App\Http\Controllers\Publicacao\Models\PublicacaoCriacaoModel;
+use App\Http\Controllers\Publicacao\Models\PublicacaoCriaMovimentacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoDenunciaModel;
+use App\Http\Controllers\Publicacao\Models\PublicacaoMovimentacaoModel;
+use App\Models\Publicacao\Movimentacao;
 use App\Models\Publicacao\Tag;
 
-class PublicacaoController extends UniversityMarketController {
+class PublicacaoController extends UniversityMarketController
+{
 
-    public function obter($publicacaoId) {
+    public function obter($publicacaoId)
+    {
 
         $session = $this->getSession();
 
@@ -52,18 +58,20 @@ class PublicacaoController extends UniversityMarketController {
         $model->especificacoesTecnicas = $publicacao->especificacao_tecnica;
         $model->pathImagem = $publicacao->caminho_imagem;
         $model->dataHoraCriacao = $publicacao->created_at;
+        $model->estudanteId = $publicacao->estudante_id;
 
         // Query e map de tags da publicacao
-        $tags = array_map(function($item) {
+        $tags = array_map(function ($item) {
             return $item->tag->conteudo;
         }, $this->obterTags($publicacaoId, true)->all());
-        
+
         $model->tags = implode(',', $tags);
 
         return $this->response($model);
     }
 
-    public function obterByUser($estudanteId) {
+    public function obterByUser($estudanteId)
+    {
 
         $session = $this->getSession();
 
@@ -71,8 +79,8 @@ class PublicacaoController extends UniversityMarketController {
             return $this->unauthorized();
 
         $publicacoes = Publicacao::where('estudante_id', $estudanteId)
-            ->where('deleted', false)
-            ->get();
+                                ->where('deleted', false)
+                                ->get();
 
         $list = [];
 
@@ -88,13 +96,20 @@ class PublicacaoController extends UniversityMarketController {
             $model->pathImagem = $publicacao->caminho_imagem;
             $model->dataHoraCriacao = $publicacao->created_at;
 
+            if($publicacao->data_hora_finalizacao){
+                $model->vendida = true;
+            }else{
+                $model->vendida = false;
+            }
+            
             $list[] = $model;
         }
-    
+
         return $this->response($list);
     }
 
-    public function criar(Request $request) {
+    public function criar(Request $request)
+    {
 
         $session = $this->getSession();
 
@@ -105,7 +120,7 @@ class PublicacaoController extends UniversityMarketController {
 
         // Validar informacoes construidas na model
         $model->validar();
-        
+
         $publicacao = new Publicacao();
 
         $publicacao->titulo = $model->titulo;
@@ -123,7 +138,7 @@ class PublicacaoController extends UniversityMarketController {
 
         if (!is_null($tags)) {
 
-            foreach($tags as $tag_item) {
+            foreach ($tags as $tag_item) {
 
                 $tag = new Tag();
 
@@ -152,7 +167,8 @@ class PublicacaoController extends UniversityMarketController {
         return $this->response($publicacao->id);
     }
 
-    public function uploadImagemPublicacao($publicacaoId, Request $request) {
+    public function uploadImagemPublicacao($publicacaoId, Request $request)
+    {
 
         if (is_null($publicacaoId))
             throw new UniversityMarketException("Publicação não encontrada");
@@ -177,12 +193,16 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao->caminho_imagem = $url;
         $publicacao->save();
 
+        // Log de upload de imagem
+
         return $this->response();
     }
 
-    public function listar() {
+    public function listar()
+    {
 
-        $publicacoes = Publicacao::where('deleted', false)->get();
+        $publicacoes = Publicacao::where('deleted', false)
+                                ->where('data_hora_finalizacao',null)->get();
 
         $list = [];
 
@@ -204,8 +224,9 @@ class PublicacaoController extends UniversityMarketController {
         return $this->response($list);
     }
 
-    public function listarByCurso($cursoId) {
-        
+    public function listarByCurso($cursoId)
+    {
+
         if (is_null($cursoId))
             throw new UniversityMarketException("Curso não encontrado");
 
@@ -219,11 +240,11 @@ class PublicacaoController extends UniversityMarketController {
         $estudanteFields = ['id', 'nome', 'email'];
 
         $list = Curso::where('id', $cursoId)
-            ->with(['publicacoes' => function($publicacaoQuery) use ($publicacaoFields, $estudanteFields) {
-                $publicacaoQuery->with(['estudante' => function($estudanteQuery) use ($estudanteFields) {
+            ->with(['publicacoes' => function ($publicacaoQuery) use ($publicacaoFields, $estudanteFields) {
+                $publicacaoQuery->with(['estudante' => function ($estudanteQuery) use ($estudanteFields) {
                     $estudanteQuery->select($estudanteFields);
                 }])
-                ->select($publicacaoFields);
+                    ->select($publicacaoFields);
             }])
             ->select($cursoFields)
             ->get();
@@ -231,7 +252,8 @@ class PublicacaoController extends UniversityMarketController {
         return $this->response($list);
     }
 
-    public function alterar(Request $request, $publicacaoId) {
+    public function alterar(Request $request, $publicacaoId)
+    {
 
         $model = $this->cast($request, PublicacaoCriacaoModel::class);
 
@@ -249,25 +271,43 @@ class PublicacaoController extends UniversityMarketController {
         if ($model->valor !== null && !is_numeric($model->valor))
             throw new UniversityMarketException("O valor informado não é válido");
 
+        // Edicao da publicacao
+
+        $beforeState = [];
+        $afterState = [];
+
         // Titulo
         if ($publicacao->titulo != $model->titulo) {
 
-            $publicacao->titulo = (is_null($model->titulo) || empty(trim($model->titulo))) ? 
+            $beforeState['titulo'] = $publicacao->titulo;
+
+            $publicacao->titulo = (is_null($model->titulo) || empty(trim($model->titulo))) ?
                 $publicacao->titulo : trim($model->titulo);
+
+            $afterState['titulo'] = $publicacao->titulo;
+
         }
-        
+
         // Descricao
         if ($publicacao->descricao != $model->descricao) {
 
-            $publicacao->descricao = (is_null($model->descricao) || empty(trim($model->descricao))) ? 
+            $beforeState['descricao'] = $publicacao->descricao;
+ 
+            $publicacao->descricao = (is_null($model->descricao) || empty(trim($model->descricao))) ?
                 $publicacao->descricao : trim($model->descricao);
+
+            $afterState['descricao'] = $publicacao->descricao;
         }
 
         // Valor
         if ($publicacao->valor != $model->valor) {
 
+            $beforeState['valor'] = $publicacao->valor;
+
             $publicacao->valor = (is_null($model->valor) || empty(trim($model->valor))) ? 
                 $publicacao->valor : (double)$model->valor;
+
+            $afterState['valor'] = $publicacao->valor;
         }
 
         // Tags
@@ -280,34 +320,40 @@ class PublicacaoController extends UniversityMarketController {
         // Detalhes tecnicos
         if ($publicacao->especificacao_tecnica != $model->especificacoesTecnicas) {
 
+            $beforeState['especificacao_tecnica'] = $publicacao->especificacao_tecnica;
+
             $publicacao->especificacao_tecnica = strlen(trim($model->especificacoesTecnicas)) == 0 ?
                 null : trim($model->especificacoesTecnicas);
+
+            $afterState['especificacao_tecnica'] = $publicacao->especificacao_tecnica;
         }
-        
+
         // Imagem
         // if ($publicacao->pathImagem != $model->pathImagem) {
-        
+
         //     $publicacao->pathImagem = (\is_null($model->pathImagem) || empty(trim($model->pathImagem))) ? 
         //         $publicacao->pathImagem : trim($model->pathImagem);
         // }
 
         $publicacao->save();
 
+        $changes = new StdLogChange();
+
         // Persistir log de criacao de edição da publicacao
-    UniversityMarketLogger::log(
-        UniversityMarketResource::$publicacao,
-        $publicacao->id,
-        StdLogType::$edicao,
-        "Publicação editada",
-        $session->estudante_id,
-        null
-      );
-  
+        UniversityMarketLogger::log(
+            UniversityMarketResource::$publicacao,
+            $publicacao->id,
+            StdLogType::$edicao,
+            "Publicação editada",
+            $session->estudante_id,
+            $changes->setBeforeState($beforeState)->setAfterState($afterState)->serializeChanges()
+        );
 
         return $this->response();
     }
 
-    public function obterTags($publicacaoId, $internal = false) {
+    public function obterTags($publicacaoId, $internal = false)
+    {
 
         if (is_null($publicacaoId))
             throw new UniversityMarketException("Publicação não encontrada");
@@ -320,7 +366,7 @@ class PublicacaoController extends UniversityMarketController {
         $tagFields = ['id', 'conteudo'];
 
         $tags = Publicacao_Tag::where('publicacao_id', $publicacaoId)
-            ->with(['tag' => function($tagQuery) use($tagFields) {
+            ->with(['tag' => function ($tagQuery) use ($tagFields) {
                 $tagQuery->select($tagFields)->get();
             }])
             ->select('tag_id')
@@ -329,7 +375,8 @@ class PublicacaoController extends UniversityMarketController {
         return !$internal ? $this->response($tags) : $tags;
     }
 
-    public function excluir($publicacaoId) {
+    public function excluir($publicacaoId)
+    {
 
         $session = $this->getSession();
 
@@ -346,15 +393,41 @@ class PublicacaoController extends UniversityMarketController {
         $publicacao->save();
 
         // Persistir log de criacao de edição da publicacao
-    UniversityMarketLogger::log(
-        UniversityMarketResource::$publicacao,
-        $publicacao->id,
-        StdLogType::$exclusao,
-        "Publicação excluida",
-        $session->estudante_id,
-        null
-      );
+        UniversityMarketLogger::log(
+            UniversityMarketResource::$publicacao,
+            $publicacao->id,
+            StdLogType::$exclusao,
+            "Publicação excluida",
+            $session->estudante_id,
+            null
+        );
+        return $this->response();
+    }
+
+    public function marcarPublicacaoComoVendida(Request $request){
         
+         $session = $this->getSession();
+
+         if (!$session)
+             return $this->unauthorized();
+
+        $model = $this->cast($request, PublicacaoCriaMovimentacaoModel::class);
+
+        if (is_null($request->publicacaoId))
+            throw new UniversityMarketException("Id da publicação não encontrado");
+
+        $publicacao = Publicacao::find($model->publicacaoId);
+
+        if (is_null($publicacao))
+            throw new UniversityMarketException("Publicação não encontrada");
+        
+        if($publicacao->estudante_id != $session->estudante_id)
+            throw new UniversityMarketException("Você não pode editar esta publicação");
+        
+        $publicacao->data_hora_finalizacao = $this->now();
+
+        $publicacao->save();
+
         return $this->response();
     }
 
@@ -363,8 +436,8 @@ class PublicacaoController extends UniversityMarketController {
         $filename = $file->getClientOriginalName();
         $filename_arr = explode('.', str_replace(" ", "_", $filename));
 
-        $extension = $filename_arr[count($filename_arr)-1];
-        
+        $extension = $filename_arr[count($filename_arr) - 1];
+
         try {
 
             $filename = 'image-' . $publicacaoId . '.' . $extension;
@@ -382,13 +455,12 @@ class PublicacaoController extends UniversityMarketController {
             // Persistir arquivo localmente no servidor
             $destination_path = '/storage/upload/publicacao/';
             $url = env('APP_URL') . $destination_path . $filename;
-    
+
             if (!$file->move('.' . $destination_path, $filename))
                 throw new UniversityMarketException("Não foi possível salvar o arquivo");
             // */
 
             return $url;
-
         } catch (Exception $e) {
 
             // Registrar log de erro da operação
@@ -444,3 +516,4 @@ class PublicacaoController extends UniversityMarketController {
 
 
 }
+

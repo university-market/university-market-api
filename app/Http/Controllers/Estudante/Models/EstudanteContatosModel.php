@@ -10,8 +10,6 @@ class EstudanteContatosModel {
 
   public function validar() {
 
-    $passwordMinLength = 6;
-
     if (is_null($this->conteudo) || empty(trim($this->conteudo)))
       throw new \Exception("O conteúdo é obrigatório");
 

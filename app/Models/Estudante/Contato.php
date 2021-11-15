@@ -5,30 +5,32 @@ namespace App\Models\Estudante;
 use \Illuminate\Database\Eloquent\Model;
 
 class Contato extends Model {
-  
-  // Nome da entidade no banco de dados
-  protected $table = 'Contatos';
-
+    
   // Registrar data/hora criacao/alteracao
   public $timestamps = true;
 
-  // Type Casting para campos com tipos especiais (não string)
+  // protected $table = 'Contatos';
+  // protected $primaryKey = 'id';
+
+  /**
+   * The attributes that should be cast.
+   *
+   * @var array
+   */
   protected $casts = [
+    // 'id' => 'integer',
     'conteudo' => 'string',
-    'deleted' => 'boolean'
+    'deleted' => 'boolean',
+    // 'tipo_contato_id' => 'integer',
+    // 'estudante_id' => 'integer'
   ];
 
-  // Primary Key da entidade
-  protected $id;
-  protected $primaryKey = 'id';
-
-  // Properties
+  protected $id; // PK
   protected $conteudo;
   protected $deleted;
-
-  // Timestamps da entidade
   private $created_at;
   private $updated_at;
+  
 
   /**
    * @region Entity Relationships

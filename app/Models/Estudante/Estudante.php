@@ -6,6 +6,10 @@ namespace App\Models\Estudante;
 use App\Base\Models\UniversityMarketModel;
 use App\Base\Exceptions\UniversityMarketException;
 
+// Common
+use Illuminate\Support\Facades\Hash;
+use App\Common\Constants\UniversityMarketConstants;
+
 // Models
 use App\Models\Curso\Curso;
 use App\Models\Publicacao\Publicacao;
@@ -81,6 +85,52 @@ class Estudante extends UniversityMarketModel {
       throw new UniversityMarketException("Um nome completo deve ser fornecido para o estudante");
 
     $this->attributes['nome'] = $value;
+  }
+
+  // Setter para Email
+  public function setEmailAttribute($value) {
+
+    $estudante = Estudante::findByEmail($value);
+
+    if (!is_null($estudante)) {
+      
+      // Incluir instituicao de ensino na query para exibir alerta com razao social
+      $estudante->with(['instituicao'])->first();
+      throw new UniversityMarketException("Estudante já possui cadastro em {$estudante->instituicao->razao_social}");
+    }
+
+    // Limpar caracteres inválidos do email
+    // $email = filter_var($value, FILTER_SANITIZE_EMAIL);
+
+    // Validar formato
+    if (!filter_var($value, FILTER_VALIDATE_EMAIL))
+      throw new UniversityMarketException("O formato do e-mail $value não é válido");
+
+    $this->attributes['email'] = $value;
+  }
+
+  // Setter para Senha
+  public function setSenhaAttribute($value) {
+
+    $password_config = UniversityMarketConstants::password();
+
+    if (is_null($value))
+      throw new UniversityMarketException("A senha é obrigatória");
+
+    if (strlen($value) < $password_config['min_length'])
+      throw new UniversityMarketException("A senha deve conter ao menos {$password_config['min_length']} caracteres");
+
+    $this->attributes['senha'] = Hash::make($value);
+  }
+
+  /**
+   * @region Queryable methods
+   */
+
+  // Buscar Estudante por e-mail (UNIQUE)
+  public static function findByEmail($value) {
+
+    return Estudante::where('email', $value)->first();
   }
   
 }

@@ -40,7 +40,25 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
   //cadastrar contatos do estudante
   $router->post('contatos','EstudanteController@cadastrarContato');
 
+  //deleta  contato do estudante
+  $router->delete('contatos/{contatoId}','EstudanteController@deletarContato');
+
   //obter contatos do estudante
   $router->get('contatos/{estudanteId}','EstudanteController@obterContatos');
+
+  //editar contatos do estudante
+  $router->put('contatos','EstudanteController@editarContato');
+
+  //obter endereços pelo estudande id
+  $router->get('endereco/{estudanteId}','EstudanteController@obterEndereco');
+
+  //cadastrar endereços 
+  $router->post('endereco','EstudanteController@cadastrarEndereco');
+
+  //deletar endereço 
+  $router->delete('endereco/{enderecoId}','EstudanteController@deletarEndereco');
+
+  //editar endereços do estudante
+  $router->put('endereco','EstudanteController@editarEndereco');
 
 });

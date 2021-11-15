@@ -8,40 +8,51 @@ use Illuminate\Http\Request;
 use App\Base\Controllers\UniversityMarketController;
 use App\Base\Exceptions\UniversityMarketException;
 use App\Base\Logs\Logger\UniversityMarketLogger;
+use App\Base\Logs\Type\StdLogChange;
 use App\Base\Logs\Type\StdLogType;
 use App\Base\Resource\UniversityMarketResource;
-// Common
-use Illuminate\Support\Facades\Hash;
 
 // Entidades
+use App\Models\Estudante\Contato;
+use App\Models\Estudante\Endereco;
 use App\Models\Estudante\Estudante;
+use App\Models\Estudante\Bloqueios;
 
 // Models de estudante utilizadas
-use App\Models\Estudante\Bloqueios;
-use App\Models\Estudante\Contato;
 use App\Http\Controllers\Estudante\Models\EstudanteDenunciaModel;
-use App\Http\Controllers\Estudante\Models\EstudanteBloqueioModel;
+use App\Http\Controllers\Estudante\Models\EstudanteDadosModel;
 use App\Http\Controllers\Estudante\Models\EstudanteDetalheModel;
 use App\Http\Controllers\Estudante\Models\EstudanteCriacaoModel;
-use App\Http\Controllers\Estudante\Models\EstudanteDadosModel;
+use App\Http\Controllers\Estudante\Models\EstudanteBloqueioModel;
 use App\Http\Controllers\Estudante\Models\EstudanteContatosModel;
 use App\Models\Estudante\Denuncia;
+use App\Http\Controllers\Estudante\Models\EstudanteEnderecosModel;
 
-class EstudanteController extends UniversityMarketController {
+class EstudanteController extends UniversityMarketController
+{
 
+  /**
+   * Obter model de detalhes de um estudante
+   * 
+   * @method obter
+   * @param int $estudanteId Id do estudante a ser obtido
+   * 
+   * @type Http GET
+   * @route `/{estudanteId}`
+   */
   public function obter($estudanteId) {
 
     if (!$estudanteId)
       throw new UniversityMarketException("Estudante não encontrado");
 
     $session = $this->getSession();
-    
+
     if (is_null($session))
       return $this->unauthorized();
 
     $estudante = Estudante::find($estudanteId);
 
-    if (\is_null($estudante))
+    if (is_null($estudante))
       throw new UniversityMarketException("Estudante não encontrado");
 
     // Construir model de detalhes do estudante
@@ -53,24 +64,35 @@ class EstudanteController extends UniversityMarketController {
     $model->dataNascimento = $estudante->data_nascimento;
     $model->pathFotoPerfil = $estudante->caminho_foto_perfil;
     $model->cursoNome = $estudante->curso->nome;
-    $model->instituicaoRazaoSocial = $estudante->instituicao->razao_social;
+    $model->instituicaoRazaoSocial = $estudante->instituicao->razao_social ?? null;
 
     return $this->response($model);
   }
 
+  /**
+   * Obter model de detalhes de um estudante
+   * 
+   * @deprecated Deve ser utilizado o método `profile` de `AccountController` - Nova estrutura Front-end não precisa mais desse método
+   * 
+   * @method obterDados
+   * @param int $estudanteId Id do estudante que obtém os dados necessários
+   * 
+   * @type Http GET
+   * @route `/dados/{estudanteId}`
+   */
   public function obterDados($estudanteId) {
 
     if (!$estudanteId)
       throw new UniversityMarketException("Estudante não encontrado");
 
     $session = $this->getSession();
-    
+
     if (!$session)
       return $this->unauthorized();
 
     $estudante = Estudante::find($estudanteId);
 
-    if (\is_null($estudante))
+    if (is_null($estudante))
       throw new UniversityMarketException("Estudante não encontrado");
 
     // Construir model de detalhes do estudante
@@ -83,30 +105,31 @@ class EstudanteController extends UniversityMarketController {
     return $this->response($model);
   }
 
+  /**
+   * Criar estudante no banco de dados
+   * 
+   * @method criar
+   * @param Request $request Instância de requisição a ser convertida em model de criação `EstudanteCriacaoModel`
+   * 
+   * @type Http POST
+   * @route ``
+   */
   public function criar(Request $request) {
 
     $model = $this->cast($request, EstudanteCriacaoModel::class);
-
     $model->validar();
-
-    $existente = $this->estudanteExistente($model->email);
-
-    if ($existente !== false) {
-
-      throw new UniversityMarketException("Estudante já possui cadastro em $existente");
-    }
 
     $estudante = new Estudante();
 
     $estudante->nome = $model->nome;
     $estudante->email = $model->email;
-    $estudante->senha = Hash::make($model->senha);
+    $estudante->senha = $model->senha;
     $estudante->ativo = true;
     $estudante->caminho_foto_perfil = null;
     $estudante->data_nascimento = $model->dataNascimento;
     $estudante->curso_id = $model->cursoId;
     $estudante->instituicao_id = $model->instituicaoId;
-    
+
     $estudante->save();
 
     // Persistir log de criacao do estudante
@@ -121,37 +144,51 @@ class EstudanteController extends UniversityMarketController {
 
   }
 
-  public function cadastrarContato(Request $request){
-    
+  public function cadastrarContato(Request $request)
+  {
+    $session = $this->getSession();
+
+    if (!$session)
+      return $this->unauthorized();
+
     $model = $this->cast($request, EstudanteContatosModel::class);
 
     // Validar informacoes construidas na model
     $model->validar();
 
-    $session = $this->getSession();
-
-    if (!$session)
-        return $this->unauthorized();
-  
     //Valida se o tipo de contato já está cadastrado
-    $validacao = Contato::where('estudante_id',$model->estudante_id)
-      ->where('tipo_contato_id',$model->tipo_contato_id)
+    $validacao = Contato::where('estudante_id', $session->estudante_id)
+      ->where('tipo_contato_id', $model->tipo_contato_id)
+      ->where('deleted', false)
       ->get()->toArray();
 
-    if($validacao)
+    if ($validacao)
+      throw new \Exception("Tipo de contato já cadastrado, favor edita-lo!");
+
+    $validacao = Contato::where('estudante_id', $model->estudante_id)
+      ->where('tipo_contato_id', $model->tipo_contato_id)
+      ->get()->toArray();
+
+    if ($validacao)
       throw new UniversityMarketException("Tipo de contato já cadastrado, favor edita-lo!");
-    
+
     $contato = new Contato;
 
     $contato->conteudo = $model->conteudo;
     $contato->tipo_contato_id = $model->tipo_contato_id;
-    $contato->estudante_id = $model->estudante_id ?? $session->estudante_id;
+    $contato->estudante_id = $session->estudante_id;
 
     $contato->save();
 
+    $model = new EstudanteContatosModel();
+
+    $model->id = $contato->id;
+    $model->conteudo = $contato->conteudo;
+    $model->tipo_contato_id = $contato->tipo_contato_id;
+
     // Persistir log de criacao de contato do estudante
     UniversityMarketLogger::log(
-      UniversityMarketResource::$estudante,
+      UniversityMarketResource::$contato,
       $contato->id,
       StdLogType::$criacao,
       "Contato criado",
@@ -163,37 +200,258 @@ class EstudanteController extends UniversityMarketController {
     return $this->response();
   }
 
-  public function obterContatos($estudanteId){
+  public function deletarContato($contatoId)
+  {
 
     $session = $this->getSession();
 
-      if (!$session)
-          return $this->unauthorized();
+    if (!$session)
+      return $this->unauthorized();
 
-      $contatos = Contato::where('estudante_id', $estudanteId)
-        ->where('deleted',false)
-        ->get()->toArray();
-                              
-      $model = $this->cast($contatos, EstudanteContatosModel::class);
+    $contato =  Contato::find($contatoId);
 
-      return $this->response($model);
+    if (\is_null($contato))
+      throw new \Exception("Contato não encontrado");
+    if ($contato->deleted)
+      throw new \Exception("Contato já deletado");
+
+    if ($contato->estudante_id != $session->estudante_id)
+      throw new \Exception("Você não pode deletar este contato");
+
+    $contato->deleted = true;
+
+    $contato->save();
+
+    return response(null, 200);
   }
 
-  /**
-   * @param string $email E-mail do estudante (deve ser único na instituicao)
-   * @param string $instituicaoId Id da intituicao de ensino
-   */
-  private function estudanteExistente($email) {
 
-    $estudante = Estudante::with('instituicao')->where('email', $email)->first();
+  public function editarContato(Request $request)
+  {
 
-    if (is_null($estudante))
-      return false;
+    $model = $this->cast($request, EstudanteContatosModel::class);
 
-    return $estudante->instituicao->razao_social;
+    $session = $this->getSession();
+
+    if (!$session)
+      return $this->unauthorized();
+
+    $contato =  Contato::find($model->id);
+
+    if (\is_null($contato))
+      throw new \Exception("Contato não encontrado");
+
+    if ($contato->deleted)
+      throw new \Exception("Contato encontra-se deletado");
+
+    if ($contato->estudante_id != $session->estudante_id)
+      throw new \Exception("Você não pode editar este contato");
+
+    $contato->conteudo = $model->conteudo;
+
+    $contato->save();
+
+    return response(null, 200);
   }
 
-  private function estudanteBloqueado($estudante_id) {
+  public function obterContatos($estudanteId)
+  {
+
+    $session = $this->getSession();
+
+    if (!$session)
+      return $this->unauthorized();
+
+    $contatos = Contato::where('estudante_id', $estudanteId)
+      ->where('deleted', false)
+      ->get()->toArray();
+
+    $model = $this->cast($contatos, EstudanteContatosModel::class);
+
+    return response()->json($model);
+  }
+
+  public function cadastrarEndereco(Request $request)
+  {
+
+    $session = $this->getSession();
+
+    if (!$session)
+      return $this->unauthorized();
+
+    $model = $this->cast($request, EstudanteEnderecosModel::class);
+
+    // Validar informacoes construidas na model
+    $model->validar();
+
+    $endereco = new Endereco;
+
+    $endereco->estudante_id = $session->estudante_id;
+    $endereco->logradouro = $model->rua;
+    $endereco->complemento = $model->complemento;
+    $endereco->cep = $model->cep;
+    $endereco->numero = $model->numero;
+
+    $endereco->save();
+
+    $model = new EstudanteEnderecosModel();
+
+    $model->id = $endereco->id;
+    $model->rua = $endereco->logradouro;
+    $model->complemento = $endereco->complemento;
+    $model->cep = $endereco->cep;
+    $model->numero = $endereco->numero;
+
+    // Persistir log de criacao de publicacao
+    UniversityMarketLogger::log(
+      UniversityMarketResource::$endereco,
+      $endereco->id,
+      StdLogType::$criacao,
+      "Endereço cradastrado",
+      $session->estudante_id,
+      null
+    );
+
+    return response()->json($model);    
+  }
+
+  public function obterEndereco($estudanteId = null)
+  {
+
+    $session = $this->getSession();
+
+    if (!$session)
+      return $this->unauthorized();
+
+    $enderecos = Endereco::where('estudante_id', $estudanteId)
+                          ->whereNull('deleted_at')
+                          ->get();
+
+    $list = [];
+
+    foreach ($enderecos as $endereco) {
+
+      $model = new EstudanteEnderecosModel();
+
+      $model->id = $endereco->id;
+      $model->estudanteId = $endereco->estudante_id;
+      $model->rua = $endereco->logradouro;
+      $model->numero = $endereco->numero;
+      $model->cep = $endereco->cep;
+      $model->complemento = $endereco->complemento;
+
+      $list[] = $model;
+    }
+
+    return response()->json($list);
+    $contatos = Contato::where('estudante_id', $estudanteId)
+      ->where('deleted', false)
+      ->get()->toArray();
+
+    $model = $this->cast($contatos, EstudanteContatosModel::class);
+
+    return $this->response($model);
+  }
+
+  public function deletarEndereco($enderecoId)
+  {
+
+    $session = $this->getSession();
+
+    if (!$session)
+      return $this->unauthorized();
+
+    $endereco =  Endereco::find($enderecoId);
+
+    if (is_null($endereco))
+      throw new \Exception("Endereço não encontrado");
+
+    if (!is_null($endereco->deleted_at))
+      throw new \Exception("Endereço já deletado");
+
+    if ($endereco->estudante_id != $session->estudante_id)
+      throw new \Exception("Você não pode deletar este contato");
+
+     $endereco->deleted_at = date($this->datetime_format);
+
+     $endereco->save();
+
+    // Persistir log de criacao de publicacao
+    UniversityMarketLogger::log(
+      UniversityMarketResource::$endereco,
+      $endereco->id,
+      StdLogType::$exclusao,
+      "Endereço excluido",
+      $session->estudante_id,
+      null
+    );
+
+    return response(null, 200);
+  }
+
+  public function editarEndereco(Request $request){
+    
+    $session = $this->getSession();
+
+    if (!$session)
+      return $this->unauthorized();
+
+    $model = $this->cast($request, EstudanteEnderecosModel::class);
+
+    $model->validar();
+
+    $endereco =  Endereco::find($model->id);
+
+    if (\is_null($endereco))
+      throw new \Exception("Endereço não encontrado");
+
+    if (!is_null($endereco->deleted_at))
+      throw new \Exception("Endereço encontra-se deletado");
+
+    if ($endereco->estudante_id != $session->estudante_id)
+      throw new \Exception("Você não pode editar este contato");
+
+    $before = [
+      'logradouro'=> $endereco->logradouro,
+      'numero'=> $endereco->numero,
+      'cep'=> $endereco->cep,
+      'complemento'=> $endereco->complemento,
+    ];
+
+
+
+    $endereco->logradouro = $model->rua;
+    $endereco->complemento = $model->complemento;
+    $endereco->cep = $model->cep;
+    $endereco->numero = $model->numero;
+
+    $endereco->save();
+
+    $after = [
+      'logradouro'=> $endereco->logradouro,
+      'numero'=> $endereco->numero,
+      'cep'=> $endereco->cep,
+      'complemento'=> $endereco->complemento,
+    ];
+
+    $changes = new StdLogChange();
+
+    // Persistir log de criacao de publicacao
+    UniversityMarketLogger::log(
+      UniversityMarketResource::$endereco,
+      $endereco->id,
+      StdLogType::$edicao,
+      "Endereço editado",
+      $session->estudante_id,
+      $changes->setBeforeState($before)->setAfterState($after)->serializeChanges()
+    );
+
+    return response(null, 200);
+
+  }
+
+  public function estudanteBloqueado($estudante_id)
+  {
 
     $estudante = Bloqueios::where('estudante_id', $estudante_id)->first();
 
@@ -204,9 +462,10 @@ class EstudanteController extends UniversityMarketController {
   }
 
 
-  public function bloquear(Request $request) {
+  public function bloquear(Request $request)
+  {
 
-    $model = $this->cast($request, EstudanteBloqueioModel::class);    
+    $model = $this->cast($request, EstudanteBloqueioModel::class);
 
 
     $session = $this->getSession();
@@ -226,9 +485,9 @@ class EstudanteController extends UniversityMarketController {
     $bloqueio->motivo = $model->motivo;
     $bloqueio->finished_at = $model->finished_at;
 
-    
     $bloqueio->save();
 
+    // Log de criacao
   }
 
   public function denunciar(Request $request) {
@@ -282,3 +541,4 @@ class EstudanteController extends UniversityMarketController {
 
 
 }
+

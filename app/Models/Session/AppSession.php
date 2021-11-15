@@ -7,7 +7,7 @@ use App\Models\Estudante\Estudante;
 
 class AppSession extends BaseSession {
 
-    // protected $table = 'App_Sessions';
+    protected $table = 'App_Sessions';
 
     protected $estudante_id;
     // protected $usuario_id;
