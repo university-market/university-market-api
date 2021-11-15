@@ -93,11 +93,7 @@ class PublicacaoController extends UniversityMarketController
             $model->pathImagem = $publicacao->caminho_imagem;
             $model->dataHoraCriacao = $publicacao->created_at;
 
-            $vendida =  Movimentacao::where('publicacao_id', $publicacao->id)
-                                    ->where('tipo_movimentacao_id', 1)
-                                    ->get()->toArray();
-
-            if($vendida){
+            if($publicacao->data_hora_finalizacao){
                 $model->vendida = true;
             }else{
                 $model->vendida = false;
@@ -200,15 +196,8 @@ class PublicacaoController extends UniversityMarketController
     public function listar()
     {
 
-        $vendidas = $vendidas = Movimentacao::where('tipo_movimentacao_id', 1)
-                                            ->get();
-
-        foreach($vendidas as $vendida){
-            $data[] = $vendida->publicacao_id;
-        }
-
         $publicacoes = Publicacao::where('deleted', false)
-                             ->whereNotIn('id',$data)->get();
+                                ->where('data_hora_finalizacao',null)->get();
 
         $list = [];
 
@@ -381,15 +370,10 @@ class PublicacaoController extends UniversityMarketController
         
         if($publicacao->estudante_id != $session->estudante_id)
             throw new UniversityMarketException("Você não pode editar esta publicação");
-
-        $movimentacao = new Movimentacao();
         
-        $movimentacao->valor = $model->valor;
-        $movimentacao->tipo_movimentacao_id = 1;
-        $movimentacao->publicacao_id = $model->publicacaoId;
-        $movimentacao->estudante_id = $publicacao->estudante_id;
+        $publicacao->data_hora_finalizacao = $this->now();
 
-        $movimentacao->save();
+        $publicacao->save();
 
         return $this->response();
     }
