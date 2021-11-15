@@ -20,21 +20,9 @@ $namespace = 'Auth';
 $router->group(['prefix' => $base, 'namespace' => $namespace], function () use ($router) {
 
     // Efetuar login
-    $router->post('estudante/login', 'AuthController@loginEstudante');
+    $router->post('login', 'AuthController@login');
 
     // Efetuar logout
-    $router->post('estudante/logout', 'AuthController@logoutEstudante');
-
-    // Solicitar recuperação de senha
-    $router->patch('estudante/recuperarsenha/solicitar', 'AuthController@solicitarRecuperacaoSenhaEstudante');
-
-    // Alterar senha
-    $router->put('estudante/recuperarsenha', 'AuthController@alterarSenhaEstudante');
-
-    // Validar email de recuperacao de senha
-    $router->get('estudante/recuperarsenha', 'AuthController@validarEmailRecuperacaoSenhaEstudante');
-
-    // Validar token de recuperacao de senha
-    $router->get('estudante/recuperarsenha/{token}', 'AuthController@validarTokenRecuperacaoSenhaEstudante');
+    $router->post('logout', 'AuthController@logout');
 
 });

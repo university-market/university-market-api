@@ -12,9 +12,6 @@ use App\Base\Logs\Type\StdLogChange;
 use App\Base\Logs\Type\StdLogType;
 use App\Base\Resource\UniversityMarketResource;
 
-// Common
-use Illuminate\Support\Facades\Hash;
-
 // Entidades
 use App\Models\Estudante\Contato;
 use App\Models\Estudante\Endereco;
@@ -32,8 +29,16 @@ use App\Http\Controllers\Estudante\Models\EstudanteEnderecosModel;
 class EstudanteController extends UniversityMarketController
 {
 
-  public function obter($estudanteId)
-  {
+  /**
+   * Obter model de detalhes de um estudante
+   * 
+   * @method obter
+   * @param int $estudanteId Id do estudante a ser obtido
+   * 
+   * @type Http GET
+   * @route `/{estudanteId}`
+   */
+  public function obter($estudanteId) {
 
     if (!$estudanteId)
       throw new UniversityMarketException("Estudante não encontrado");
@@ -45,7 +50,7 @@ class EstudanteController extends UniversityMarketController
 
     $estudante = Estudante::find($estudanteId);
 
-    if (\is_null($estudante))
+    if (is_null($estudante))
       throw new UniversityMarketException("Estudante não encontrado");
 
     // Construir model de detalhes do estudante
@@ -62,8 +67,18 @@ class EstudanteController extends UniversityMarketController
     return $this->response($model);
   }
 
-  public function obterDados($estudanteId)
-  {
+  /**
+   * Obter model de detalhes de um estudante
+   * 
+   * @deprecated Deve ser utilizado o método `profile` de `AccountController` - Nova estrutura Front-end não precisa mais desse método
+   * 
+   * @method obterDados
+   * @param int $estudanteId Id do estudante que obtém os dados necessários
+   * 
+   * @type Http GET
+   * @route `/dados/{estudanteId}`
+   */
+  public function obterDados($estudanteId) {
 
     if (!$estudanteId)
       throw new UniversityMarketException("Estudante não encontrado");
@@ -75,7 +90,7 @@ class EstudanteController extends UniversityMarketController
 
     $estudante = Estudante::find($estudanteId);
 
-    if (\is_null($estudante))
+    if (is_null($estudante))
       throw new UniversityMarketException("Estudante não encontrado");
 
     // Construir model de detalhes do estudante
@@ -88,25 +103,25 @@ class EstudanteController extends UniversityMarketController
     return $this->response($model);
   }
 
-  public function criar(Request $request)
-  {
+  /**
+   * Criar estudante no banco de dados
+   * 
+   * @method criar
+   * @param Request $request Instância de requisição a ser convertida em model de criação `EstudanteCriacaoModel`
+   * 
+   * @type Http POST
+   * @route ``
+   */
+  public function criar(Request $request) {
 
     $model = $this->cast($request, EstudanteCriacaoModel::class);
-
     $model->validar();
-
-    $existente = $this->estudanteExistente($model->email);
-
-    if ($existente !== false) {
-
-      throw new UniversityMarketException("Estudante já possui cadastro em $existente");
-    }
 
     $estudante = new Estudante();
 
     $estudante->nome = $model->nome;
     $estudante->email = $model->email;
-    $estudante->senha = Hash::make($model->senha);
+    $estudante->senha = $model->senha;
     $estudante->ativo = true;
     $estudante->caminho_foto_perfil = null;
     $estudante->data_nascimento = $model->dataNascimento;
@@ -465,20 +480,5 @@ class EstudanteController extends UniversityMarketController
     $bloqueio->save();
 
     // Log de criacao
-  }
-
-  /**
-   * @param string $email E-mail do estudante (deve ser único na instituicao)
-   * @param string $instituicaoId Id da intituicao de ensino
-   */
-  private function estudanteExistente($email)
-  {
-
-    $estudante = Estudante::with('instituicao')->where('email', $email)->first();
-
-    if (is_null($estudante))
-      return false;
-
-    return $estudante->instituicao->razao_social;
   }
 }

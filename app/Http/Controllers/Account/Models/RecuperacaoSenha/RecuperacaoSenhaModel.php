@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Auth\Models;
+namespace App\Http\Controllers\Account\Models\RecuperacaoSenha;
 
-class RecuperacaoSenhaEstudanteModel {
+class RecuperacaoSenhaModel {
 
     public $expirationTime; // Minutes
     public $existente = false;

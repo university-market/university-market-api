@@ -15,16 +15,22 @@ class InstituicaoCriacaoModel {
 
   public function validar() {
       
-    if (is_null($this->razaoSocial) || empty(trim($this->razaoSocial)))
+    if (is_null($this->razaoSocial) || empty(trim($this->razaoSocial))) {
+
       throw new UniversityMarketException("A razão social é obrigatória");
+    }
     
-    if (is_null($this->cnpj) || empty(trim($this->cnpj)))
+    if (is_null($this->cnpj) || empty(trim($this->cnpj))) {
+
       throw new UniversityMarketException("O CNPJ da instituição é obrigatório");
+    }
 
     if (
       is_null($this->email) || empty(trim($this->email)) &&
       is_null($this->telefone) || empty(trim($this->telefone))
-    )
-      throw new UniversityMarketException("Ao menos um e-mail ou telefone deve ser informado");
+    ) {
+
+      throw new UniversityMarketException("Um e-mail ou telefone devem ser informados");
+    }
   }
 }

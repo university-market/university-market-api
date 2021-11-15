@@ -48,7 +48,7 @@ class UniversityMarketController extends BaseController {
 
         return date($this->datetime_format);
     }
-    
+
     /**
      * Convert an or more objects to a specific class.
      * @method cast()
@@ -118,16 +118,46 @@ class UniversityMarketController extends BaseController {
     }
 
     /**
+     * Obtem a instância atual de requisição à API  - Get the current request instance
+     * @method getCurrentRequestInstance
+     * @return \Illuminate\Http\Request
+     */
+    private function getCurrentRequestInstance() {
+
+        return request();
+    }
+
+    /**
+     * Obtém o tipo de requisicao recebida, provida do `Estudante` ou `Usuario`
+     * 
+     * @method getRequestSource()
+     * 
+     * @return const `SESSION_TYPE_ADMIN`(1) => Requisição do Admin
+     * @return const `SESSION_TYPE_ESTUDANTE`(2) => Requisição do estudante
+     * @example $ `if (getRequestSource() == SESSION_TYPE_ADMIN) elseif (getRequestSource() == SESSION_TYPE_ESTUDANTE)`
+     */
+    protected function getRequestSource() {
+
+        $session_type = $this->getCurrentRequestInstance()
+            ->header($this->session_type) ?? null;
+
+        if (is_null($session_type))
+            return null;
+
+        return (int)$session_type;
+    }
+
+    /**
      * @method getSession()
      * @return BaseSession|null Returns a BaseSession instance, or null if unauthorized
      */
     protected function getSession() {
 
         // Get the current request instance
-        $request = request();
+        $request = $this->getCurrentRequestInstance();
 
         $auth_token = $request->header($this->auth_token_key) ?? null;
-        $session_type = $request->header($this->session_type) ?? null;
+        $session_type = $this->getRequestSource() ?? null;
         
         if (is_null($auth_token))
             return null;
@@ -143,7 +173,7 @@ class UniversityMarketController extends BaseController {
         if (is_null($session))
             return null;
 
-        // Excluir sessão existente
+        // Excluir sessão existente caso expirada
         if (time() > $session->expiration_time) {
 
             $this->clear_existing_session($session->usuario_id ?? $session->estudante_id, (int)$session_type);
@@ -151,6 +181,20 @@ class UniversityMarketController extends BaseController {
         }
 
         return $session;
+    }
+
+    /**
+     * @method isAdminMaster()
+     * @return boolean Returns a boolean with current session is admin flag
+     */
+    protected function isAdminMaster($usuario_id = null) {
+
+        $id = $usuario_id ?? $this->getSession()->usuario_id;
+
+        if (is_null($id))
+            throw new UniversityMarketException("Usuário solicitado não encontrado");
+
+        // Realizar busca por $id e retornar flag is admin
     }
 
     /**
