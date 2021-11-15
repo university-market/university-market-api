@@ -29,7 +29,6 @@ class Usuario extends UniversityMarketActorBase
   ];
 
   // Properties
-  protected $caminho_foto_perfil;
   protected $data_nascimento;
 
   // Timestamps da entidade
