@@ -58,23 +58,28 @@ class Instituicao extends UniversityMarketModel {
     // Setter para CNPJ
     public function setCnpjAttribute($value) {
 
-        $exists = self::exists($value, null);
+        // Remover eventual mascara
+        $cnpj = preg_replace("/[^0-9]/", '', $value);
 
-        if ($exists)
+        if (strlen($cnpj) != 14)
+            throw new UniversityMarketException("CNPJ informado não é válido");
+
+        if (self::exists($cnpj, null))
             throw new UniversityMarketException("O CNPJ informado já se encontra cadastrado");
 
-        $this->attributes['cnpj'] = $value;
+        $this->attributes['cnpj'] = $cnpj;
     }
 
     // Setter para Razao_Social
     public function setRazaoSocialAttribute($value) {
 
-        $exists = self::exists(null, $value);
+        // Formato padrão ao salvar razao social de uma instituicao (upper case)
+        $razao_social = strtoupper(trim($value));
 
-        if ($exists)
+        if (self::exists(null, $razao_social))
             throw new UniversityMarketException("A Razão Social informada já se encontra cadastrada");
 
-        $this->attributes['razao_social'] = $value;
+        $this->attributes['razao_social'] = $razao_social;
     }
 
     /**
