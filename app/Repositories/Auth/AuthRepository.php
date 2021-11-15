@@ -59,11 +59,11 @@ class AuthRepository {
                 return $session['id'];
             }, $session->toArray());
 
-            AppSession::destroy($sessionIds);
+            $this->destroySession($sessionIds);
 
             if ($last_session->expiration_time < time()) {
 
-                AppSession::destroy($last_session->id);
+                $this->destroySession($last_session->id);
 
                 $session = null;
             } else {
@@ -77,7 +77,7 @@ class AuthRepository {
             // Validar expiration time da sessao ativa
             if ($session->expiration_time < time()) {
 
-                AppSession::destroy($session->id);
+                $this->destroySession($session->id);
 
                 $session = null;
             }
