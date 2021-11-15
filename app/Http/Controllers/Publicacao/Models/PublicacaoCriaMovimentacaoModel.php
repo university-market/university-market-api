@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers\Publicacao\Models;
 
-class PublicacaoDetalheModel {
+// Base
+use App\Base\Exceptions\UniversityMarketException;
 
-    public $id;
+class PublicacaoCriaMovimentacaoModel {
+
+    public $publicacaoId;
     public $titulo;
     public $descricao;
     public $valor;
-    public $tags;
     public $especificacoesTecnicas;
     public $pathImagem;
     public $dataHoraCriacao;
-    public $estudante_id;
     public $vendida;
+
 }

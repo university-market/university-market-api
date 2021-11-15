@@ -33,7 +33,7 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
 
     // Listar publicacoes por id de curso
     $router->get('listar/{cursoId}/curso', 'PublicacaoController@listarByCurso');
-
+    
     // Obter publicacao
     $router->get('{publicacaoId}', 'PublicacaoController@obter');
 
@@ -45,6 +45,8 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
 
     // Oberter Publicação por id de estudante
     $router->get('/estudante/{estudanteId}', 'PublicacaoController@obterByUser');
-    
+
+    // Marcar publicacao como vendida
+    $router->post('marcarVendida', 'PublicacaoController@marcarPublicacaoComoVendida');
     
 });
