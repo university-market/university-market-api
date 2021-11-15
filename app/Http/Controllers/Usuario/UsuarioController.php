@@ -17,7 +17,7 @@ use App\Http\Controllers\Usuario\Models\CriacaoUsuarioModel;
 // Repositories
 use App\Repositories\Usuario\UsuarioRepository;
 
-class AuthController extends UniversityMarketController {
+class UsuarioController extends UniversityMarketController {
 
     /**
 	 * UsuarioRepository Instance - métodos comuns do módulo de Usuario
