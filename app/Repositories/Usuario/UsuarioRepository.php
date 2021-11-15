@@ -35,6 +35,8 @@ class UsuarioRepository {
         $usuario->data_nascimento = $model->dataNascimento;
 
         $usuario->save();
+
+        return $usuario->id;
     }
 
 }
