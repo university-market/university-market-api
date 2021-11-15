@@ -19,11 +19,27 @@ use App\Common\Datatype\KeyValuePair;
 // Entidades
 use App\Models\Instituicao\Instituicao;
 
-// Models de instituicao utilizadas
+// Models utilizadas
+use App\Http\Controllers\Usuario\Models\CriacaoUsuarioModel;
 use App\Http\Controllers\Instituicao\Models\InstituicaoListaModel;
 use App\Http\Controllers\Instituicao\Models\InstituicaoCriacaoModel;
 
+// Repository
+use App\Repositories\Usuario\UsuarioRepository;
+
 class InstituicaoController extends UniversityMarketController {
+
+  /**
+	 * UsuarioRepository Instance - métodos comuns do módulo de Usuario
+	 */
+	protected $usuario_repository;
+
+	function __construct(UsuarioRepository $usuario_repository)
+	{
+		$this->usuario_repository = $usuario_repository;
+	}
+
+  //==================================================================================
 
   /**
    * Cadastrar Instituicao de ensino
@@ -51,7 +67,7 @@ class InstituicaoController extends UniversityMarketController {
 
     $instituicao->save();
 
-    // Persistir log de criacao de contato da instituicao
+    // Persistir log de criacao da instituicao
     UniversityMarketLogger::log(
       UniversityMarketResource::$instituicao,
       $instituicao->id,
@@ -60,6 +76,9 @@ class InstituicaoController extends UniversityMarketController {
       null,
       null
     );
+
+    // Criacao de usuario padrao para conta da universidade
+
 
     return $this->response();
   }
@@ -207,6 +226,12 @@ class InstituicaoController extends UniversityMarketController {
     $instituicao->save();
 
     return $this->response();
+  }
+
+  private function criarModelUsuarioInstituicao($entity) {
+
+    $model = new CriacaoUsuarioModel();
+
   }
 
 }

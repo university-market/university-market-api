@@ -19,7 +19,7 @@ use App\Repositories\Usuario\UsuarioRepository;
 
 class UsuarioController extends UniversityMarketController {
 
-    /**
+  /**
 	 * UsuarioRepository Instance - métodos comuns do módulo de Usuario
 	 */
 	protected $usuario_repository;
