@@ -2,6 +2,9 @@
 
 namespace App\Base\Validators;
 
+// Utils
+use DateTime;
+
 /**
  * Validação de dados do nível Pessoa
  * 
@@ -43,5 +46,45 @@ abstract class PessoaValidator {
         }
 
         return true;
+    }
+
+
+    /**
+     * Validar se e-mail é realmente válido - baseado em formatação
+     * 
+     * @method validarEmail
+     * @static
+     * @param string $email E-mail a ser validado
+     * 
+     * @return boolean
+     */
+    public static function validarEmail($email) {
+
+        // Remove os caracteres ilegais, caso tenha
+        $value = filter_var($email, FILTER_SANITIZE_EMAIL);
+
+        // Valida o e-mail
+        if (!filter_var($value, FILTER_VALIDATE_EMAIL))
+            return false;
+
+        return true;
+    }
+
+    /**
+     * Validar maioridade civil da pessoa - com base em sua data de nascimento
+     * 
+     * @method validarMaioridade
+     * @static
+     * @param string $data_nascimento Data de nascimento - Formato (yyyy-mm-dd) - (Y-m-d)
+     * 
+     * @return boolean
+     */
+    public static function validarMaioridade($data_nascimento) {
+
+        $today = new DateTime(date('Y-m-d'));
+
+        $initial_date = new DateTime(date($data_nascimento));
+
+        return $initial_date->diff($today)->y < 18;
     }
 }
