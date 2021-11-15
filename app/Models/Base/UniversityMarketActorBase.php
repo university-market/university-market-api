@@ -23,12 +23,15 @@ class UniversityMarketActorBase extends UniversityMarketModel
     protected $primaryKey = 'id';
 
     // Type Casting para propriedades com valores especiais (não-string)
-    protected $casts = [];
+    protected $casts = [
+        'ativo' => 'boolean'
+    ];
 
     // Base Columns
     protected $nome;
     protected $email;
     protected $senha;
+    protected $ativo;
 
     // Timestamps
     // private $created_at;
@@ -41,7 +44,7 @@ class UniversityMarketActorBase extends UniversityMarketModel
 
         // Ao menos um nome informado
         if (count($counter) <= 1)
-            throw new UniversityMarketException("Um nome completo deve ser fornecido para o estudante");
+            throw new UniversityMarketException("Um nome completo deve ser fornecido");
 
         $this->attributes['nome'] = $value;
     }
