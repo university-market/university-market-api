@@ -11,6 +11,8 @@ use App\Base\Exceptions\UniversityMarketException;
 // Entidades
 use App\Models\Usuario\Usuario;
 
+// Models
+use App\Http\Controllers\Usuario\Models\CriacaoUsuarioModel;
 
 // Repositories
 use App\Repositories\Usuario\UsuarioRepository;
@@ -40,6 +42,12 @@ class AuthController extends UniversityMarketController {
    */
   public function criar(Request $request) {
 
+    $model = $this->cast($request, CriacaoUsuarioModel::class);
+
+    $model->validar();
+
+    // Criar usuário via repository
+    $this->usuario_repository->createUsuario($model);
   }
 
 }
