@@ -6,6 +6,9 @@ namespace App\Models\Usuario;
 use App\Base\Models\UniversityMarketModel;
 use App\Base\Exceptions\UniversityMarketException;
 
+// Validators and Formatters
+use App\Base\Validators\PessoaValidator;
+
 // Common
 use App\Common\Constants\UniversityMarketConstants;
 
@@ -30,6 +33,7 @@ class Usuario extends UniversityMarketActorBase
 
   // Properties
   protected $data_nascimento;
+  protected $cpf;
 
   // Timestamps da entidade
   private $created_at;
@@ -66,6 +70,29 @@ class Usuario extends UniversityMarketActorBase
     // Validar formato
     if (!filter_var($value, FILTER_VALIDATE_EMAIL))
       throw new UniversityMarketException("O formato do e-mail $value não é válido");
+
+    $this->attributes['email'] = $value;
+  }
+
+  // Setter para Cpf
+  public function setCpfAttribute($value)
+  {
+
+    $cpf_institucional = ['000.000.000-00', '00000000000'];
+
+    $usuario = Usuario::where('cpf', $value)
+      ->whereNotIn('cpf', $cpf_institucional)
+      ->first();
+
+    if (!is_null($usuario))
+      throw new UniversityMarketException("Usuário já possui cadastro");
+
+    // Validar CPF
+    if (!in_array(trim($value), $cpf_institucional)) {
+
+      if (!PessoaValidator::validarCpf($value))
+        throw new UniversityMarketException("CPF informado não é válido");
+    }
 
     $this->attributes['email'] = $value;
   }

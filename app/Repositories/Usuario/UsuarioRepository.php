@@ -30,7 +30,8 @@ class UsuarioRepository {
         $usuario->nome = $model->nome;
         $usuario->email = $model->email;
         $usuario->senha = $model->senha;
-        $usuario->ativo = false; // Cadastro do estudante deve iniciar inativo
+        $usuario->cpf = $model->cpf;
+        $usuario->ativo = false; // Cadastro do usuario deve iniciar inativo
         $usuario->data_nascimento = $model->dataNascimento;
 
         $usuario->save();
