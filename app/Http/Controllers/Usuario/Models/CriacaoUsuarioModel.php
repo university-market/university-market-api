@@ -18,26 +18,26 @@ class CriacaoUsuarioModel {
         
         if (is_null($this->nome) || empty($this->nome)) {
 
-            throw new UniversityMarketException("O nome é obrigatório");
+            throw new UniversityMarketException("O nome do usuário é obrigatório");
         }
 
         if (is_null($this->email) || empty($this->email)) {
 
-            throw new UniversityMarketException("O e-mail é obrigatório");
+            throw new UniversityMarketException("O e-mail do usuário é obrigatório");
         }
 
         $this->validarEmail();
 
         if (is_null($this->cpf) || empty($this->cpf)) {
 
-            throw new UniversityMarketException("O CPF é obrigatório");
+            throw new UniversityMarketException("O CPF do usuário é obrigatório");
         }
 
         $this->validarCpf();
 
         if (is_null($this->senha) || empty($this->senha)) {
 
-            throw new UniversityMarketException("A senha é obrigatória");
+            throw new UniversityMarketException("A senha do usuário é obrigatória");
         }
 
         if (is_null($this->dataNascimento) || empty($this->dataNascimento)) {
