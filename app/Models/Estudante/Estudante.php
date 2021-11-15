@@ -7,16 +7,17 @@ use App\Base\Models\UniversityMarketModel;
 use App\Base\Exceptions\UniversityMarketException;
 
 // Common
-use Illuminate\Support\Facades\Hash;
 use App\Common\Constants\UniversityMarketConstants;
 
 // Models
 use App\Models\Curso\Curso;
 use App\Models\Publicacao\Publicacao;
 use App\Models\Instituicao\Instituicao;
+use App\Models\Base\UniversityMarketActorBase;
 
-class Estudante extends UniversityMarketModel {
-  
+class Estudante extends UniversityMarketActorBase
+{
+
   // Nome da entidade no banco de dados
   protected $table = 'Estudantes';
 
@@ -30,15 +31,7 @@ class Estudante extends UniversityMarketModel {
     'deleted_at'        => 'datetime'
   ];
 
-  // Primary key da entidade
-  protected $id;
-  protected $primaryKey = 'id';
-
   // Properties
-  protected $nome;
-  protected $email;
-  protected $senha;
-  protected $ativo;
   protected $caminho_foto_perfil;
   protected $data_nascimento;
 
@@ -74,26 +67,15 @@ class Estudante extends UniversityMarketModel {
   /**
    * @region Entity Acessors and Mutators
    */
-  
-  // Setter para Nome
-  public function setNomeAttribute($value) {
-
-    $counter = explode(' ', $value ?? '');
-
-    // Ao menos um nome informado
-    if (count($counter) <= 1)
-      throw new UniversityMarketException("Um nome completo deve ser fornecido para o estudante");
-
-    $this->attributes['nome'] = $value;
-  }
 
   // Setter para Email
-  public function setEmailAttribute($value) {
+  public function setEmailAttribute($value)
+  {
 
     $estudante = Estudante::findByEmail($value);
 
     if (!is_null($estudante)) {
-      
+
       // Incluir instituicao de ensino na query para exibir alerta com razao social
       $estudante->with(['instituicao'])->first();
       throw new UniversityMarketException("Estudante já possui cadastro em {$estudante->instituicao->razao_social}");
@@ -109,28 +91,14 @@ class Estudante extends UniversityMarketModel {
     $this->attributes['email'] = $value;
   }
 
-  // Setter para Senha
-  public function setSenhaAttribute($value) {
-
-    $password_config = UniversityMarketConstants::password();
-
-    if (is_null($value))
-      throw new UniversityMarketException("A senha é obrigatória");
-
-    if (strlen($value) < $password_config['min_length'])
-      throw new UniversityMarketException("A senha deve conter ao menos {$password_config['min_length']} caracteres");
-
-    $this->attributes['senha'] = Hash::make($value);
-  }
-
   /**
    * @region Queryable methods
    */
 
   // Buscar Estudante por e-mail (UNIQUE)
-  public static function findByEmail($value) {
+  public static function findByEmail($value)
+  {
 
     return Estudante::where('email', $value)->first();
   }
-  
 }
