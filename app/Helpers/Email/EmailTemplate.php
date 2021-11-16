@@ -17,6 +17,6 @@ abstract class EmailTemplate {
     /**
      * @property string $usuarioInstitucional Template informando a senha do usuário institucional criado
      */
-    public static $usuarioInstitucional = 'conta/institucional';
+    public static $usuarioInstitucional = 'instituicao/containstitucional';
 
 }
