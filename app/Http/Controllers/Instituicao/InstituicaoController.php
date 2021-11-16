@@ -54,6 +54,7 @@ class InstituicaoController extends UniversityMarketController {
 
     $model = $this->cast($request, InstituicaoCriacaoModel::class);
     $model->validar();
+    $model->validarCnpj();
 
     $instituicao = new Instituicao();
 
@@ -226,12 +227,6 @@ class InstituicaoController extends UniversityMarketController {
     $instituicao->save();
 
     return $this->response();
-  }
-
-  private function criarModelUsuarioInstituicao($entity) {
-
-    $model = new CriacaoUsuarioModel();
-
   }
 
 }
