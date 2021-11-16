@@ -84,15 +84,15 @@ class Usuario extends UniversityMarketActorBase
       ->whereNotIn('cpf', $cpf_institucional)
       ->first();
 
-    if (!is_null($usuario))
-      throw new UniversityMarketException("Usuário já possui cadastro");
+    // if (!is_null($usuario))
+    //   throw new UniversityMarketException("Usuário já possui cadastro");
 
     // Validar CPF
-    if (!in_array(trim($value), $cpf_institucional)) {
+    // if (!in_array(trim($value), $cpf_institucional)) {
 
-      if (!PessoaValidator::validarCpf($value))
-        throw new UniversityMarketException("CPF informado não é válido");
-    }
+    //   if (!PessoaValidator::validarCpf($value))
+    //     throw new UniversityMarketException("CPF informado não é válido");
+    // }
 
     $this->attributes['cpf'] = $value;
   }

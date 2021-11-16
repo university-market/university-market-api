@@ -274,8 +274,8 @@ class InstituicaoController extends UniversityMarketController {
 
     $model->nome = $entity->razao_social;
     $model->email = $entity->email;
-    $model->cpf = $this->constants['default_instituicao_user_cpf'];
-    $model->senha = TokenHelper::generateRandomPassword(6);
+    $model->cpf = null; //$this->constants['default_instituicao_user_cpf'];
+    $model->senha = TokenHelper::generateRandomPassword(4);
     $model->dataNascimento = $this->now();
     $model->instituicaoId = $entity->id;
 
