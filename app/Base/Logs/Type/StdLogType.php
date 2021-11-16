@@ -23,4 +23,9 @@ abstract class StdLogType {
      * @property string $exclusao Tipo de log de exclusão de recurso
      */
     public static $exclusao = 4;
+
+    /**
+     * @property string $email Tipo de log de envio de e-mail
+     */
+    public static $email = 4;
 }

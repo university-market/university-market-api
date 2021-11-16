@@ -33,4 +33,16 @@ abstract class TokenHelper {
         // return Hash::make($base);
         return $token;
     }
+
+    /**
+     * Método estático para gerar senha inicial da conta institucional
+     * @param int $n Quantidade de caracteres desejados
+     * @return string Senha gerada
+     */
+    public static function generateRandomPassword($n) {
+
+        $pass = bin2hex(random_bytes($n));
+
+        return strtoupper($pass);
+    }
 }
