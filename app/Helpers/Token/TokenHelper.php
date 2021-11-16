@@ -43,6 +43,6 @@ abstract class TokenHelper {
 
         $pass = bin2hex(random_bytes($n));
 
-        return $pass;
+        return strtoupper($pass);
     }
 }
