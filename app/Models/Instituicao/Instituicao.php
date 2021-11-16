@@ -6,6 +6,9 @@ namespace App\Models\Instituicao;
 use App\Base\Models\UniversityMarketModel;
 use App\Base\Exceptions\UniversityMarketException;
 
+// Validators
+use App\Base\Validators\PessoaValidator;
+
 // Models
 use App\Models\Plano\Plano;
 
@@ -61,7 +64,7 @@ class Instituicao extends UniversityMarketModel {
         // Remover eventual mascara
         $cnpj = preg_replace("/[^0-9]/", '', $value);
 
-        if (strlen($cnpj) != 14)
+        if (!PessoaValidator::validarCnpj($cnpj))
             throw new UniversityMarketException("CNPJ informado não é válido");
 
         if (self::exists($cnpj, null))
