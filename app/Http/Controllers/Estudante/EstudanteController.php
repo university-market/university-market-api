@@ -195,9 +195,8 @@ class EstudanteController extends UniversityMarketController
       $session->estudante_id,
       null
     );
-
     
-    return $this->response();
+    return response()->json($model);
   }
 
   public function deletarContato($contatoId)
