@@ -269,8 +269,6 @@ class InstituicaoController extends UniversityMarketController {
     return $this->response();
   }
 
-<<<<<<< HEAD
-=======
   private function criarModelUsuarioInstituicao($entity) {
 
     $model = new CriacaoUsuarioModel();
@@ -286,5 +284,4 @@ class InstituicaoController extends UniversityMarketController {
 
   }
 
->>>>>>> a1e56753bb2c20ec10e617a0e1b35bd81c0f37b2
 }
