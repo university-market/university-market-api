@@ -30,6 +30,7 @@ use App\Http\Controllers\Publicacao\Models\PublicacaoCriaMovimentacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoDenunciaModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoMovimentacaoModel;
+use App\Models\Estudante\Estudante;
 use App\Models\Publicacao\Movimentacao;
 use App\Models\Publicacao\Tag;
 
@@ -224,34 +225,43 @@ class PublicacaoController extends UniversityMarketController
         return $this->response($list);
     }
 
-    public function listarByCurso($cursoId)
-    {
+    
+    public function listarByCurso($cursoId = null){
+        
+        $session = $this->getSession();
 
-        if (is_null($cursoId))
-            throw new UniversityMarketException("Curso não encontrado");
+        if (!$session)
+            return $this->unauthorized();
+        
+        $estudante = Estudante::find(1);
 
-        $curso = Curso::find($cursoId);
+        if(is_null($estudante))
+            throw new UniversityMarketException("Estudante não encontrado");
 
-        if (is_null($curso))
-            throw new UniversityMarketException("Curso não encontrado");
+        $publicacoes = Publicacao::where('deleted', false)
+                                 ->join('estudantes','estudantes.id', '=', 'publicacoes.estudante_id')
+                                 ->where('estudantes.curso_id',$cursoId ?? $estudante->curso_id)
+                                 ->where('data_hora_finalizacao',null)
+                                 ->get();
+        $list = [];
 
-        $cursoFields = ['id', 'nome'];
-        $publicacaoFields = ['id', 'titulo', 'caminho_imagem'];
-        $estudanteFields = ['id', 'nome', 'email'];
+        foreach ($publicacoes as $publicacao) {
 
-        $list = Curso::where('id', $cursoId)
-            ->with(['publicacoes' => function ($publicacaoQuery) use ($publicacaoFields, $estudanteFields) {
-                $publicacaoQuery->with(['estudante' => function ($estudanteQuery) use ($estudanteFields) {
-                    $estudanteQuery->select($estudanteFields);
-                }])
-                    ->select($publicacaoFields);
-            }])
-            ->select($cursoFields)
-            ->get();
+            $model = new PublicacaoDetalheModel();
+
+            $model->publicacaoId = $publicacao->id;
+            $model->titulo = $publicacao->titulo;
+            $model->descricao = $publicacao->descricao;
+            $model->valor = $publicacao->valor;
+            $model->especificacoesTecnicas = $publicacao->especificacao_tecnica;
+            $model->pathImagem = $publicacao->caminho_imagem;
+            $model->dataHoraCriacao = $publicacao->created_at;
+
+            $list[] = $model;
+        }
 
         return $this->response($list);
     }
-
     public function alterar(Request $request, $publicacaoId)
     {
 
