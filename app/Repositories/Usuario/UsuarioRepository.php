@@ -33,7 +33,7 @@ class UsuarioRepository {
         $usuario->cpf = $model->cpf;
         $usuario->ativo = false; // Cadastro do usuario deve iniciar inativo
         $usuario->data_nascimento = $model->dataNascimento;
-        $usuario->instituicaoId = $model->instituicaoId;
+        $usuario->instituicao_id = $model->instituicaoId;
 
         $usuario->save();
 
