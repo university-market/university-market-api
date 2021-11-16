@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Instituicao\Models;
 
 // Base
-use App\Base\Validators\PessoaValidator;
 use App\Base\Exceptions\UniversityMarketException;
 
 class InstituicaoCriacaoModel {
@@ -33,13 +32,6 @@ class InstituicaoCriacaoModel {
 
       throw new UniversityMarketException("Um e-mail ou telefone devem ser informados");
     }
-  }
-  public function validarCnpj(){
-
-    if (!PessoaValidator::validarCnpj($this->cnpj)){
-       throw new UniversityMarketException("Cnpj Invalido");
-    }
-        
   }
 
 }

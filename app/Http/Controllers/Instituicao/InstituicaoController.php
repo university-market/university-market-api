@@ -63,7 +63,6 @@ class InstituicaoController extends UniversityMarketController {
 
     $model = $this->cast($request, InstituicaoCriacaoModel::class);
     $model->validar();
-    $model->validarCnpj();
 
     $instituicao = new Instituicao();
 
