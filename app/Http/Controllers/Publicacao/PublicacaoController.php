@@ -226,21 +226,20 @@ class PublicacaoController extends UniversityMarketController
     }
 
     
-    public function listarByCurso($cursoId = null){
+    public function listarByCurso(){
         
         $session = $this->getSession();
 
         if (!$session)
             return $this->unauthorized();
         
-        $estudante = Estudante::find(1);
+        $estudante = Estudante::find($session->estudante_id);
 
         if(is_null($estudante))
             throw new UniversityMarketException("Estudante não encontrado");
 
         $publicacoes = Publicacao::where('deleted', false)
-                                 ->join('estudantes','estudantes.id', '=', 'publicacoes.estudante_id')
-                                 ->where('estudantes.curso_id',$cursoId ?? $estudante->curso_id)
+                                 ->where('curso_id',$estudante->curso_id)
                                  ->where('data_hora_finalizacao',null)
                                  ->get();
         $list = [];
