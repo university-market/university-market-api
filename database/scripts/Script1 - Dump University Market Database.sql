@@ -415,7 +415,7 @@ CREATE TABLE `Denuncias` (
     `updated_at` DATETIME NULL,
     `estudante_id_autor` INT NOT NULL,
     `estudante_id_denunciado` INT NOT NULL,
-    `movimentacao_id` INT NULL,
+    `publicacao_id` INT NULL,
 
     PRIMARY KEY (`id`),
 
@@ -425,6 +425,6 @@ CREATE TABLE `Denuncias` (
     CONSTRAINT `FK_Denuncias_Estudantes_Denunciado`
     FOREIGN KEY (`estudante_id_denunciado`) REFERENCES `Estudantes`(`id`),
 
-    CONSTRAINT `FK_Denuncias_Movimentacoes`
-    FOREIGN KEY (`movimentacao_id`) REFERENCES `Movimentacoes`(`id`)
+    CONSTRAINT `FK_Denuncias_Publicacoes`
+    FOREIGN KEY (`publicacao_id`) REFERENCES `Publicacoes`(`id`)
 );

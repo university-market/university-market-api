@@ -17,20 +17,23 @@ class Denuncia extends Model {
 
   protected $casts = [
     'id' => 'integer',
-    'motivo' => 'string',
+    'descricao' => 'string',
     'estudante_id_autor' => 'integer',
+    'estudante_id_denunciado' => 'integer',
     'publicacao_id' => 'integer',
   ];
 
-  protected $table = 'denuncias_publicacoes';
+  protected $table = 'denuncias';
   protected $primaryKey = 'id';
 
   protected $id; // PK
-  protected $motivo;
+  protected $descricao;
   protected $apurada;
-  private $approved_at;
-  protected $dataHoraCriacao;
-  protected $dataHoraAtualizacao;
   protected $estudante_id_autor; // FK Estudante
+  protected $estudante_id_denunciado; // FK Estudante
   protected $publicacao_id; // FK publicação
+  
+  private $approved_at;
+  private $update_at;
+  private $created_at;
 }

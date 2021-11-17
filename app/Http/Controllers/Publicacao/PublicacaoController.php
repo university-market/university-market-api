@@ -480,7 +480,9 @@ class PublicacaoController extends UniversityMarketController
 
     private function publicacaoExcluida($publicacao_id) {
 
-        $publicacao = publicacao::where('id', $publicacao_id)->where('deleted', 0)->first();
+        $publicacao = publicacao::where('id', $publicacao_id)
+                                ->where('deleted', 1)
+                                ->first();
     
         if (is_null($publicacao))
           return false;
@@ -490,23 +492,25 @@ class PublicacaoController extends UniversityMarketController
             
     public function denunciar(Request $request) {
 
-        $model = $this->cast($request, PublicacaoDenunciaModel::class);   
-    
+        
         $session = $this->getSession();
-    
+        
         if (!$session)
-            return $this->unauthorized();
+        return $this->unauthorized();
 
+        $model = $this->cast($request, PublicacaoDenunciaModel::class);   
+        
         $existente = $this->publicacaoExcluida($model->publicacao_id);
 
         if ($existente) {
-          throw new \Exception("Estudante já está bloqueado");
+          throw new \Exception("Publicação excluida");
         }    
     
         $denuncia = new Denuncia();
     
-        $denuncia->motivo = $model->motivo;
-        $denuncia->estudante_id_autor = $model->estudante_id_autor;
+        $denuncia->descricao = $model->motivo;
+        $denuncia->estudante_id_autor = $session->estudante_id;
+        $denuncia->estudante_id_denunciado = $model->estudante_id_denunciado;
         $denuncia->publicacao_id = $model->publicacao_id;
       
         $denuncia->save();

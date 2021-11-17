@@ -46,9 +46,11 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
     // Oberter Publicação por id de estudante
     $router->get('/estudante/{estudanteId}', 'PublicacaoController@obterByUser');
 
-    // Listar publicacoes
+    // denunciar publicacoes
     $router->post('denunciar', 'PublicacaoController@denunciar');
+
     // Marcar publicacao como vendida
     $router->post('marcarVendida', 'PublicacaoController@marcarPublicacaoComoVendida');
+
     
 });
