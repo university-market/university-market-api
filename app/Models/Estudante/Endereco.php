@@ -22,6 +22,8 @@ class Endereco extends Model {
     'cep' => 'string',
     'logradouro' => 'string',
     'numero' => 'string',
+    'municipio' => 'string',
+    'bairro' => 'string',
     'complemento' => 'string',
     'atual' => 'boolean',
     // 'tipo_contato_id' => 'integer',
@@ -33,6 +35,8 @@ class Endereco extends Model {
   protected $logradouro;
   protected $numero;
   protected $complemento;
+  protected $municipio;
+  protected $bairro;
   protected $ponto_referencia;
   protected $atual;
   protected $deteted_at;

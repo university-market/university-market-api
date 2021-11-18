@@ -14,6 +14,7 @@ class PublicacaoDetalheModel {
     public $dataHoraCriacao;
     public $estudante_id;
     public $vendida;
+    public $bairro;
+    public $municipio;
     public $cep;
-    public $rua;
 }

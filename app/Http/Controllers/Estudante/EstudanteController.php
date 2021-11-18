@@ -290,6 +290,9 @@ class EstudanteController extends UniversityMarketController
     $endereco->complemento = $model->complemento;
     $endereco->cep = $model->cep;
     $endereco->numero = $model->numero;
+    $endereco->municipio = $model->municipio;
+    $endereco->bairro = $model->bairro;
+    
 
     $endereco->save();
 
@@ -300,6 +303,9 @@ class EstudanteController extends UniversityMarketController
     $model->complemento = $endereco->complemento;
     $model->cep = $endereco->cep;
     $model->numero = $endereco->numero;
+    $model->municipio = $endereco->municipio;
+    $model->bairro = $endereco->bairro;
+
 
     // Persistir log de criacao de publicacao
     UniversityMarketLogger::log(
@@ -338,6 +344,8 @@ class EstudanteController extends UniversityMarketController
       $model->numero = $endereco->numero;
       $model->cep = $endereco->cep;
       $model->complemento = $endereco->complemento;
+      $model->municipio = $endereco->municipio;
+      $model->bairro = $endereco->bairro;
 
       $list[] = $model;
     }
@@ -423,6 +431,8 @@ class EstudanteController extends UniversityMarketController
     $endereco->complemento = $model->complemento;
     $endereco->cep = $model->cep;
     $endereco->numero = $model->numero;
+    $endereco->bairro = $model->bairro;
+    $endereco->municipio = $model->municipio;
 
     $endereco->save();
 
