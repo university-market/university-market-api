@@ -31,6 +31,7 @@ use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoDenunciaModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoMovimentacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoTipoDenunciaModel;
+use App\Models\Estudante\Endereco;
 use App\Models\Estudante\Estudante;
 use App\Models\Publicacao\Movimentacao;
 use App\Models\Publicacao\Tag;
@@ -49,6 +50,10 @@ class PublicacaoController extends UniversityMarketController
 
         $publicacao = Publicacao::find($publicacaoId);
 
+        $endereco = Endereco::where('deleted_at',null)
+                            ->where('estudante_id',$publicacao->estudante_id)
+                            ->first();
+
         if (is_null($publicacao) || $publicacao->deleted)
             throw new UniversityMarketException("Publicação não encontrada");
 
@@ -62,6 +67,9 @@ class PublicacaoController extends UniversityMarketController
         $model->pathImagem = $publicacao->caminho_imagem;
         $model->dataHoraCriacao = $publicacao->created_at;
         $model->estudanteId = $publicacao->estudante_id;
+        $model->cep = $endereco->cep;
+        $model->rua = $endereco->logradouro;
+
 
         // Query e map de tags da publicacao
         $tags = array_map(function ($item) {
