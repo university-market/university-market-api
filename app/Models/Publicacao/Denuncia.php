@@ -32,6 +32,7 @@ class Denuncia extends Model {
   protected $estudante_id_autor; // FK Estudante
   protected $estudante_id_denunciado; // FK Estudante
   protected $publicacao_id; // FK publicação
+  protected $tipo_denuncia_id; // FK Tipos_Denuncias
   
   private $approved_at;
   private $update_at;

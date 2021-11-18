@@ -10,5 +10,6 @@ class PublicacaoDenunciaModel {
   public $estudante_id_denunciado;
   public $publicacao_id;
   public $motivo;
+  public $tipo_denuncia_id;
 
 }

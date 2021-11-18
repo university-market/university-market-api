@@ -43,7 +43,7 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
     // Excluir publicacao
     $router->delete('{publicacaoId}', 'PublicacaoController@excluir');
 
-    // Oberter Publicação por id de estudante
+    // Obter Publicação por id de estudante
     $router->get('/estudante/{estudanteId}', 'PublicacaoController@obterByUser');
 
     // denunciar publicacoes
@@ -51,6 +51,9 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
 
     // Marcar publicacao como vendida
     $router->post('marcarVendida', 'PublicacaoController@marcarPublicacaoComoVendida');
+
+    // Obter Publicação por id de estudante
+    $router->get('obter/tiposDenuncias', 'PublicacaoController@obterTiposDenuncias');
 
     
 });

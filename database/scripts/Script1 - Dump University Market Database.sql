@@ -416,6 +416,8 @@ CREATE TABLE `Denuncias` (
     `estudante_id_autor` INT NOT NULL,
     `estudante_id_denunciado` INT NOT NULL,
     `publicacao_id` INT NULL,
+    `tipo_denuncia_id` INT NULL,
+    
 
     PRIMARY KEY (`id`),
 
@@ -426,5 +428,22 @@ CREATE TABLE `Denuncias` (
     FOREIGN KEY (`estudante_id_denunciado`) REFERENCES `Estudantes`(`id`),
 
     CONSTRAINT `FK_Denuncias_Publicacoes`
-    FOREIGN KEY (`publicacao_id`) REFERENCES `Publicacoes`(`id`)
+    FOREIGN KEY (`publicacao_id`) REFERENCES `Publicacoes`(`id`),
+    
+    CONSTRAINT `FK_Tipos_denuncias`
+    FOREIGN KEY (`tipo_denuncia_id`) REFERENCES `Tipos_Denuncias`(`id`)
+);
+
+
+/*
+ * Criacao tabela Tipos_Denuncias
+ */
+DROP TABLE IF EXISTS `Tipos_Denuncias`;
+CREATE TABLE `Tipos_Denuncias` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `descricao` VARCHAR(150) NOT NULL,
+    `created_at` DATETIME NOT NULL,
+    `updated_at` DATETIME NULL,
+    
+    PRIMARY KEY (`id`)
 );
