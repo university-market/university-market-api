@@ -94,7 +94,9 @@ class Usuario extends UniversityMarketActorBase
     //     throw new UniversityMarketException("CPF informado não é válido");
     // }
 
-    $this->attributes['cpf'] = $value;
+    $cpf = preg_replace( '/[^0-9]/is', '', $value);
+
+    $this->attributes['cpf'] = $cpf;
   }
 
   /**
