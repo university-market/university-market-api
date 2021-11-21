@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 // Base
 use App\Base\Controllers\UniversityMarketController;
 use App\Base\Exceptions\UniversityMarketException;
-
+use App\Helpers\Token\TokenHelper;
 // Entidades
 use App\Models\Usuario\Usuario;
 
@@ -45,6 +45,9 @@ class UsuarioController extends UniversityMarketController {
     $model = $this->cast($request, CriacaoUsuarioModel::class);
 
     $model->validar();
+
+    if ($model->gerarSenhaAleatoria)
+      $model->senha = TokenHelper::generateRandomPassword(4);
 
     // Criar usuário via repository
     $this->usuario_repository->createUsuario($model);

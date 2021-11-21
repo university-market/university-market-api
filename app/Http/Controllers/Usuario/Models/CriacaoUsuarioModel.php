@@ -11,6 +11,7 @@ class CriacaoUsuarioModel {
     public $email;
     public $cpf;
     public $senha;
+    public $gerarSenhaAleatoria;
     public $dataNascimento;
     public $instituicaoId;
     
@@ -35,7 +36,7 @@ class CriacaoUsuarioModel {
 
         $this->validarCpf();
 
-        if (is_null($this->senha) || empty($this->senha)) {
+        if (!$this->gerarSenhaAleatoria && (is_null($this->senha) || empty($this->senha))) {
 
             throw new UniversityMarketException("A senha do usuário é obrigatória");
         }
@@ -47,8 +48,8 @@ class CriacaoUsuarioModel {
 
         $this->validarMaioridadeCivil();
 
-        if (is_null($this->instituicaoId) || empty($this->instituicaoId))
-            throw new UniversityMarketException("O cadastro do usuário deve estar relacionado à uma instituição de ensino");
+        // if (is_null($this->instituicaoId) || empty($this->instituicaoId))
+        //     throw new UniversityMarketException("O cadastro do usuário deve estar relacionado à uma instituição de ensino");
     }
 
     /**
@@ -56,7 +57,7 @@ class CriacaoUsuarioModel {
      */
     private function validarEmail() {
         
-        if (!PessoaValidator::validarEmail($$this->email))
+        if (!PessoaValidator::validarEmail($this->email))
             throw new UniversityMarketException("Endereço de e-mail inválido");
     }
 
