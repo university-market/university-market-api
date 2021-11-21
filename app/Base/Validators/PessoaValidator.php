@@ -85,7 +85,7 @@ abstract class PessoaValidator {
 
         $initial_date = new DateTime(date($data_nascimento));
 
-        return $initial_date->diff($today)->y < 18;
+        return $initial_date->diff($today)->y >= 18;
     }
 
     /**
