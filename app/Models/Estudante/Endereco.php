@@ -41,6 +41,7 @@ class Endereco extends Model {
   protected $atual;
   protected $deteted_at;
   private $created_at;
+  private $updated_at;
 
   protected $instituicao_id; // FK Instituicoes
   protected $estudante_id; // FK Estudante
