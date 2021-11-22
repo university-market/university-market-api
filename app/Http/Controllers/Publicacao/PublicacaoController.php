@@ -67,9 +67,9 @@ class PublicacaoController extends UniversityMarketController
         $model->pathImagem = $publicacao->caminho_imagem;
         $model->dataHoraCriacao = $publicacao->created_at;
         $model->estudanteId = $publicacao->estudante_id;
-        $model->municipio = $endereco->municipio;
-        $model->bairro = $endereco->bairro;
-        $model->cep = $endereco->cep;
+        $model->municipio = $endereco->municipio ?? null;
+        $model->bairro = $endereco->bairro ?? null;
+        $model->cep = $endereco->cep ?? null;
 
 
 
