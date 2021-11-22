@@ -214,6 +214,16 @@ class PublicacaoController extends UniversityMarketController
     public function listar()
     {
 
+        $session = $this->getSession();
+
+        if (!$session)
+            return $this->unauthorized();
+
+        $estudante = Estudante::find($session->estudante_id);
+
+        if (is_null($estudante))
+            throw new UniversityMarketException("Estudante não encontrado");
+
         $publicacoes = Publicacao::where('deleted', false)
             ->where('data_hora_finalizacao', null)->get();
 
@@ -560,6 +570,44 @@ class PublicacaoController extends UniversityMarketController
 
             $model->id = $denucia->id;
             $model->descricao = $denucia->descricao;
+
+            $list[] = $model;
+        }
+
+        return $this->response($list);
+    }
+
+    public function pesquisarPublicacoes(Request $request){
+
+        $session = $this->getSession();
+
+        if (!$session)
+            return $this->unauthorized();
+
+        $estudante = Estudante::find($session->estudante_id);
+
+        if (is_null($estudante))
+            throw new UniversityMarketException("Estudante não encontrado");
+
+        $publicacoes = Publicacao::where('deleted', false)
+            ->where('titulo', 'like', '%'.$request->pesquisa.'%')
+            ->orWhere('descricao', 'like', '%'.$request->pesquisa.'%')
+            ->where('data_hora_finalizacao', null)
+            ->get();
+
+        $list = [];
+
+        foreach ($publicacoes as $publicacao) {
+
+            $model = new PublicacaoDetalheModel();
+
+            $model->publicacaoId = $publicacao->id;
+            $model->titulo = $publicacao->titulo;
+            $model->descricao = $publicacao->descricao;
+            $model->valor = $publicacao->valor;
+            $model->especificacoesTecnicas = $publicacao->especificacao_tecnica;
+            $model->pathImagem = $publicacao->caminho_imagem;
+            $model->dataHoraCriacao = $publicacao->created_at;
 
             $list[] = $model;
         }

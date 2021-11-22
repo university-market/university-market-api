@@ -55,5 +55,8 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
     // Obter Publicação por id de estudante
     $router->get('obter/tiposDenuncias', 'PublicacaoController@obterTiposDenuncias');
 
+     // Buscar publicação
+     $router->get('buscar/pesquisarPublicacoes', 'PublicacaoController@pesquisarPublicacoes');
+
     
 });
