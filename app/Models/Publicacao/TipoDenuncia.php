@@ -7,7 +7,7 @@ use \Illuminate\Database\Eloquent\Model;
 class TipoDenuncia extends Model {
   
   // Registrar data/hora criacao/alteracao
-  public $timestamps = true;
+  public $timestamps = false;
 
   /**
    * The attributes that should be cast.
@@ -25,7 +25,4 @@ class TipoDenuncia extends Model {
 
   protected $id; // PK
   protected $descricao;
-  
-  private $update_at;
-  private $created_at;
 }

@@ -1,0 +1,2 @@
+ALTER TABLE `Enderecos` ADD COLUMN `municipio` VARCHAR(50) NULL;
+ALTER TABLE `Enderecos` ADD COLUMN `bairro` VARCHAR(25) NULL;
