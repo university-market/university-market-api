@@ -588,12 +588,13 @@ class PublicacaoController extends UniversityMarketController
 
         if (is_null($estudante))
             throw new UniversityMarketException("Estudante não encontrado");
-
+        
         $publicacoes = Publicacao::where('deleted', false)
-            ->where('titulo', 'like', '%'.$request->pesquisa.'%')
-            ->orWhere('descricao', 'like', '%'.$request->pesquisa.'%')
-            ->where('data_hora_finalizacao', null)
-            ->get();
+                                ->where('titulo', 'like', '%'.$request->pesquisa.'%')
+                                ->orWhere('descricao', 'like', '%'.$request->pesquisa.'%')
+                                ->where('data_hora_finalizacao', null)
+                                ->get();
+    
 
         $list = [];
 

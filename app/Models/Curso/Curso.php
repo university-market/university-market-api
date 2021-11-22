@@ -21,7 +21,7 @@ class Curso extends Model {
    * @var array
    */
   protected $casts = [
-      // 'id' => 'integer',
+      'id' => 'integer',
       'nome' => 'string',
       'caminho_imagem' => 'string'
   ];
