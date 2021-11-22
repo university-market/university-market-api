@@ -593,6 +593,7 @@ class PublicacaoController extends UniversityMarketController
                                 ->where('titulo', 'like', '%'.$request->pesquisa.'%')
                                 ->orWhere('descricao', 'like', '%'.$request->pesquisa.'%')
                                 ->where('data_hora_finalizacao', null)
+                                ->where('deleted',false)
                                 ->get();
     
 
