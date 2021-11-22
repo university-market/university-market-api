@@ -19,11 +19,13 @@ use App\Models\Estudante\Estudante;
 use App\Models\Estudante\Bloqueios;
 
 // Models de estudante utilizadas
+use App\Http\Controllers\Estudante\Models\EstudanteDenunciaModel;
 use App\Http\Controllers\Estudante\Models\EstudanteDadosModel;
 use App\Http\Controllers\Estudante\Models\EstudanteDetalheModel;
 use App\Http\Controllers\Estudante\Models\EstudanteCriacaoModel;
 use App\Http\Controllers\Estudante\Models\EstudanteBloqueioModel;
 use App\Http\Controllers\Estudante\Models\EstudanteContatosModel;
+use App\Models\Estudante\Denuncia;
 use App\Http\Controllers\Estudante\Models\EstudanteEnderecosModel;
 
 class EstudanteController extends UniversityMarketController
@@ -193,9 +195,8 @@ class EstudanteController extends UniversityMarketController
       $session->estudante_id,
       null
     );
-
     
-    return $this->response();
+    return response()->json($model);
   }
 
   public function deletarContato($contatoId)
@@ -465,6 +466,12 @@ class EstudanteController extends UniversityMarketController
 
     $model = $this->cast($request, EstudanteBloqueioModel::class);
 
+
+    $session = $this->getSession();
+
+    if (!$session)
+        return $this->unauthorized();
+
     $existente = $this->estudanteBloqueado($model->estudante_id);
 
     if ($existente) {
@@ -481,4 +488,56 @@ class EstudanteController extends UniversityMarketController
 
     // Log de criacao
   }
+
+  public function denunciar(Request $request) {
+
+    $model = $this->cast($request, EstudanteDenunciaModel::class);   
+    
+    $model->validar(); 
+
+    $session = $this->getSession();
+
+    if (!$session)
+        return $this->unauthorized();
+
+    $denuncia = new Denuncia();
+
+    $denuncia->descricao = $model->descricao;
+    $denuncia->estudante_id_autor = $model->estudante_id_autor;
+    $denuncia->estudante_id_denunciado = $model->estudante_id_denunciado;
+    $denuncia->movimentacao_id = $model->movimentacao_id;
+  
+    $denuncia->save();
+
+  }
+
+  public function obterDenuncias($estudanteId){
+
+    $session = $this->getSession();
+
+      if (!$session)
+          return $this->unauthorized();
+
+      $denuncias = Denuncia::where('estudante_id_denunciado', $estudanteId)->get();
+      
+      $list = [];
+
+      foreach ($denuncias as $denuncia) {
+
+        $model = new EstudanteDenunciaModel();
+        $model->descricao = $denuncia->descricao;
+        $model->estudante_id_autor = $denuncia->estudante_id_autor;
+        $model->estudante_id_denunciado = $denuncia->estudante_id_denunciado;
+        $model->movimentacao_id = $denuncia->movimentacao_id;
+
+        $list[]= $model;
+      }
+
+      return $this->response($list);
+  }
+
+  
+
+
 }
+

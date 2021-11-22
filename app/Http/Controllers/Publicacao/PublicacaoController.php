@@ -21,12 +21,14 @@ use Exception;
 // Entidades
 use App\Models\Curso\Curso;
 use App\Models\Publicacao\Publicacao;
+use App\Models\Publicacao\Denuncia;
 use App\Models\Publicacao\Publicacao_Tag;
 
 // Models de publicacao utilizadas
 use App\Http\Controllers\Publicacao\Models\PublicacaoCriacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoCriaMovimentacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
+use App\Http\Controllers\Publicacao\Models\PublicacaoDenunciaModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoMovimentacaoModel;
 use App\Models\Publicacao\Movimentacao;
 use App\Models\Publicacao\Tag;
@@ -466,4 +468,52 @@ class PublicacaoController extends UniversityMarketController
 
         return null;
     }
+
+    private function publicacaoExcluida($publicacao_id) {
+
+        $publicacao = publicacao::where('id', $publicacao_id)->where('deleted', 0)->first();
+    
+        if (is_null($publicacao))
+          return false;
+    
+        return $publicacao;
+      }
+            
+    public function denunciar(Request $request) {
+
+        $model = $this->cast($request, PublicacaoDenunciaModel::class);   
+    
+        $session = $this->getSession();
+    
+        if (!$session)
+            return $this->unauthorized();
+
+        $existente = $this->publicacaoExcluida($model->publicacao_id);
+
+        if ($existente) {
+          throw new \Exception("Estudante já está bloqueado");
+        }    
+    
+        $denuncia = new Denuncia();
+    
+        $denuncia->motivo = $model->motivo;
+        $denuncia->estudante_id_autor = $model->estudante_id_autor;
+        $denuncia->publicacao_id = $model->publicacao_id;
+      
+        $denuncia->save();
+
+        // Persistir log de criacao de edição da publicacao
+    UniversityMarketLogger::log(
+        UniversityMarketResource::$publicacao,
+        $denuncia->id,
+        StdLogType::$criacao,
+        "Publicação Denunciada",
+        $session->estudante_id,
+        null
+      );
+
+      }
+
+
 }
+

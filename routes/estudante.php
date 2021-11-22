@@ -28,6 +28,12 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
   // bloquear estudante
   $router->post('bloquear', 'EstudanteController@bloquear');
 
+  // Obter Denuncias
+  $router->get('denuncias/{estudanteId}', 'EstudanteController@obterDenuncias');
+
+  // Denunciar estudante
+  $router->post('denunciar', 'EstudanteController@denunciar');
+
   //obter dados do perfil estudante
   $router->get('dados/{estudanteId}','EstudanteController@obterDados');
 
