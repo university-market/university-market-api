@@ -593,6 +593,46 @@ class PublicacaoController extends UniversityMarketController
                                 ->where('titulo', 'like', '%'.$request->pesquisa.'%')
                                 ->orWhere('descricao', 'like', '%'.$request->pesquisa.'%')
                                 ->where('data_hora_finalizacao', null)
+                                ->where('deleted', false)
+                                ->get();
+    
+
+        $list = [];
+
+        foreach ($publicacoes as $publicacao) {
+
+            $model = new PublicacaoDetalheModel();
+
+            $model->publicacaoId = $publicacao->id;
+            $model->titulo = $publicacao->titulo;
+            $model->descricao = $publicacao->descricao;
+            $model->valor = $publicacao->valor;
+            $model->especificacoesTecnicas = $publicacao->especificacao_tecnica;
+            $model->pathImagem = $publicacao->caminho_imagem;
+            $model->dataHoraCriacao = $publicacao->created_at;
+
+            $list[] = $model;
+        }
+
+        return $this->response($list);
+    }
+
+    public function pesquisarPublicacoesByCursos($cursoId){
+
+        $session = $this->getSession();
+
+        if (!$session)
+            return $this->unauthorized();
+
+        $estudante = Estudante::find($session->estudante_id);
+
+        if (is_null($estudante))
+            throw new UniversityMarketException("Estudante não encontrado");
+        
+        $publicacoes = Publicacao::where('deleted', false)
+                                ->where('curso_id', $cursoId)
+                                ->where('data_hora_finalizacao', null)
+                                ->where('deleted', false)
                                 ->get();
     
 
