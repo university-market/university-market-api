@@ -31,6 +31,7 @@ use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoDenunciaModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoMovimentacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoTipoDenunciaModel;
+use App\Models\Estudante\Contato;
 use App\Models\Estudante\Endereco;
 use App\Models\Estudante\Estudante;
 use App\Models\Publicacao\Movimentacao;
@@ -133,6 +134,14 @@ class PublicacaoController extends UniversityMarketController
 
         // Validar informacoes construidas na model
         $model->validar();
+
+        $contato = Contato::where('estudante_id', $session->estudante_id)
+                                ->where('deleted', false)
+                                ->get()
+                                ->toArray();
+        if(!$contato)
+            throw new UniversityMarketException("É necessário possuir pelo menos um tipo de contato cadastrado para publicar um anúncio");
+
 
         $publicacao = new Publicacao();
 
