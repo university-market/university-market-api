@@ -14,4 +14,9 @@ abstract class EmailTemplate {
      */
     public static $recuperarSenha = 'conta/recuperarsenha';
 
+    /**
+     * @property string $usuarioInstitucional Template informando a senha do usuário institucional criado
+     */
+    public static $usuarioInstitucional = 'instituicao/containstitucional';
+
 }

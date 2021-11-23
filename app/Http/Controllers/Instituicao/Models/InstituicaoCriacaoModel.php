@@ -33,4 +33,5 @@ class InstituicaoCriacaoModel {
       throw new UniversityMarketException("Um e-mail ou telefone devem ser informados");
     }
   }
+
 }

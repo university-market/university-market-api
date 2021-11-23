@@ -35,6 +35,16 @@ abstract class UniversityMarketConstants {
 
         return $constant_reader->get('password');
     }
+
+    /**
+     * Valores constantes para Instituição no projeto University Market
+     */
+    public static function instituicao()  {
+
+        $constant_reader = new UniversityMarketConstantsReader(true);
+
+        return $constant_reader->get('instituicao');
+    }
 }
 
 //==============================================================================================

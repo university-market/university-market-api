@@ -1,39 +1,39 @@
 <?php
 
-namespace App\Models\Estudante;
+namespace App\Models\Usuario;
 
 // Base
 use App\Base\Models\UniversityMarketModel;
 use App\Base\Exceptions\UniversityMarketException;
 
+// Validators and Formatters
+use App\Base\Validators\PessoaValidator;
+
 // Common
 use App\Common\Constants\UniversityMarketConstants;
 
 // Models
-use App\Models\Curso\Curso;
-use App\Models\Publicacao\Publicacao;
 use App\Models\Instituicao\Instituicao;
 use App\Models\Base\UniversityMarketActorBase;
 
-class Estudante extends UniversityMarketActorBase
+class Usuario extends UniversityMarketActorBase
 {
 
   // Nome da entidade no banco de dados
-  protected $table = 'Estudantes';
+  protected $table = 'Usuarios';
 
   // Registrar data/hora criacao/alteracao
   public $timestamps = true;
 
   // Type Casting para campos com tipos especiais (não string)
   protected $casts = [
-    'ativo'             => 'boolean',
     'data_nascimento'   => 'date',
     'deleted_at'        => 'datetime'
   ];
 
   // Properties
-  protected $caminho_foto_perfil;
   protected $data_nascimento;
+  protected $cpf;
 
   // Timestamps da entidade
   private $created_at;
@@ -44,24 +44,11 @@ class Estudante extends UniversityMarketActorBase
    * @region Entity Relationships
    */
 
-  // Foreign Key para entidade de Curso
-  protected $curso_id;
-  public function curso()
-  {
-    return $this->hasOne(Curso::class, 'id', 'curso_id');
-  }
-
   // Foreign Key para entidade de Instituicao
   protected $instituicao_id;
   public function instituicao()
   {
     return $this->hasOne(Instituicao::class, 'id', 'instituicao_id');
-  }
-
-  // Relacionamento Estudante com Publicacao
-  public function publicacoes()
-  {
-    return $this->hasMany(Publicacao::class, 'estudante_id', 'id');
   }
 
   /**
@@ -72,14 +59,10 @@ class Estudante extends UniversityMarketActorBase
   public function setEmailAttribute($value)
   {
 
-    $estudante = Estudante::findByEmail($value);
+    $usuario = Usuario::findByEmail($value);
 
-    if (!is_null($estudante)) {
-
-      // Incluir instituicao de ensino na query para exibir alerta com razao social
-      $estudante->with(['instituicao'])->first();
-      throw new UniversityMarketException("Estudante já possui cadastro em {$estudante->instituicao->razao_social}");
-    }
+    if (!is_null($usuario))
+        throw new UniversityMarketException("Usuário já possui cadastro");
 
     // Limpar caracteres inválidos do email
     // $email = filter_var($value, FILTER_SANITIZE_EMAIL);
@@ -91,6 +74,31 @@ class Estudante extends UniversityMarketActorBase
     $this->attributes['email'] = $value;
   }
 
+  // Setter para Cpf
+  public function setCpfAttribute($value)
+  {
+
+    $cpf_institucional = ['000.000.000-00', '00000000000'];
+
+    $usuario = Usuario::where('cpf', $value)
+      ->whereNotIn('cpf', $cpf_institucional)
+      ->first();
+
+    // if (!is_null($usuario))
+    //   throw new UniversityMarketException("Usuário já possui cadastro");
+
+    // Validar CPF
+    // if (!in_array(trim($value), $cpf_institucional)) {
+
+    //   if (!PessoaValidator::validarCpf($value))
+    //     throw new UniversityMarketException("CPF informado não é válido");
+    // }
+
+    $cpf = preg_replace( '/[^0-9]/is', '', $value);
+
+    $this->attributes['cpf'] = $cpf;
+  }
+
   /**
    * @region Queryable methods
    */
@@ -99,6 +107,6 @@ class Estudante extends UniversityMarketActorBase
   public static function findByEmail($value)
   {
 
-    return Estudante::where('email', $value)->first();
+    return Usuario::where('email', $value)->first();
   }
 }

@@ -12,6 +12,7 @@ use App\Base\Exceptions\UniversityMarketException;
 use Illuminate\Support\Facades\Hash;
 
 // Entidades
+use App\Models\Usuario\Usuario;
 use App\Models\Estudante\Estudante;
 
 // Models de autenticacao utilizadas
@@ -55,6 +56,7 @@ class AuthController extends UniversityMarketController {
 
     if ($requestType == SESSION_TYPE_ADMIN) {
 
+      $owner = Usuario::findByEmail($model->email);
 
     } elseif ($requestType == SESSION_TYPE_ESTUDANTE) {
 

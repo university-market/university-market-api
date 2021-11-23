@@ -12,18 +12,43 @@ use App\Base\Resource\UniversityMarketResource;
 
 // Logs
 use App\Base\Logs\Type\StdLogType;
-
+use App\Common\Constants\UniversityMarketConstants;
 // Common
 use App\Common\Datatype\KeyValuePair;
-
+use App\Helpers\Email\EmailHelper;
+use App\Helpers\Email\EmailTemplate;
+use App\Helpers\Token\TokenHelper;
 // Entidades
 use App\Models\Instituicao\Instituicao;
 
-// Models de instituicao utilizadas
+// Models utilizadas
+use App\Http\Controllers\Usuario\Models\CriacaoUsuarioModel;
 use App\Http\Controllers\Instituicao\Models\InstituicaoListaModel;
 use App\Http\Controllers\Instituicao\Models\InstituicaoCriacaoModel;
 
+// Repository
+use App\Repositories\Usuario\UsuarioRepository;
+
 class InstituicaoController extends UniversityMarketController {
+
+  /**
+	 * UsuarioRepository Instance - métodos comuns do módulo de Usuario
+	 */
+	protected $usuario_repository;
+
+  /**
+   * Valores constantes configurados para instituicao
+   */
+  private $constants;
+
+	function __construct(UsuarioRepository $usuario_repository)
+	{
+		$this->usuario_repository = $usuario_repository;
+
+    $this->constants = UniversityMarketConstants::instituicao();
+	}
+
+  //==================================================================================
 
   /**
    * Cadastrar Instituicao de ensino
@@ -51,12 +76,46 @@ class InstituicaoController extends UniversityMarketController {
 
     $instituicao->save();
 
-    // Persistir log de criacao de contato da instituicao
+    // Persistir log de criacao da instituicao
     UniversityMarketLogger::log(
       UniversityMarketResource::$instituicao,
       $instituicao->id,
       StdLogType::$criacao,
       "Instituição criada",
+      null,
+      null
+    );
+
+    // Criacao de usuario padrao para conta da universidade
+    $model = $this->criarModelUsuarioInstituicao($instituicao);
+
+    $usuario_id = $this->usuario_repository->createUsuario($model);
+    
+    // Persistir log de criacao de usuario institucional
+    UniversityMarketLogger::log(
+      UniversityMarketResource::$usuario,
+      $usuario_id,
+      StdLogType::$criacao,
+      "Usuário criado - Conta Institucional",
+      null,
+      null
+    );
+
+    $payload = [
+      'email' => $instituicao->email,
+      'razaoSocial' => $instituicao->razao_social,
+      'senha' => $model->senha
+    ];
+
+    // Envio de e-mail com senha da conta institucional
+    EmailHelper::send(null, $payload, EmailTemplate::$usuarioInstitucional);
+
+    // Persistir log de criacao de usuario institucional
+    UniversityMarketLogger::log(
+      UniversityMarketResource::$instituicao,
+      $instituicao->id,
+      StdLogType::$email,
+      "E-mail enviado com senha da conta institucional",
       null,
       null
     );
@@ -207,6 +266,21 @@ class InstituicaoController extends UniversityMarketController {
     $instituicao->save();
 
     return $this->response();
+  }
+
+  private function criarModelUsuarioInstituicao($entity) {
+
+    $model = new CriacaoUsuarioModel();
+
+    $model->nome = $entity->razao_social;
+    $model->email = $entity->email;
+    $model->cpf = null; //$this->constants['default_instituicao_user_cpf'];
+    $model->senha = TokenHelper::generateRandomPassword(4);
+    $model->dataNascimento = $this->now();
+    $model->instituicaoId = $entity->id;
+
+    return $model;
+
   }
 
 }
