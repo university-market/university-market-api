@@ -57,6 +57,9 @@ class PublicacaoController extends UniversityMarketController
         if (is_null($publicacao) || $publicacao->deleted)
             throw new UniversityMarketException("Publicação não encontrada");
 
+        if (!is_null($publicacao->data_hora_finalizacao))
+            throw new UniversityMarketException("Publicação acabou de ser vendida");
+
         $model = new PublicacaoDetalheModel();
 
         $model->publicacaoId = $publicacao->id;
