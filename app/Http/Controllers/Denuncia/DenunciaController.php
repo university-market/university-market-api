@@ -43,7 +43,7 @@ class DenunciaController extends UniversityMarketController {
 
         $model = $this->cast($request, PublicacaoDenunciaModel::class);
 
-        $publicacao = Publicacao::find($model->publicacao_id);
+        $publicacao = Publicacao::find($publicacaoId);
 
         if (is_null($publicacao))
             throw new UniversityMarketException("Publicação não encontrada");
@@ -53,7 +53,7 @@ class DenunciaController extends UniversityMarketController {
         $denuncia->descricao = $model->motivo;
         $denuncia->estudante_id_autor = $session->estudante_id;
         $denuncia->estudante_id_denunciado = $model->estudante_id_denunciado;
-        $denuncia->publicacao_id = $model->publicacao_id;
+        $denuncia->publicacao_id = $publicacaoId;
         $denuncia->tipo_denuncia_id = $model->tipo_denuncia_id;
 
         $denuncia->save();
@@ -63,7 +63,7 @@ class DenunciaController extends UniversityMarketController {
             UniversityMarketResource::$denuncia,
             $denuncia->id,
             StdLogType::$criacao,
-            "Denúncia criada para a publicação",
+            "Denúncia criada para a publicação $publicacaoId",
             $session->estudante_id,
             null
         );
