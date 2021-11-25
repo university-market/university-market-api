@@ -20,6 +20,8 @@ use App\Models\Publicacao\Publicacao;
 // Models de denúncia utilizadas
 use App\Http\Controllers\Denuncia\Models\TipoDenunciaPublicacaoModel;
 use App\Http\Controllers\Denuncia\Models\PublicacaoDenunciaModel;
+use App\Http\Controllers\Denuncia\Models\RequestListagemDenunciasModel;
+use App\Http\Controllers\Denuncia\Models\DenunciaListaModel;
 
 class DenunciaController extends UniversityMarketController {
 
@@ -86,12 +88,75 @@ class DenunciaController extends UniversityMarketController {
 
         $list = [];
 
-        foreach ($denuncias as $denucia) {
+        foreach ($denuncias as $denuncia) {
             
             $model = new TipoDenunciaPublicacaoModel();
 
-            $model->id = $denucia->id;
-            $model->descricao = $denucia->descricao;
+            $model->id = $denuncia->id;
+            $model->descricao = $denuncia->descricao;
+
+            $list[] = $model;
+        }
+
+        return $this->response($list);
+    }
+
+    /**
+     * Listar denúncias realizadas
+     * 
+     * @method listarDenunciasRealizadas
+     * @param Request $request Instância Requisição - cast to model `RequestListagemDenunciasModel`
+     * 
+     * @type Http GET
+     * @route `/listar`
+     */
+    public function listarDenunciasRealizadas(Request $request) {
+
+        // $session = $this->getSession();
+
+        // if (is_null($session))
+        //     return $this->unauthorized();
+
+        $request_model = $this->cast($request, RequestListagemDenunciasModel::class);
+
+        $denuncias = Denuncia::with('estudante_autor', 'estudante_denunciado')
+            ->get();
+
+        // dd($denuncias);
+
+        $list = [];
+
+        foreach ($denuncias as $denuncia) {
+
+            // Validações - filtragem por pendentes
+            if ($request_model->somentePendentes && $denuncia->apurada)
+                continue;
+
+            // Validações - filtragem por tipos
+            if (!is_null($request_model->tipos) && !empty($request_model->tipos)) {
+
+                if (count(json_decode($request_model->tipos)) > 0) {
+
+                    if (!in_array($denuncia->tipo_denuncia_id, json_decode($request_model->tipos)))
+                        continue;
+                }
+            }
+
+            $model = new DenunciaListaModel();
+
+            $model->denunciaId = $denuncia->id;
+            $model->descricao = $denuncia->descricao;
+            $model->apurada = $denuncia->apurada;
+            $model->dataHoraCriacao = $denuncia->created_at;
+            $model->dataHoraUltimaRevisao = $denuncia->updated_at;
+            $model->tipoDenuncia = $denuncia->tipo_denuncia->descricao;
+            $model->publicacaoId = $denuncia->publicacao_id;
+            // Autor
+            $model->estudanteAutor = $denuncia->estudante_autor->nome;
+            $model->estudanteAutorId = $denuncia->estudante_id_autor;
+            // Denunciado
+            $model->estudanteDenunciado = $denuncia->estudante_denunciado->nome;
+            $model->estudanteDenunciadoId = $denuncia->estudante_id_denunciado;
 
             $list[] = $model;
         }

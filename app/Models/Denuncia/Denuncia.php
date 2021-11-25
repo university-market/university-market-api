@@ -46,14 +46,14 @@ class Denuncia extends UniversityMarketModel {
   protected $estudante_id_autor;
   public function estudante_autor()
   {
-    return $this->hasOne(Estudante::class, 'id');
+    return $this->hasOne(Estudante::class, 'id', 'estudante_id_autor');
   }
 
   // Foreign Key para entidade de Estudante
   protected $estudante_id_denunciado;
   public function estudante_denunciado()
   {
-    return $this->hasOne(Estudante::class, 'id');
+    return $this->hasOne(Estudante::class, 'id', 'estudante_id_denunciado');
   }
 
   // Foreign Key para entidade de Publicacao
@@ -67,7 +67,7 @@ class Denuncia extends UniversityMarketModel {
   protected $tipo_denuncia_id;
   public function tipo_denuncia()
   {
-    return $this->hasOne(TipoDenuncia::class, 'id');
+    return $this->hasOne(TipoDenuncia::class, 'id', 'tipo_denuncia_id');
   }
 
 }

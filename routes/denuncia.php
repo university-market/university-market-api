@@ -19,6 +19,9 @@ $namespace = 'Denuncia';
 
 $router->group(['prefix' => $base, 'namespace' => $namespace], function () use ($router) {
 
+    // Listar denuncias
+    $router->get('listar', 'DenunciaController@listarDenunciasRealizadas');
+
     // Listar tipos de denúncias
     $router->get('tipos', 'DenunciaController@listarTiposDenuncias');
 
