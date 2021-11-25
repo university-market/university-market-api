@@ -12,6 +12,7 @@ use App\Base\Logs\Logger\UniversityMarketLogger;
 use App\Base\Logs\Type\StdLogChange;
 use App\Base\Logs\Type\StdLogType;
 use App\Base\Resource\UniversityMarketResource;
+
 // Helpers
 use App\Helpers\Aws\S3\S3Helper;
 
@@ -23,20 +24,16 @@ use App\Models\Curso\Curso;
 use App\Models\Publicacao\Publicacao;
 use App\Models\Publicacao\Denuncia;
 use App\Models\Publicacao\Publicacao_Tag;
+use App\Models\Publicacao\Movimentacao;
+use App\Models\Publicacao\Tag;
+use App\Models\Estudante\Contato;
+use App\Models\Estudante\Endereco;
+use App\Models\Estudante\Estudante;
 
 // Models de publicacao utilizadas
 use App\Http\Controllers\Publicacao\Models\PublicacaoCriacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoCriaMovimentacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
-use App\Http\Controllers\Publicacao\Models\PublicacaoDenunciaModel;
-use App\Http\Controllers\Publicacao\Models\PublicacaoMovimentacaoModel;
-use App\Http\Controllers\Publicacao\Models\PublicacaoTipoDenunciaModel;
-use App\Models\Estudante\Contato;
-use App\Models\Estudante\Endereco;
-use App\Models\Estudante\Estudante;
-use App\Models\Publicacao\Movimentacao;
-use App\Models\Publicacao\Tag;
-use App\Models\Publicacao\TipoDenuncia;
 
 class PublicacaoController extends UniversityMarketController
 {
@@ -511,82 +508,6 @@ class PublicacaoController extends UniversityMarketController
         }
 
         return null;
-    }
-
-    private function publicacaoExcluida($publicacao_id)
-    {
-
-        $publicacao = publicacao::where('id', $publicacao_id)
-            ->where('deleted', 1)
-            ->first();
-
-        if (is_null($publicacao))
-            return false;
-
-        return $publicacao;
-    }
-
-    public function denunciar(Request $request)
-    {
-
-
-        $session = $this->getSession();
-
-        if (!$session)
-            return $this->unauthorized();
-
-        $model = $this->cast($request, PublicacaoDenunciaModel::class);
-
-        $existente = $this->publicacaoExcluida($model->publicacao_id);
-
-        if ($existente) {
-            throw new \Exception("Publicação excluida");
-        }
-
-        $denuncia = new Denuncia();
-
-        $denuncia->descricao = $model->motivo;
-        $denuncia->estudante_id_autor = $session->estudante_id;
-        $denuncia->estudante_id_denunciado = $model->estudante_id_denunciado;
-        $denuncia->publicacao_id = $model->publicacao_id;
-        $denuncia->tipo_denuncia_id = $model->tipo_denuncia_id;
-
-        $denuncia->save();
-
-        // Persistir log de criacao de edição da publicacao
-        UniversityMarketLogger::log(
-            UniversityMarketResource::$publicacao,
-            $denuncia->id,
-            StdLogType::$criacao,
-            "Publicação Denunciada",
-            $session->estudante_id,
-            null
-        );
-    }
-
-    public function obterTiposDenuncias()
-    {
-
-        $session = $this->getSession();
-
-        if (!$session)
-            return $this->unauthorized();
-
-        $denuncias = TipoDenuncia::get();
-
-        $list = [];
-
-        foreach ($denuncias as $denucia) {
-            
-            $model = new PublicacaoTipoDenunciaModel();
-
-            $model->id = $denucia->id;
-            $model->descricao = $denucia->descricao;
-
-            $list[] = $model;
-        }
-
-        return $this->response($list);
     }
 
     public function pesquisarPublicacoes(Request $request){
