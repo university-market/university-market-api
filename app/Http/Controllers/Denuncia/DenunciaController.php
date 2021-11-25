@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Estudante;
+namespace App\Http\Controllers\Denuncia;
 
 use Illuminate\Http\Request;
 
@@ -19,6 +19,7 @@ use App\Models\Publicacao\Publicacao;
 
 // Models de denúncia utilizadas
 use App\Http\Controllers\Denuncia\Models\TipoDenunciaPublicacaoModel;
+use App\Http\Controllers\Denuncia\Models\PublicacaoDenunciaModel;
 
 class DenunciaController extends UniversityMarketController {
 

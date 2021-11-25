@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Publicacao\Models;
+namespace App\Http\Controllers\Denuncia\Models;
 
 use App\Base\Exceptions\UniversityMarketException;
 
