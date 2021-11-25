@@ -53,4 +53,9 @@ abstract class UniversityMarketResource {
      * @property $contato Recurso do sistema do tipo Movimentação
      */
     public static $contato = 10;
+
+    /*
+     * @property $denuncia Recurso do sistema do tipo Denuncia
+     */
+    public static $denuncia = 11;
 }
