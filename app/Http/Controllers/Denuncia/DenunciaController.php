@@ -79,10 +79,10 @@ class DenunciaController extends UniversityMarketController {
      */
     public function listarTiposDenuncias() {
 
-        $session = $this->getSession();
+        // $session = $this->getSession();
 
-        if (!$session)
-            return $this->unauthorized();
+        // if (!$session)
+        //     return $this->unauthorized();
 
         $denuncias = TipoDenuncia::get();
 
