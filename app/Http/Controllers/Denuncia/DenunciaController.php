@@ -130,11 +130,11 @@ class DenunciaController extends UniversityMarketController {
         foreach ($denuncias as $denuncia) {
 
             // Validações - filtragem por situacao
-            // if (!is_null($request_model->situacao)) {
+            if (!is_null($request_model->situacao) && $request_model->situacao != "null") {
 
-            //     if ($denuncia->situacao_denuncia_id != $request_model->situacao)
-            //         continue;
-            // }
+                if ($denuncia->situacao_denuncia_id != $request_model->situacao)
+                    continue;
+            }
 
             // Validações - filtragem por tipos
             if (!is_null($request_model->tipos) && !empty($request_model->tipos)) {
