@@ -10,6 +10,8 @@ use App\Base\Exceptions\UniversityMarketException;
 use App\Models\Denuncia\TipoDenuncia;
 use App\Models\Publicacao\Publicacao;
 use App\Models\Estudante\Estudante;
+use App\Models\Denuncia\SituacaoDenuncia;
+use App\Models\Denuncia\ResultadoDenuncia;
 
 class Denuncia extends UniversityMarketModel {
   
@@ -32,7 +34,6 @@ class Denuncia extends UniversityMarketModel {
   
   // Properties
   protected $descricao;
-  protected $apurada;
   
   // Timestamps da entidade
   private $update_at;
@@ -70,4 +71,17 @@ class Denuncia extends UniversityMarketModel {
     return $this->hasOne(TipoDenuncia::class, 'id', 'tipo_denuncia_id');
   }
 
+  // Foreign Key para entidade de Situacao_Denuncia
+  protected $situacao_denuncia_id;
+  public function situacao_denuncia()
+  {
+    return $this->hasOne(SituacaoDenuncia::class, 'id', 'situacao_denuncia_id');
+  }
+
+  // Foreign Key para entidade de Resultado_Denuncia
+  protected $resultado_denuncia_id;
+  public function resultado_denuncia()
+  {
+    return $this->hasOne(ResultadoDenuncia::class, 'id', 'resultado_denuncia_id');
+  }
 }
