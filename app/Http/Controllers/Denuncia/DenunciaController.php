@@ -120,6 +120,7 @@ class DenunciaController extends UniversityMarketController {
         $request_model = $this->cast($request, RequestListagemDenunciasModel::class);
 
         $denuncias = Denuncia::with('estudante_autor', 'estudante_denunciado')
+            ->orderBy('created_at', 'DESC')
             ->get();
 
         // dd($denuncias);
