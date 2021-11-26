@@ -234,6 +234,7 @@ class PublicacaoController extends UniversityMarketController
             throw new UniversityMarketException("Estudante não encontrado");
 
         $publicacoes = Publicacao::where('deleted', false)
+            ->where('estudante_id','!=', $session->estudante_id)
             ->where('data_hora_finalizacao', null)->get();
 
         $list = [];
@@ -271,6 +272,7 @@ class PublicacaoController extends UniversityMarketController
             throw new UniversityMarketException("Estudante não encontrado");
 
         $publicacoes = Publicacao::where('deleted', false)
+            ->where('estudante_id','!=', $session->estudante_id)
             ->where('curso_id', $estudante->curso_id)
             ->where('data_hora_finalizacao', null)
             ->get();
@@ -523,6 +525,7 @@ class PublicacaoController extends UniversityMarketController
             throw new UniversityMarketException("Estudante não encontrado");
         
         $publicacoes = Publicacao::where('deleted', false)
+                                ->where('estudante_id','!=', $session->estudante_id)
                                 ->where('titulo', 'like', '%'.$request->pesquisa.'%')
                                 ->orWhere('descricao', 'like', '%'.$request->pesquisa.'%')
                                 ->where('data_hora_finalizacao', null)
@@ -565,6 +568,7 @@ class PublicacaoController extends UniversityMarketController
         $publicacoes = Publicacao::where('deleted', false)
                                 ->where('curso_id', $cursoId)
                                 ->where('data_hora_finalizacao', null)
+                                ->where('estudante_id','!=', $session->estudante_id)
                                 ->where('deleted', false)
                                 ->where('deleted',false)
                                 ->get();
