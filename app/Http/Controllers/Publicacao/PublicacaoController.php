@@ -38,13 +38,21 @@ use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
 class PublicacaoController extends UniversityMarketController
 {
 
-    public function obter($publicacaoId)
-    {
+    /**
+     * Obter detalhes de uma Publicacao
+     * 
+     * @method obter
+     * @param int $publicacaoId Id da publicacao a ser obtida
+     * 
+     * @type Http GET
+     * @route `/{publicacaoId}`
+     */
+    public function obter($publicacaoId) {
 
-        $session = $this->getSession();
+        // $session = $this->getSession();
 
-        if (!$session)
-            return $this->unauthorized();
+        // if (!$session)
+        //     return $this->unauthorized();
 
         $publicacao = Publicacao::find($publicacaoId);
 
@@ -84,8 +92,7 @@ class PublicacaoController extends UniversityMarketController
         return $this->response($model);
     }
 
-    public function obterByUser($estudanteId)
-    {
+    public function obterByUser($estudanteId) {
 
         $session = $this->getSession();
 
