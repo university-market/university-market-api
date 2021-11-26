@@ -129,9 +129,12 @@ class DenunciaController extends UniversityMarketController {
 
         foreach ($denuncias as $denuncia) {
 
-            // Validações - filtragem por pendentes
-            if ($request_model->somentePendentes && $denuncia->apurada)
-                continue;
+            // Validações - filtragem por situacao
+            // if (!is_null($request_model->situacao)) {
+
+            //     if ($denuncia->situacao_denuncia_id != $request_model->situacao)
+            //         continue;
+            // }
 
             // Validações - filtragem por tipos
             if (!is_null($request_model->tipos) && !empty($request_model->tipos)) {
@@ -147,11 +150,15 @@ class DenunciaController extends UniversityMarketController {
 
             $model->denunciaId = $denuncia->id;
             $model->descricao = $denuncia->descricao;
-            $model->apurada = $denuncia->apurada;
-            $model->dataHoraCriacao = $denuncia->created_at;
-            $model->dataHoraUltimaRevisao = $denuncia->updated_at;
             $model->tipoDenuncia = $denuncia->tipo_denuncia->descricao;
             $model->publicacaoId = $denuncia->publicacao_id;
+            // Datas importantes
+            $model->dataHoraCriacao = $denuncia->created_at;
+            $model->dataHoraUltimaRevisao = $denuncia->updated_at;
+            // Resultado e situacao
+            $model->situacaoId = $denuncia->situacao_denuncia_id;
+            $model->situacao = $denuncia->situacao_denuncia->situacao;
+            $model->resultado = $denuncia->resultado_denuncia->resultado ?? null;
             // Autor
             $model->estudanteAutor = $denuncia->estudante_autor->nome;
             $model->estudanteAutorId = $denuncia->estudante_id_autor;

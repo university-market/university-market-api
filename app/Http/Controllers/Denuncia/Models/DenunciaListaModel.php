@@ -7,7 +7,10 @@ class DenunciaListaModel {
     public $denunciaId;
     
     public $descricao;
-    public $apurada;
+
+    public $situacao;
+    public $situacaoId;
+    public $resultado;
 
     public $tipoDenuncia;
     public $publicacaoId;
