@@ -61,5 +61,13 @@ $router->group(['prefix' => $base, 'namespace' => $namespace], function () use (
      // Buscar por curso
      $router->get('buscar/curso/publicacoes/{cursoId}', 'PublicacaoController@pesquisarPublicacoesByCursos');
 
-    
+     // Favoritar Publicacao
+     $router->post('favoritar/publicacao', 'PublicacaoController@favoritarPublicacao');
+
+     // Obter Publicações favoritas por id de estudante
+    $router->get('/estudante/favoritas/{estudanteId}', 'PublicacaoController@obterFavoritasByUser');
+
+    // Excluir publicacao
+    $router->delete('/excluir/favorita/{publicacaoId}', 'PublicacaoController@excluirFavorita');
+
 });

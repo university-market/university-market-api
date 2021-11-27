@@ -34,6 +34,7 @@ use App\Models\Estudante\Estudante;
 use App\Http\Controllers\Publicacao\Models\PublicacaoCriacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoCriaMovimentacaoModel;
 use App\Http\Controllers\Publicacao\Models\PublicacaoDetalheModel;
+use App\Models\Publicacao\Publicacao_Favorita;
 
 class PublicacaoController extends UniversityMarketController
 {
@@ -55,7 +56,7 @@ class PublicacaoController extends UniversityMarketController
         if (is_null($publicacao) || $publicacao->deleted)
             throw new UniversityMarketException("Publicação não encontrada");
 
-        if (!is_null($publicacao->data_hora_finalizacao))
+        if (!is_null($publicacao->data_hora_finalizacao) && $publicacao->estudante_id != $session->estudante_id )
             throw new UniversityMarketException("Publicação acabou de ser vendida");
 
         $model = new PublicacaoDetalheModel();
@@ -430,6 +431,9 @@ class PublicacaoController extends UniversityMarketController
         if (\is_null($publicacao) || $publicacao->deleted)
             throw new UniversityMarketException("Publicação não encontrada");
 
+        if (\is_null($publicacao->estudante_id) != $session->estudante_id)
+            throw new UniversityMarketException("você não pode excluir esta publicação");
+
         $publicacao->deleted = true;
 
         $publicacao->save();
@@ -592,5 +596,105 @@ class PublicacaoController extends UniversityMarketController
         }
 
         return $this->response($list);
+    }
+
+    public function favoritarPublicacao(Request $request){
+
+        $session = $this->getSession();
+
+        if (!$session)
+            return $this->unauthorized();
+
+        $estudante = Estudante::find($session->estudante_id);
+
+        if (is_null($estudante))
+            throw new UniversityMarketException("Estudante não encontrado");
+
+        $model = $this->cast($request, PublicacaoCriaMovimentacaoModel::class);
+
+        $publicacao = Publicacao::where('estudante_id',$session->estudante_id)
+                                ->where('id',$model->publicacaoId)
+                                ->get()
+                                ->toArray();
+        if($publicacao)
+            throw new UniversityMarketException("Você não pode favoritar uma publicação sua.");
+        
+        $favoritada =  Publicacao_Favorita::where('publicacao_id',$model->publicacaoId)
+                                        ->where('estudante_id',$session->estudante_id)
+                                        ->get()
+                                        ->toArray();
+
+        if($favoritada)
+            throw new UniversityMarketException("Publicação já favoritada.");
+
+        $favorita = new Publicacao_Favorita();
+
+        $favorita->publicacao_id = $model->publicacaoId;
+        $favorita->estudante_id = $session->estudante_id;
+
+        $favorita->save();
+    }
+
+    public function obterFavoritasByUser($estudanteId){
+
+        $session = $this->getSession();
+
+        if (!$session)
+            return $this->unauthorized();
+
+        $estudante = Estudante::find($session->estudante_id);
+
+        if (is_null($estudante))
+            throw new UniversityMarketException("Estudante não encontrado");
+
+        $publicacoes = Publicacao::where('deleted', false)
+                                 ->join('publicacaoes_favoritas','publicacao_id','=','id')
+                                 ->where('publicacaoes_favoritas.estudante_id',$estudanteId)
+                                 ->where('data_hora_finalizacao',null)
+                                 ->get();
+
+        $list = [];
+
+        foreach ($publicacoes as $publicacao) {
+
+            $model = new PublicacaoDetalheModel();
+
+            $model->publicacaoId = $publicacao->id;
+            $model->titulo = $publicacao->titulo;
+            $model->descricao = $publicacao->descricao;
+            $model->valor = $publicacao->valor;
+            $model->especificacoesTecnicas = $publicacao->especificacao_tecnica;
+            $model->pathImagem = $publicacao->caminho_imagem;
+            $model->dataHoraCriacao = $publicacao->created_at;
+
+            if ($publicacao->data_hora_finalizacao) {
+                $model->vendida = true;
+            } else {
+                $model->vendida = false;
+            }
+
+            $list[] = $model;
+        }
+
+        return $this->response($list);
+    }
+
+    public function excluirFavorita($publicacaoId){
+
+        $session = $this->getSession();
+
+        if (!$session)
+            return $this->unauthorized();
+
+        $estudante = Estudante::find($session->estudante_id);
+
+        if (is_null($estudante))
+            throw new UniversityMarketException("Estudante não encontrado");
+
+        $favorita =  Publicacao_Favorita::where('publicacao_id',$publicacaoId)
+                                          ->where('estudante_id',$session->estudante_id)
+                                          ->delete();
+
+        // $favorita->save();
     }
 }
