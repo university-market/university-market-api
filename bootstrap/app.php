@@ -151,6 +151,7 @@ $app->router->group([
     require __DIR__.'/../routes/publicacao.php';
     require __DIR__.'/../routes/usuario.php';
     require __DIR__.'/../routes/denuncia.php';
+    require __DIR__.'/../routes/charts.php';
 });
 
 
