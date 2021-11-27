@@ -12,6 +12,9 @@ use App\Base\Logs\Type\StdLogChange;
 use App\Base\Logs\Type\StdLogType;
 use App\Base\Resource\UniversityMarketResource;
 
+// Entidades
+use App\Models\Denuncia\Denuncia;
+
 class DenunciaChartsController extends UniversityMarketController {
 
     /**
@@ -25,8 +28,9 @@ class DenunciaChartsController extends UniversityMarketController {
      */
     public function quantificar(Request $request) {
 
-        // $denuncias = Denuncia
-        return $this->response(true);
+        $denuncias = Denuncia::get();
+        
+        return $this->response($denuncias);
     }
 
 }
