@@ -52,8 +52,8 @@ class PublicacaoController extends UniversityMarketController
 
         $session = $this->getSession();
 
-        if (!$session)
-            return $this->unauthorized();
+        // if (!$session)
+        //     return $this->unauthorized();
 
         $publicacao = Publicacao::find($publicacaoId);
 
