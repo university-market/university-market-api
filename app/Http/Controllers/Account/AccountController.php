@@ -90,6 +90,7 @@ class AccountController extends UniversityMarketController
 			$model->nome = $session->estudante->nome ?? null;
 			$model->email = $session->estudante->email ?? null;
 			$model->estudanteId = $session->estudante_id;
+			$model->cursoNome = $session->estudante->curso->nome ?? null;
 
 			return $this->response($model);
 		}
