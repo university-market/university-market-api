@@ -82,7 +82,7 @@ class PublicacaoController extends UniversityMarketController
         $model->cep = $endereco->cep ?? null;
         
         $favorita = Publicacao_Favorita::where('publicacao_id', $publicacao->id)
-            ->where('estudante_id', $session->estudante_id)
+            ->where('estudante_id', $session->estudante_id ?? null)
             ->first();
         
         $model->favorita = !is_null($favorita);
