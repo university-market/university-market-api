@@ -2,10 +2,12 @@
 
 namespace App\Models\Publicacao;
 
-use \Illuminate\Database\Eloquent\Model;
+use App\Base\Models\UniversityMarketModel;
+
+use App\Models\Publicacao\Publicacao;
 
 
-class Publicacao_Favorita extends Model {
+class Publicacao_Favorita extends UniversityMarketModel {
     
     // Nao registrar data/hora criacao/alteracao
     public $timestamps = false;
@@ -24,5 +26,11 @@ class Publicacao_Favorita extends Model {
 
     protected $publicacao_id; // FK Publicacoes
     protected $estudante_id; // FK Estudantes
+
+    // Foreign Key para entidade de Publicacao
+    public function publicacao()
+    {
+        return $this->hasOne(Publicacao::class, 'publicacao_id', 'id');
+    }
 
 }

@@ -80,8 +80,12 @@ class PublicacaoController extends UniversityMarketController
         $model->municipio = $endereco->municipio ?? null;
         $model->bairro = $endereco->bairro ?? null;
         $model->cep = $endereco->cep ?? null;
-
-
+        
+        $favorita = Publicacao_Favorita::where('publicacao_id', $publicacao->id)
+            ->where('estudante_id', $session->estudante_id)
+            ->first();
+        
+        $model->favorita = !is_null($favorita);
 
         // Query e map de tags da publicacao
         $tags = array_map(function ($item) {

@@ -17,4 +17,5 @@ class PublicacaoDetalheModel {
     public $bairro;
     public $municipio;
     public $cep;
+    public $favorita;
 }
