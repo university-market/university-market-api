@@ -439,11 +439,11 @@ class PublicacaoController extends UniversityMarketController
 
         $publicacao = Publicacao::find($publicacaoId);
 
-        if (\is_null($publicacao) || $publicacao->deleted)
+        if (is_null($publicacao) || $publicacao->deleted)
             throw new UniversityMarketException("Publicação não encontrada");
 
-        if (\is_null($publicacao->estudante_id) != $session->estudante_id)
-            throw new UniversityMarketException("você não pode excluir esta publicação");
+        if ($publicacao->estudante_id != $session->estudante_id)
+            throw new UniversityMarketException("Você não pode excluir esta publicação");
 
         $publicacao->deleted = true;
 
