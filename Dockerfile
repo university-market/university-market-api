@@ -1,4 +1,5 @@
 FROM php:8.0-apache
+
 RUN apt update
 RUN apt install wget unzip
 RUN wget -O composer-setup.php https://getcomposer.org/installer
@@ -8,5 +9,8 @@ RUN docker-php-ext-install pdo pdo_mysql
 
 COPY . /var/www
 WORKDIR /var/www
+
+# Install Composer into project
+RUN composer install
 
 ENTRYPOINT ["php", "-S", "0.0.0.0:8080", "-t", "public"]
