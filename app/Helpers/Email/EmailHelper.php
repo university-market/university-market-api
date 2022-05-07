@@ -16,7 +16,7 @@ abstract class EmailHelper {
      * @param string $template Identificador do template de e-mail a ser enviado pela API
      * @return object The request body response
      */
-    public static function send($session, array $data, string $template) {
+    public static function send(object $session, array $data, string $template, $mail) {
 
         // Prepare the request, adding headers, validation token and others
         $req = self::prepare($session);
@@ -41,7 +41,7 @@ abstract class EmailHelper {
      * @param string $requestType The request type (POST default)
      * @return object The request body response
      */
-    private static function doRequest($req, array $data, string $template, string $requestType = 'POST') {
+    private static function doRequest($req, object $data, string $template, string $requestType = 'POST') {
 
         $api_route = env('EMAIL_SERVICE_API_URL');
         $api_route.= "/$template";

@@ -143,70 +143,36 @@ class AccountController extends UniversityMarketController
 		if (is_null($solicitante) || !$solicitante->ativo)
 			throw new UniversityMarketException("Não foi possível processar sua solicitação. E-mail inválido");
 
-		
 		$activatedSession = $this->auth_repository->getActivatedSession($solicitante->id, $origem_solicitacao);
 
 		// Validar existencia de session do solicitante
 		if (!is_null($activatedSession)) {
-
 			// Realizar logout do solicitante
 			$this->auth_repository->destroySession($activatedSession->id);
-			// throw new UniversityMarketException("Existe uma sessão ativa neste endereço de e-mail");
 		}
 
-		$solicitante_field = 'estudante_id';
-
-		if ($origem_solicitacao == SESSION_TYPE_ADMIN)
-			$solicitante_field = 'usuario_id';
-
-		$solicitacaoExistente = RecuperacaoSenha::where($solicitante_field, $solicitante->id)
-			->where('completa', false)
-			->where('expirada', false)
-			->first();
-
-		if (!is_null($solicitacaoExistente)) {
-
-			if ($solicitacaoExistente->expiration_at < time()) {
-
-				$solicitacaoExistente->expirada = true;
-				$solicitacaoExistente->save();
-			} else {
-
-				$model = new RecuperacaoSenhaModel();
-
-				$expirationTimeInMinutes = ($solicitacaoExistente->expiration_at - time()) / 60;
-
-				$model->expirationTime = intval(ceil($expirationTimeInMinutes)); // In minutes
-				$model->existente = true;
-
-				return $this->response($model);
-			}
-		}
+		$expirationTime = $this->recuperacao_senha_const['token_expiration_time'];
 
 		$token = TokenHelper::generatePasswordResetToken();
 
-		$expirationTime = $this->recuperacao_senha_const['token_expiration_time'];
-		$solicitacaoDate = $this->now();
-
-		$primeiroNome = explode(' ', $solicitante->nome)[0];
-
 		$payload = [
 			'email' => $email,
-			'estudanteNome' => $primeiroNome,
+			'estudanteNome' => $solicitante->nome,
 			'token' => $token,
 			'expirationTime' => $expirationTime,
-			'requestDate' => $solicitacaoDate
+			'requestDate' => $this->now()
 		];
 
-		// Enviar e-mail
-		EmailHelper::send(null, $payload, EmailTemplate::$recuperarSenha);
+		// Colocar e-mail na fila para enviar
+		// EmailHelper::send($this->getSession(), $payload, EmailTemplate::$recuperarSenha, $email);
 
 		// Persistir solicitação de recuperação de senha
 		$recuperacao = new RecuperacaoSenha();
 
-		$recuperacao->token = $token;
 		$recuperacao->email = $email;
+
 		$recuperacao->completa = false;
+		$recuperacao->token = $token;
 		$recuperacao->expirada = false;
 		$recuperacao->expiration_at = time() + $expirationTime * 60; // In seconds
 		$recuperacao->estudante_id = $origem_solicitacao == SESSION_TYPE_ESTUDANTE ? $solicitante->id : null;
